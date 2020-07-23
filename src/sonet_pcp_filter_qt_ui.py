@@ -361,12 +361,12 @@ class Ui_sonet_pcp_filter(object):
 
         self.gridLayout.addItem(self.verticalSpacer_6, 9, 0, 1, 1)
 
-        self.buttonBox = QDialogButtonBox(sonet_pcp_filter)
-        self.buttonBox.setObjectName(u"buttonBox")
-        self.buttonBox.setEnabled(True)
-        self.buttonBox.setStandardButtons(QDialogButtonBox.Cancel|QDialogButtonBox.Ok)
+        self.dialog_button_box = QDialogButtonBox(sonet_pcp_filter)
+        self.dialog_button_box.setObjectName(u"dialog_button_box")
+        self.dialog_button_box.setEnabled(True)
+        self.dialog_button_box.setStandardButtons(QDialogButtonBox.Cancel|QDialogButtonBox.Ok)
 
-        self.gridLayout.addWidget(self.buttonBox, 17, 1, 1, 1)
+        self.gridLayout.addWidget(self.dialog_button_box, 17, 1, 1, 1)
 
 
         self.retranslateUi(sonet_pcp_filter)
