@@ -10,6 +10,7 @@
 
 from PySide2.QtCore import (QCoreApplication, QMetaObject,
                             Qt)
+from PySide2.QtGui import (QCursor)
 from PySide2.QtWidgets import *
 
 
@@ -364,6 +365,7 @@ class Ui_sonet_pcp_filter(object):
         self.dialog_button_box = QDialogButtonBox(sonet_pcp_filter)
         self.dialog_button_box.setObjectName(u"dialog_button_box")
         self.dialog_button_box.setEnabled(True)
+        self.dialog_button_box.setCursor(QCursor(Qt.PointingHandCursor))
         self.dialog_button_box.setStandardButtons(QDialogButtonBox.Cancel|QDialogButtonBox.Ok)
 
         self.gridLayout.addWidget(self.dialog_button_box, 17, 1, 1, 1)
@@ -376,7 +378,7 @@ class Ui_sonet_pcp_filter(object):
     # setupUi
 
     def retranslateUi(self, sonet_pcp_filter):
-        sonet_pcp_filter.setWindowTitle(QCoreApplication.translate("sonet_pcp_filter", u"combo1", None))
+        sonet_pcp_filter.setWindowTitle(QCoreApplication.translate("sonet_pcp_filter", u"Apply filter to PCP table", None))
         self.pb_clean.setText(QCoreApplication.translate("sonet_pcp_filter", u"Reset", None))
         self.pb_add_6.setText(QCoreApplication.translate("sonet_pcp_filter", u"Add", None))
         self.bottom_group_box.setTitle(QCoreApplication.translate("sonet_pcp_filter", u"Applied filters", None))

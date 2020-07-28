@@ -1,12 +1,12 @@
 import sys
 
-from PySide2.QtCore import QCoreApplication, Qt
 from PySide2.QtWidgets import QApplication, QMainWindow
 
 from src import main_window_ui
 from src.sonet_pcp_filter_qt import sonet_pcp_filter_qt  # From module X import class Y.
 
-QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)  # To avoid AA_ShareOpenGLContexts warning in QtCreator.
+
+#QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)  # To avoid AA_ShareOpenGLContexts warning in QtCreator.
 
 
 ###
@@ -14,6 +14,8 @@ class MainWindow(QMainWindow, main_window_ui.Ui_main_window):
     def __init__(self, *args, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
         self.setupUi(self)
+
+        self.menubar.setNativeMenuBar(False)
 
         # Connect signals and slots
         self.sonet_pcp_filter_pb_qt.clicked.connect(self.open_sonet_pcp_filter_qt)
@@ -33,3 +35,8 @@ if __name__ == "__main__":
     main_window.show()
 
     sys.exit(app.exec_())
+
+# TODO: Implement model Pandas-Qt.
+# TODO: Create spacecraft object.
+# TODO: Connect spacecraft PCP table with the Pandas-Qt model-view.
+#

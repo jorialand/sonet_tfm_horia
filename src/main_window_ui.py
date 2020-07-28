@@ -18,6 +18,11 @@ class Ui_main_window(object):
         if not main_window.objectName():
             main_window.setObjectName(u"main_window")
         main_window.resize(800, 600)
+        main_window.setUnifiedTitleAndToolBarOnMac(True)
+        self.exit = QAction(main_window)
+        self.exit.setObjectName(u"exit")
+        self.open_pcp_filter = QAction(main_window)
+        self.open_pcp_filter.setObjectName(u"open_pcp_filter")
         self.centralwidget = QWidget(main_window)
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayout = QVBoxLayout(self.centralwidget)
@@ -28,13 +33,34 @@ class Ui_main_window(object):
         self.verticalLayout.addWidget(self.sonet_pcp_filter_pb_qt)
 
         main_window.setCentralWidget(self.centralwidget)
-        self.menubar = QMenuBar(main_window)
-        self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 800, 22))
-        main_window.setMenuBar(self.menubar)
         self.statusbar = QStatusBar(main_window)
         self.statusbar.setObjectName(u"statusbar")
         main_window.setStatusBar(self.statusbar)
+        self.menubar = QMenuBar(main_window)
+        self.menubar.setObjectName(u"menubar")
+        self.menubar.setGeometry(QRect(0, 0, 800, 22))
+        self.file = QMenu(self.menubar)
+        self.file.setObjectName(u"file")
+        self.menuEdit = QMenu(self.menubar)
+        self.menuEdit.setObjectName(u"menuEdit")
+        self.menugwg = QMenu(self.menubar)
+        self.menugwg.setObjectName(u"menugwg")
+        self.menusadasd = QMenu(self.menubar)
+        self.menusadasd.setObjectName(u"menusadasd")
+        self.menudsd = QMenu(self.menubar)
+        self.menudsd.setObjectName(u"menudsd")
+        self.menuds = QMenu(self.menubar)
+        self.menuds.setObjectName(u"menuds")
+        main_window.setMenuBar(self.menubar)
+
+        self.menubar.addAction(self.file.menuAction())
+        self.menubar.addAction(self.menuEdit.menuAction())
+        self.menubar.addAction(self.menugwg.menuAction())
+        self.menubar.addAction(self.menusadasd.menuAction())
+        self.menubar.addAction(self.menudsd.menuAction())
+        self.menubar.addAction(self.menuds.menuAction())
+        self.file.addAction(self.exit)
+        self.file.addSeparator()
 
         self.retranslateUi(main_window)
 
@@ -42,7 +68,15 @@ class Ui_main_window(object):
     # setupUi
 
     def retranslateUi(self, main_window):
-        main_window.setWindowTitle(QCoreApplication.translate("main_window", u"main_window", None))
-        self.sonet_pcp_filter_pb_qt.setText(QCoreApplication.translate("main_window", u"sonet_pcp_filter_pb_qt", None))
+        main_window.setWindowTitle(QCoreApplication.translate("main_window", u"SONET Mars Mission Timeline", None))
+        self.exit.setText(QCoreApplication.translate("main_window", u"&Exit", None))
+        self.open_pcp_filter.setText(QCoreApplication.translate("main_window", u"Apply filter to PCP table", None))
+        self.sonet_pcp_filter_pb_qt.setText(QCoreApplication.translate("main_window", u"Apply filter to PCP table", None))
+        self.file.setTitle(QCoreApplication.translate("main_window", u"&File", None))
+        self.menuEdit.setTitle(QCoreApplication.translate("main_window", u"Edit", None))
+        self.menugwg.setTitle(QCoreApplication.translate("main_window", u"gwg+", None))
+        self.menusadasd.setTitle(QCoreApplication.translate("main_window", u"sadasd", None))
+        self.menudsd.setTitle(QCoreApplication.translate("main_window", u"dsd", None))
+        self.menuds.setTitle(QCoreApplication.translate("main_window", u"ds\u00e7", None))
     # retranslateUi
 

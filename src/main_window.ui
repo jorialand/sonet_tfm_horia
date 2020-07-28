@@ -11,19 +11,23 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>main_window</string>
+   <string>SONET Mars Mission Timeline</string>
+  </property>
+  <property name="unifiedTitleAndToolBarOnMac">
+   <bool>true</bool>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <widget class="QPushButton" name="sonet_pcp_filter_pb_qt">
       <property name="text">
-       <string>sonet_pcp_filter_pb_qt</string>
+       <string>Apply filter to PCP table</string>
       </property>
      </widget>
     </item>
    </layout>
   </widget>
+  <widget class="QStatusBar" name="statusbar"/>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
@@ -33,8 +37,55 @@
      <height>22</height>
     </rect>
    </property>
+   <widget class="QMenu" name="file">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="exit"/>
+    <addaction name="separator"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menugwg">
+    <property name="title">
+     <string>gwg+</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menusadasd">
+    <property name="title">
+     <string>sadasd</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menudsd">
+    <property name="title">
+     <string>dsd</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuds">
+    <property name="title">
+     <string>dsç</string>
+    </property>
+   </widget>
+   <addaction name="file"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menugwg"/>
+   <addaction name="menusadasd"/>
+   <addaction name="menudsd"/>
+   <addaction name="menuds"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
+  <action name="exit">
+   <property name="text">
+    <string>&amp;Exit</string>
+   </property>
+  </action>
+  <action name="open_pcp_filter">
+   <property name="text">
+    <string>Apply filter to PCP table</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>
