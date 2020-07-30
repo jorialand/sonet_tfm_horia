@@ -27,10 +27,25 @@ class Ui_main_window(object):
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayout = QVBoxLayout(self.centralwidget)
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.sonet_pcp_filter_pb_qt = QPushButton(self.centralwidget)
+        self.groupBox = QGroupBox(self.centralwidget)
+        self.groupBox.setObjectName(u"groupBox")
+        self.verticalLayout_2 = QVBoxLayout(self.groupBox)
+        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.pcp_table = QTableView(self.groupBox)
+        self.pcp_table.setObjectName(u"pcp_table")
+        self.pcp_table.setFrameShadow(QFrame.Sunken)
+        self.pcp_table.setLineWidth(1)
+        self.pcp_table.setMidLineWidth(1)
+
+        self.verticalLayout_2.addWidget(self.pcp_table)
+
+        self.sonet_pcp_filter_pb_qt = QPushButton(self.groupBox)
         self.sonet_pcp_filter_pb_qt.setObjectName(u"sonet_pcp_filter_pb_qt")
 
-        self.verticalLayout.addWidget(self.sonet_pcp_filter_pb_qt)
+        self.verticalLayout_2.addWidget(self.sonet_pcp_filter_pb_qt)
+
+
+        self.verticalLayout.addWidget(self.groupBox)
 
         main_window.setCentralWidget(self.centralwidget)
         self.statusbar = QStatusBar(main_window)
@@ -71,7 +86,8 @@ class Ui_main_window(object):
         main_window.setWindowTitle(QCoreApplication.translate("main_window", u"SONET Mars Mission Timeline", None))
         self.exit.setText(QCoreApplication.translate("main_window", u"&Exit", None))
         self.open_pcp_filter.setText(QCoreApplication.translate("main_window", u"Apply filter to PCP table", None))
-        self.sonet_pcp_filter_pb_qt.setText(QCoreApplication.translate("main_window", u"Apply filter to PCP table", None))
+        self.groupBox.setTitle(QCoreApplication.translate("main_window", u"PCP table", None))
+        self.sonet_pcp_filter_pb_qt.setText(QCoreApplication.translate("main_window", u"Apply filter", None))
         self.file.setTitle(QCoreApplication.translate("main_window", u"&File", None))
         self.menuEdit.setTitle(QCoreApplication.translate("main_window", u"Edit", None))
         self.menugwg.setTitle(QCoreApplication.translate("main_window", u"gwg+", None))

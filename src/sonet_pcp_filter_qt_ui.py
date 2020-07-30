@@ -84,14 +84,14 @@ class Ui_sonet_pcp_filter(object):
         self.top_grid_layout.setObjectName(u"top_grid_layout")
         self.top_left_group_box = QGroupBox(sonet_pcp_filter)
         self.top_left_group_box.setObjectName(u"top_left_group_box")
-        self.top_left_group_box.setEnabled(False)
+        self.top_left_group_box.setEnabled(True)
         self.gridLayout_2 = QGridLayout(self.top_left_group_box)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.verticalLayout_11 = QVBoxLayout()
         self.verticalLayout_11.setObjectName(u"verticalLayout_11")
         self.cb_time_of_flight_2 = QCheckBox(self.top_left_group_box)
         self.cb_time_of_flight_2.setObjectName(u"cb_time_of_flight_2")
-        self.cb_time_of_flight_2.setEnabled(False)
+        self.cb_time_of_flight_2.setEnabled(True)
 
         self.verticalLayout_11.addWidget(self.cb_time_of_flight_2)
 
@@ -99,7 +99,7 @@ class Ui_sonet_pcp_filter(object):
         self.combo_dept_arriv.addItem("")
         self.combo_dept_arriv.addItem("")
         self.combo_dept_arriv.setObjectName(u"combo_dept_arriv")
-        self.combo_dept_arriv.setEnabled(False)
+        self.combo_dept_arriv.setEnabled(True)
         sizePolicy = QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -112,7 +112,7 @@ class Ui_sonet_pcp_filter(object):
         self.combo_planet.addItem("")
         self.combo_planet.addItem("")
         self.combo_planet.setObjectName(u"combo_planet")
-        self.combo_planet.setEnabled(False)
+        self.combo_planet.setEnabled(True)
         sizePolicy1 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
@@ -132,12 +132,13 @@ class Ui_sonet_pcp_filter(object):
         self.verticalLayout_3.setSizeConstraint(QLayout.SetMinimumSize)
         self.checkBox = QCheckBox(self.top_left_group_box)
         self.checkBox.setObjectName(u"checkBox")
+        self.checkBox.setEnabled(True)
 
         self.verticalLayout_3.addWidget(self.checkBox)
 
         self.spin_number = QSpinBox(self.top_left_group_box)
         self.spin_number.setObjectName(u"spin_number")
-        self.spin_number.setEnabled(False)
+        self.spin_number.setEnabled(True)
         sizePolicy.setHeightForWidth(self.spin_number.sizePolicy().hasHeightForWidth())
         self.spin_number.setSizePolicy(sizePolicy)
         self.spin_number.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignTop)
@@ -152,7 +153,7 @@ class Ui_sonet_pcp_filter(object):
         self.combo_time_scale.addItem("")
         self.combo_time_scale.addItem("")
         self.combo_time_scale.setObjectName(u"combo_time_scale")
-        self.combo_time_scale.setEnabled(False)
+        self.combo_time_scale.setEnabled(True)
         sizePolicy.setHeightForWidth(self.combo_time_scale.sizePolicy().hasHeightForWidth())
         self.combo_time_scale.setSizePolicy(sizePolicy)
 
@@ -162,7 +163,7 @@ class Ui_sonet_pcp_filter(object):
         self.combo_when.addItem("")
         self.combo_when.addItem("")
         self.combo_when.setObjectName(u"combo_when")
-        self.combo_when.setEnabled(False)
+        self.combo_when.setEnabled(True)
         sizePolicy.setHeightForWidth(self.combo_when.sizePolicy().hasHeightForWidth())
         self.combo_when.setSizePolicy(sizePolicy)
 
@@ -171,7 +172,7 @@ class Ui_sonet_pcp_filter(object):
         self.combo_select_spacecraft = QComboBox(self.top_left_group_box)
         self.combo_select_spacecraft.addItem("")
         self.combo_select_spacecraft.setObjectName(u"combo_select_spacecraft")
-        self.combo_select_spacecraft.setEnabled(False)
+        self.combo_select_spacecraft.setEnabled(True)
         sizePolicy.setHeightForWidth(self.combo_select_spacecraft.sizePolicy().hasHeightForWidth())
         self.combo_select_spacecraft.setSizePolicy(sizePolicy)
 
@@ -197,7 +198,7 @@ class Ui_sonet_pcp_filter(object):
         self.combo_when_2.addItem("")
         self.combo_when_2.addItem("")
         self.combo_when_2.setObjectName(u"combo_when_2")
-        self.combo_when_2.setEnabled(False)
+        self.combo_when_2.setEnabled(True)
         sizePolicy.setHeightForWidth(self.combo_when_2.sizePolicy().hasHeightForWidth())
         self.combo_when_2.setSizePolicy(sizePolicy)
 
@@ -205,6 +206,7 @@ class Ui_sonet_pcp_filter(object):
 
         self.dateEdit = QDateEdit(self.top_left_group_box)
         self.dateEdit.setObjectName(u"dateEdit")
+        self.dateEdit.setEnabled(True)
         sizePolicy.setHeightForWidth(self.dateEdit.sizePolicy().hasHeightForWidth())
         self.dateEdit.setSizePolicy(sizePolicy)
 

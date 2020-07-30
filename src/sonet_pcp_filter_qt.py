@@ -14,6 +14,8 @@ class sonet_pcp_filter_qt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         self.init()
 
     def init(self):
+        self.top_left_group_box.setEnabled(True)
+
         # Connect signals and slots
         btn_accept = self.dialog_button_box.button(QDialogButtonBox.Ok)
         btn_accept.clicked.connect(self.accept)
