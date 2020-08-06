@@ -53,7 +53,6 @@ class MainWindow(QMainWindow, main_window_ui.Ui_main_window):
     def new_spacecraft(self):
         print("Slot new_spacecraft called.")
         spacecraft1 = sonet_spacecraft.SonetSpacecraft()
-        model_1 = spacecraft1
         self.sonet_pcp_table_qtv_outgoing.setModel(spacecraft1.model_outgoing)
         self.sonet_pcp_table_qtv_incoming.setModel(spacecraft1.model_incoming)
 
@@ -143,9 +142,11 @@ if __name__ == "__main__":
 
     sys.exit(app.exec_())
 
-# TODO_XXX_DONE: ...
-# TODO_XXX_DONE: Format table to two decimals.
-# TODO: Create spacecraft object, with two PCP tables.
+# TODO_DONE: tasks at the begining were not being tracked.
+# TODO_DONE: Format table to two decimals.
+# TODO_DONE: Create spacecraft object, with two PCP tables.
+# TODO: Add the current spacecrafts to the Mission tree QListView.
+# TODO: When the user selects one of the spacecrafts in the Mission tree, the PCP table QTableView shall be updated with the PCP pandas models.
 # TODO: Create two spacecrafts, and start playing with filters...
 # TODO: Connect spacecraft PCP table with the Pandas-Qt model-view...
 #

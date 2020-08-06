@@ -50,6 +50,7 @@ class PCPPandasModel(QAbstractTableModel):
         :param index: the current index. The row and the column.
         :param role: Qt.DisplayRole means what is being represented.
         """
+<<<<<<< Updated upstream
         if index.isValid():
             if role == Qt.DisplayRole:
                 # Get the raw value
@@ -72,6 +73,44 @@ class PCPPandasModel(QAbstractTableModel):
                 # Default (anything not captured above: e.g. int)
                 return value
         return None
+=======
+        if not index.isValid():
+            return None
+
+        row = index.row()
+        column = index.column()
+
+        if role == Qt.DisplayRole:
+            # Get the raw value
+            value = self._data.iloc[index.row(), index.column()]
+            # return str(self._data.iloc[index.row(), index.column()])
+
+            # Perform per-type checks and render accordingly.
+            if isinstance(value, datetime):
+                # Render time to YYY-MM-DD.
+                return value.strftime("%Y-%m-%d")
+
+            if isinstance(value, float):
+                # Render float to 2 dp
+                return "%.2f" % value
+
+            if isinstance(value, str):
+                # Render strings with quotes
+                return '"%s"' % value
+
+            # Default (anything not captured above: e.g. int)
+            return value
+
+        if role == Qt.BackgroundRole:
+            # Pair rows will have different color, to visually distinguish them from the even ones.
+            if row % 2 is not 0:
+                return QColor(255, 230, 255)
+            # Very light blue 230, 242, 255
+            # Very light purple 240, 240, 245
+            # Very light pink 255, 230, 255
+
+
+>>>>>>> Stashed changes
 
     def headerData(self, section, orientation, role):
         """
