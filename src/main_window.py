@@ -20,15 +20,11 @@ class MainWindow(QMainWindow, main_window_ui.Ui_main_window):
         super(MainWindow, self).__init__(*args, **kwargs)
         self.setupUi(self)
 
-        # # Pandas model
-        # dirPath = '/Users/Jorialand/code/tfm/sonet/sonet_tfm_horia/src/'
-        # df = pd.read_csv(dirPath + '10kPCP_Earth2Mars.txt')
-        # model = PCPPandasModel(df)
-        # self.sonet_pcp_table_qtv.setModel(model)
+        # The container for the mission tree objects.
+        self._mission_tree = {}
 
         # Menu bar
         self.menubar.setNativeMenuBar(False)
-
         # Exit QAction
         # No funciona! TODO: Arreglar Exit QAction.
         # exit_action = QAction("Exit", self)
@@ -41,7 +37,7 @@ class MainWindow(QMainWindow, main_window_ui.Ui_main_window):
 
     # Signals should be defined only within classes inheriting from QObject!
     # +info:https://wiki.qt.io/Qt_for_Python_Signals_and_Slots
-    @Slot()
+    @Slot( )
     def open_sonet_pcp_filter_qt(self):
         print("Slot open_sonet_pcp_filter_qt called.")
         # dialog = sonet_pcp_filter_qt()
@@ -49,22 +45,23 @@ class MainWindow(QMainWindow, main_window_ui.Ui_main_window):
         dialog.setModal(True)
         dialog.show( )
 
-    @Slot()
+    @Slot( )
     def new_spacecraft(self):
         print("Slot new_spacecraft called.")
-        spacecraft1 = sonet_spacecraft.SonetSpacecraft()
-        self.sonet_pcp_table_qtv_outgoing.setModel(spacecraft1.model_outgoing)
-        self.sonet_pcp_table_qtv_incoming.setModel(spacecraft1.model_incoming)
+        # self.spacecraft1 = sonet_spacecraft.SonetSpacecraft()
+        # self.sonet_pcp_table_qtv_outgoing.setModel(spacecraft1.model_outgoing)
+        # self.sonet_pcp_table_qtv_incoming.setModel(spacecraft1.model_incoming)
 
-    #     Al crear un nuevo spacecraft, se añade un nuevo elemento al dict
+        # Al crear un nuevo spacecraft, se añade un nuevo elemento al dict
+        n_obj = len(list(self._mission_tree))
+        new_key = 'Spacecraft' + str(n_obj + 1)
+        self._mission_tree[new_key] = sonet_spacecraft.SonetSpacecraft()
+        # ut.PrintDict(self._mission_tree)
 
-
-    @Slot()
+    @Slot( )
     def exit_app(self):
         print("Slot exit_app called.")
-        sys.exit()
-
-
+        sys.exit( )
 # class PCPPandasModel(QAbstractTableModel):
 #     """
 #     Qt table model representing the Porkchop plot data coming from Pandas.
@@ -134,15 +131,13 @@ class MainWindow(QMainWindow, main_window_ui.Ui_main_window):
 #         return None
 
 
-
 if __name__ == "__main__":
-
     app = QApplication(sys.argv)
 
-    main_window = MainWindow()
-    main_window.show()
+    main_window = MainWindow( )
+    main_window.show( )
 
-    sys.exit(app.exec_())
+    sys.exit(app.exec_( ))
 
 # TODO_DONE: tasks at the begining were not being tracked.
 # TODO_DONE: Format table to two decimals.
