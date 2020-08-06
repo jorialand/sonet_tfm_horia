@@ -2,6 +2,7 @@ from datetime import datetime
 
 import pandas as pd
 from PySide2.QtCore import QAbstractTableModel, Qt
+from PySide2.QtGui import QColor
 
 
 class SonetSpacecraft:
@@ -50,35 +51,12 @@ class PCPPandasModel(QAbstractTableModel):
         :param index: the current index. The row and the column.
         :param role: Qt.DisplayRole means what is being represented.
         """
-<<<<<<< Updated upstream
-        if index.isValid():
-            if role == Qt.DisplayRole:
-                # Get the raw value
-                value = self._data.iloc[index.row(), index.column()]
-                # return str(self._data.iloc[index.row(), index.column()])
 
-                # Perform per-type checks and render accordingly.
-                if isinstance(value, datetime):
-                    # Render time to YYY-MM-DD.
-                    return value.strftime("%Y-%m-%d")
-
-                if isinstance(value, float):
-                    # Render float to 2 dp
-                    return "%.2f" % value
-
-                if isinstance(value, str):
-                    # Render strings with quotes
-                    return '"%s"' % value
-
-                # Default (anything not captured above: e.g. int)
-                return value
-        return None
-=======
         if not index.isValid():
             return None
 
         row = index.row()
-        column = index.column()
+        # column = index.column()
 
         if role == Qt.DisplayRole:
             # Get the raw value
@@ -109,8 +87,7 @@ class PCPPandasModel(QAbstractTableModel):
             # Very light purple 240, 240, 245
             # Very light pink 255, 230, 255
 
-
->>>>>>> Stashed changes
+        return None
 
     def headerData(self, section, orientation, role):
         """

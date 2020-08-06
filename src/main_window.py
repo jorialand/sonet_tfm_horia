@@ -56,6 +56,8 @@ class MainWindow(QMainWindow, main_window_ui.Ui_main_window):
         self.sonet_pcp_table_qtv_outgoing.setModel(spacecraft1.model_outgoing)
         self.sonet_pcp_table_qtv_incoming.setModel(spacecraft1.model_incoming)
 
+    #     Al crear un nuevo spacecraft, se añade un nuevo elemento al dict
+
 
     @Slot()
     def exit_app(self):
