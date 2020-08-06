@@ -52,11 +52,14 @@ class MainWindow(QMainWindow, main_window_ui.Ui_main_window):
         # self.sonet_pcp_table_qtv_outgoing.setModel(spacecraft1.model_outgoing)
         # self.sonet_pcp_table_qtv_incoming.setModel(spacecraft1.model_incoming)
 
-        # Al crear un nuevo spacecraft, se añade un nuevo elemento al dict
+        # Add the new spacecraft to the spacecrafts container
         n_obj = len(list(self._mission_tree))
         new_key = 'Spacecraft' + str(n_obj + 1)
         self._mission_tree[new_key] = sonet_spacecraft.SonetSpacecraft()
         # ut.PrintDict(self._mission_tree)
+
+        self.sonet_pcp_table_qtv_outgoing.setModel(self._mission_tree.get(new_key).model_outgoing)
+        self.sonet_pcp_table_qtv_incoming.setModel(self._mission_tree.get(new_key).model_incoming)
 
     @Slot( )
     def exit_app(self):
