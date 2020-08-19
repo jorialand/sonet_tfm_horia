@@ -19,3 +19,6 @@ src/__pycache__/sonet_pcp_filter_qt.cpython-37.pyc
 src/__pycache__/sonet_pcp_filter_qt_ui.cpython-37.pyc
 src/__pycache__/sonet_spacecraft.cpython-37.pyc
 src/Playground.ipynb
+*.pyc
+src/__pycache__/Utils.cpython-37.pyc
+.old/Playground0_qlistview_and_qtableview.py

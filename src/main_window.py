@@ -1,12 +1,12 @@
 import sys
 
-from PySide2.QtCore import Slot
+from PySide2.QtCore import Slot, QAbstractListModel, Qt
 from PySide2.QtWidgets import QApplication, QMainWindow
 
 from src import main_window_ui
 from src import sonet_spacecraft
 from src.sonet_pcp_filter_qt import sonet_pcp_filter_qt  # From module X import class Y.
-
+from src.sonet_mission_tree_model import SonetMissionTreeModel
 
 # QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)  # To avoid AA_ShareOpenGLContexts warning in QtCreator.
 
@@ -21,8 +21,9 @@ class MainWindow(QMainWindow, main_window_ui.Ui_main_window):
         self.setupUi(self)
 
         # The container for the mission tree objects.
-        self._mission_tree = {}
-
+        #self._mission_tree = {}
+        # self.mission_tree_model = ListModel()
+        # self.sonet_mission_tree_qlv.setModel(self.mission_tree_model)
         # Menu bar
         self.menubar.setNativeMenuBar(False)
         # Exit QAction
@@ -37,7 +38,7 @@ class MainWindow(QMainWindow, main_window_ui.Ui_main_window):
 
     # Signals should be defined only within classes inheriting from QObject!
     # +info:https://wiki.qt.io/Qt_for_Python_Signals_and_Slots
-    @Slot( )
+    @Slot()
     def open_sonet_pcp_filter_qt(self):
         print("Slot open_sonet_pcp_filter_qt called.")
         # dialog = sonet_pcp_filter_qt()
@@ -45,93 +46,53 @@ class MainWindow(QMainWindow, main_window_ui.Ui_main_window):
         dialog.setModal(True)
         dialog.show( )
 
-    @Slot( )
+    @Slot()
     def new_spacecraft(self):
         print("Slot new_spacecraft called.")
-        # self.spacecraft1 = sonet_spacecraft.SonetSpacecraft()
-        # self.sonet_pcp_table_qtv_outgoing.setModel(spacecraft1.model_outgoing)
-        # self.sonet_pcp_table_qtv_incoming.setModel(spacecraft1.model_incoming)
 
-        # Add the new spacecraft to the spacecrafts container
-        n_obj = len(list(self._mission_tree))
-        new_key = 'Spacecraft' + str(n_obj + 1)
-        self._mission_tree[new_key] = sonet_spacecraft.SonetSpacecraft()
-        # ut.PrintDict(self._mission_tree)
+        # Add the new spacecraft to the mission tree container
+        # n_obj = len(list(self._mission_tree))
+        # new_key = 'Spacecraft' + str(n_obj + 1)
+        # self._mission_tree[new_key] = sonet_spacecraft.SonetSpacecraft()
+        # ut.PrintDict(self._mission_tree) # Debug
 
-        self.sonet_pcp_table_qtv_outgoing.setModel(self._mission_tree.get(new_key).model_outgoing)
-        self.sonet_pcp_table_qtv_incoming.setModel(self._mission_tree.get(new_key).model_incoming)
+        # self.beginResetModel()
+        # self.dict_key = key
+        # self.endResetModel()
+        # self.mission_tree_model.beginResetModel()
+        # self.mission_tree_model = ListModel(self._mission_tree)
+        # self.mission_tree_model.endResetModel()
+        self.mission_tree_model = SonetMissionTreeModel()
+        self.sonet_mission_tree_qlv.setModel(self.mission_tree_model)
+    # self.sonet_pcp_table_qtv_outgoing.setModel(self._mission_tree.get(new_key).model_outgoing)
+        # self.sonet_pcp_table_qtv_incoming.setModel(self._mission_tree.get(new_key).model_incoming)
 
-    @Slot( )
+    @Slot()
     def exit_app(self):
         print("Slot exit_app called.")
         sys.exit( )
-# class PCPPandasModel(QAbstractTableModel):
-#     """
-#     Qt table model representing the Porkchop plot data coming from Pandas.
-#     rowCount(), columnCount(), and data() are required to be implemented to properly subclass QAbstractTableModel.
-#     +info: https://www.learnpyqt.com/courses/model-views/qtableview-modelviews-numpy-pandas/
-#     """
+
+# class ListModel(QAbstractListModel):
+#     def __init__(self, data, parent=None):
+#         super(ListModel, self).__init__(parent)
+#         # self._data = sorted(data.keys())
+#         self._data = list(data.keys())
 #
-#     def __init__(self, data):
-#         # QAbstractTableModel.__init__(self)
-#         super(PCPPandasModel, self).__init__( )
-#         self._data = data
+#     def list_clicked(self, index):
+#         row = index.row()
+#         key = self._data[row]
+#         # table_model.set_key(key)
 #
-#     def rowCount(self, parent=None):
-#         """
-#         docstring
-#         """
+#     def rowCount(self, QModelIndex_parent=None, *args, **kwargs):
+#         return len(self._data)
 #
-#         return self._data.shape[0]
+#     def data(self, QModelIndex, int_role=None):
+#         row = QModelIndex.row()
+#         if int_role == Qt.DisplayRole:
+#             return str(self._data[row])
 #
-#     def columnCount(self, parent=None):
-#         """
-#         docstring
-#         """
-#         return self._data.shape[1]
-#
-#     def data(self, index, role=Qt.DisplayRole):
-#         """
-#         The structure of the pandas data.
-#         :param index: the current index. The row and the column.
-#         :param role: Qt.DisplayRole means what is being represented.
-#         """
-#         if index.isValid():
-#             if role == Qt.DisplayRole:
-#                 # Get the raw value
-#                 value = self._data.iloc[index.row(), index.column()]
-#                 # return str(self._data.iloc[index.row(), index.column()])
-#
-#                 # Perform per-type checks and render accordingly.
-#                 if isinstance(value, datetime):
-#                     # Render time to YYY-MM-DD.
-#                     return value.strftime("%Y-%m-%d")
-#
-#                 if isinstance(value, float):
-#                     # Render float to 2 dp
-#                     return "%.2f" % value
-#
-#                 if isinstance(value, str):
-#                     # Render strings with quotes
-#                     return '"%s"' % value
-#
-#                 # Default (anything not captured above: e.g. int)
-#                 return value
-#         return None
-#
-#     def headerData(self, section, orientation, role):
-#         """
-#
-#         :param section:
-#         :param orientation:
-#         :param role:
-#         """
-#         if role == Qt.DisplayRole:
-#             if orientation == Qt.Horizontal:
-#                 return str(self._data.columns[section])
-#             if orientation == Qt.Vertical:
-#                 return str(self._data.index[section])
-#         return None
+#     # def flags(self, QModelIndex):
+#     #     return Qt.ItemIsEnabled | Qt.ItemIsSelectable
 
 
 if __name__ == "__main__":

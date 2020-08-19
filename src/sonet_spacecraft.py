@@ -3,18 +3,19 @@ from datetime import datetime
 import pandas as pd
 from PySide2.QtCore import QAbstractTableModel, Qt
 from PySide2.QtGui import QColor
-
+from src.Utils import ObjectType
 
 class SonetSpacecraft:
-    dummy_var = None
-
     def __init__(self):
+        # Attributes
+        self._type = ObjectType.SPACECRAFT
+
         # Pandas model
-        self.dir_path = '/Users/Jorialand/code/tfm/sonet/sonet_tfm_horia/src/'
-        self.df_outgoing = pd.read_csv(self.dir_path + '10kPCP_Earth2Mars.txt')
-        self.df_incoming = pd.read_csv(self.dir_path + '10kPCP_Mars2Earth.txt')
-        self.model_outgoing = PCPPandasModel(self.df_outgoing)
-        self.model_incoming = PCPPandasModel(self.df_incoming)
+        dir_path = '/Users/Jorialand/code/tfm/sonet/sonet_tfm_horia/src/'
+        df_outgoing = pd.read_csv(dir_path + '10kPCP_Earth2Mars.txt')
+        df_incoming = pd.read_csv(dir_path + '10kPCP_Mars2Earth.txt')
+        self.model_outgoing = PCPPandasModel(df_outgoing)
+        self.model_incoming = PCPPandasModel(df_incoming)
 
         # print(df_outgoing.head())
         # print(df_incoming.head( ))
@@ -29,7 +30,7 @@ class PCPPandasModel(QAbstractTableModel):
 
     def __init__(self, data):
         # QAbstractTableModel.__init__(self)
-        super(PCPPandasModel, self).__init__( )
+        super(PCPPandasModel, self).__init__()
         self._data = data
 
     def rowCount(self, parent=None):
