@@ -1,14 +1,20 @@
+import random
+
+import pandas as pd
+
+
 def PrintDict(ar_dict):
     """
     Convenience function for printing a dictionary to console.
     Useful for debugging.
     :param ar_dict:
     """
-    print("Keys> ", [x for x in ar_dict.keys( )])
-    print("Values> ", [x for x in ar_dict.values( )])
+    print("Keys> ", [x for x in ar_dict.keys()])
+    print("Values> ", [x for x in ar_dict.values()])
 
 
 from enum import Enum, unique
+
 
 @unique
 class ObjectType(Enum):
@@ -18,6 +24,7 @@ class ObjectType(Enum):
     NA = 0  # NA stands for Not Assigned
     SPACECRAFT = 1
 
+
 @unique
 class SpacecraftType(Enum):
     """
@@ -26,6 +33,17 @@ class SpacecraftType(Enum):
     NA = 0  # NA stands for Not Assigned
     CREWED = 1
     CARGO = 2
+
+
+def build_mock_DataFrame(num_rows=5, num_columns=8, min=0, max=10):
+    # Build columns
+    num_rows = random.randint(1,1e2)
+    _ = ['col'+str(i) for i in range(num_columns)]
+    result = pd.DataFrame(columns=_)
+    build_row = lambda: [random.randint(min,max) for _ in range(num_columns)]
+    for i in range(num_rows):
+        result.loc[len(result)] = build_row()
+    return result
 
 
 if __name__ == "__main__":
