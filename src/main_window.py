@@ -1,17 +1,19 @@
+import datetime
 import sys
 
-from PySide2.QtCore import Slot, QAbstractListModel, QAbstractTableModel, Qt
+from PySide2.QtCore import Slot, QAbstractListModel, QAbstractTableModel, QModelIndex, Qt
+from PySide2.QtGui import QColor
 from PySide2.QtWidgets import QApplication, QMainWindow
 
+# From module X import class Y.
 from src import main_window_ui
 from src import sonet_spacecraft as spacecraft
-from src.sonet_pcp_filter_qt import sonet_pcp_filter_qt  # From module X import class Y.
+from src.sonet_pcp_filter_qt import sonet_pcp_filter_qt
 
-
-# from src.sonet_mission_tree_model import SonetMissionTreeModel
 
 # QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)  # To avoid AA_ShareOpenGLContexts warning in QtCreator.
 
+# TODO: Instead of a predefined mock_data dict, the user should be capable of adding and removing spacecrafts.
 def build_mock_data():
     result = {'Spacecraft 1': spacecraft.SonetSpacecraft(),
               'Spacecraft 2': spacecraft.SonetSpacecraft(),
@@ -81,12 +83,13 @@ class MainWindow(QMainWindow, main_window_ui.Ui_main_window):
         sys.exit()
 
 
+# TODO: Move TableModel and ListModel classes outside main_window.py file.
 class TableModel(QAbstractTableModel):
     def __init__(self, data, parent=None):
         super(TableModel, self).__init__(parent)
-        self._data = data  # _data is a dict
-        # defualt key
-        self.dict_key = sorted(self._data.keys())[0]
+        self.dict_key = sorted(data.keys())[0]  # default key
+        self._data = data[self.dict_key]._df_outgoing  # data  # data is a dict, _data is a pandas dataframe
+
 
     def set_key(self, key):
         print('TableModel() Slot set_key() called.')
@@ -95,18 +98,60 @@ class TableModel(QAbstractTableModel):
         self.endResetModel()
 
     def rowCount(self, QModelIndex_parent=None, *args, **kwargs):
-        return self._data[self.dict_key]._df_outgoing.shape[0]
+        return self._data.shape[0]
 
     def columnCount(self, QModelIndex_parent=None, *args, **kwargs):
-        return self._data[self.dict_key]._df_outgoing.shape[1]
+        return self._data.shape[1]
 
-    def data(self, QModelIndex, int_role=None):
-        row = QModelIndex.row()
-        column = QModelIndex.column()
-        if int_role == Qt.DisplayRole:
-            return str(self._data[self.dict_key]._df_outgoing.iloc[row, column])
+    def data(self, index=QModelIndex, role=None):
 
+        if not index.isValid():
+            return None
 
+        row = index.row()
+        column = index.column()
+
+        # if role == Qt.DisplayRole:
+            #return str(self._data[self.dict_key]._df_outgoing.iloc[row, column])
+        if role == Qt.DisplayRole:
+            # return str(self._data.iloc[index.row(), index.column()])
+            # Get the raw value
+            value = self._data.iloc[row, column]
+
+            # Perform per-type checks and render accordingly.
+            if isinstance(value, datetime.datetime):
+                # Render time to YYY-MM-DD.
+                return value.strftime("%Y-%m-%d")
+
+            if isinstance(value, float):
+                # Render float to 2 dp
+                return "%.2f" % value
+
+            if isinstance(value, str):
+                # Render strings with quotes
+                return '"%s"' % value
+
+            # Default (anything not captured above: e.g. int)
+            return value
+
+        if role == Qt.BackgroundRole:
+            # Pair rows will have different color, to visually distinguish them from the even ones.
+            if row % 2 is not 0:
+                return QColor(255, 230, 255)
+            # Very light blue 230, 242, 255
+            # Very light purple 240, 240, 245
+            # Very light pink 255, 230, 255
+
+        return None
+
+    def headerData(self, section, orientation, role):
+
+        if role == Qt.DisplayRole:
+            if orientation == Qt.Horizontal:
+                return str(self._data.columns[section])
+            if orientation == Qt.Vertical:
+                return str(self._data.index[section])
+        return None
 class ListModel(QAbstractListModel):
     def __init__(self, data, parent=None):
         super(ListModel, self).__init__(parent)
@@ -137,12 +182,3 @@ if __name__ == "__main__":
     main_window.show()
 
     sys.exit(app.exec_())
-
-# TODO_DONE: tasks at the begining were not being tracked.
-# TODO_DONE: Format table to two decimals.
-# TODO_DONE: Create spacecraft object, with two PCP tables.
-# TODO: Add the current spacecrafts to the Mission tree QListView.
-# TODO: When the user selects one of the spacecrafts in the Mission tree, the PCP table QTableView shall be updated with the PCP pandas models.
-# TODO: Create two spacecrafts, and start playing with filters...
-# TODO: Connect spacecraft PCP table with the Pandas-Qt model-view...
-#
