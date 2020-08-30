@@ -8,11 +8,8 @@
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide2.QtCore import (QCoreApplication, QDate, QDateTime, QMetaObject,
-    QObject, QPoint, QRect, QSize, QTime, QUrl, Qt)
-from PySide2.QtGui import (QBrush, QColor, QConicalGradient, QCursor, QFont,
-    QFontDatabase, QIcon, QKeySequence, QLinearGradient, QPalette, QPainter,
-    QPixmap, QRadialGradient)
+from PySide2.QtCore import (QCoreApplication, QMetaObject,
+                            QRect, QSize)
 from PySide2.QtWidgets import *
 
 
@@ -20,7 +17,7 @@ class Ui_main_window(object):
     def setupUi(self, main_window):
         if not main_window.objectName():
             main_window.setObjectName(u"main_window")
-        main_window.resize(1220, 600)
+        main_window.resize(1350, 650)
         sizePolicy = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -113,7 +110,7 @@ class Ui_main_window(object):
         main_window.setStatusBar(self.statusbar)
         self.menubar = QMenuBar(main_window)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 1220, 22))
+        self.menubar.setGeometry(QRect(0, 0, 1350, 22))
         self.file = QMenu(self.menubar)
         self.file.setObjectName(u"file")
         self.menuEdit = QMenu(self.menubar)
