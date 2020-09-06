@@ -1,6 +1,7 @@
 import datetime
 import sys
 
+import pandas as pd
 from PySide2.QtCore import Slot, QAbstractListModel, QAbstractTableModel, QModelIndex, Qt
 from PySide2.QtGui import QColor
 from PySide2.QtWidgets import QApplication, QMainWindow
@@ -14,6 +15,7 @@ from src.sonet_pcp_filter_qt import sonet_pcp_filter_qt
 # QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)  # To avoid AA_ShareOpenGLContexts warning in QtCreator.
 
 # TODO: Instead of a predefined mock_data dict, the user should be capable of adding and removing spacecrafts.
+
 def build_mock_data():
     result = {'Spacecraft 1': spacecraft.SonetSpacecraft(),
               'Spacecraft 2': spacecraft.SonetSpacecraft(),
@@ -23,8 +25,17 @@ def build_mock_data():
     return result
 
 
-mock_data = build_mock_data()
+def remove_spacecraft(dict={}):
+    if len(dict.keys()) is 0:
+        return
+    dict.popitem()
 
+
+def getMainWindow():
+    return main_window
+
+def getDB():
+    return getMainWindow()._obj_db
 
 class MainWindow(QMainWindow, main_window_ui.Ui_main_window):
     """
@@ -35,26 +46,40 @@ class MainWindow(QMainWindow, main_window_ui.Ui_main_window):
         super(MainWindow, self).__init__(*args, **kwargs)
         self.setupUi(self)
 
-        # The container for the mission tree objects.
-        # self._mission_tree = {}
-        # self.mission_tree_model = ListModel()
-        # self.sonet_mission_tree_qlv.setModel(self.mission_tree_model)
         # Menu bar
         self.menubar.setNativeMenuBar(False)  # I'd problems with MacOSX native menubar, the menus didn't appear.
-        # Exit QAction
-        # No funciona! TODO: Arreglar Exit QAction.
-        # exit_action = QAction("Exit", self)
-        # exit_action.setShortcut("Ctrl+Q")
-        # exit_action.triggered.connect(self.exit_app)
+
+        # TODO Añadir QActions (e.g. Exit, Save, etc.).
+
+        # Objects database
+        self._obj_db = {}
+        # Table models, it should be declared prior to list model
+        self._table_model_outgoing = TableModel('outgoing')
+        self._table_model_incoming = TableModel('incoming')
+        self.sonet_pcp_table_qtv_outgoing.setModel(self._table_model_outgoing)
+        self.sonet_pcp_table_qtv_incoming.setModel(self._table_model_incoming)
+
+        # List model, it should be declared after table model
+        self._list_model = ListModel()
+        self.sonet_mission_tree_qlv.setModel(self._list_model)
 
         # Connect signals and slots
         self.sonet_pcp_filter_qpb.clicked.connect(self.open_sonet_pcp_filter_qt)
         self.sonet_add_spacecraft_qpb.clicked.connect(self.new_spacecraft)
+        self.sonet_mission_tree_qlv.clicked.connect(self._list_model.list_clicked)
 
     # Signals should be defined only within classes inheriting from QObject!
     # +info:https://wiki.qt.io/Qt_for_Python_Signals_and_Slots
-    def getTableModel(self):
-        return self._table_model
+
+    def getTableModel(self, pcp_table_model=''):
+        switcher = {
+            'outgoing': self._table_model_outgoing,
+            'incoming': self._table_model_incoming
+        }
+        return switcher.get(pcp_table_model, 'No model found with the requested argument')
+
+    def getListModel(self):
+        return self._list_model
 
     @Slot()
     def open_sonet_pcp_filter_qt(self):
@@ -67,15 +92,13 @@ class MainWindow(QMainWindow, main_window_ui.Ui_main_window):
     @Slot()
     def new_spacecraft(self):
         print("Slot new_spacecraft called.")
+        n = len(self._obj_db.keys())
+        self._obj_db['Spacecraft ' + str(n+1)] = spacecraft.SonetSpacecraft()
 
-        self._list_model = ListModel(mock_data)
-        self.sonet_mission_tree_qlv.setModel(self._list_model)
-        self.sonet_mission_tree_qlv.clicked.connect(self._list_model.list_clicked)
-        self._table_model = TableModel(mock_data)
-        self.sonet_pcp_table_qtv_outgoing.setModel(self._table_model)
+        # Update
+        lm = self.getListModel()
+        lm.update()
 
-    # self.sonet_pcp_table_qtv_outgoing.setModel(self._mission_tree.get(new_key).model_outgoing)
-    # self.sonet_pcp_table_qtv_incoming.setModel(self._mission_tree.get(new_key).model_incoming)
 
     @Slot()
     def exit_app(self):
@@ -85,23 +108,48 @@ class MainWindow(QMainWindow, main_window_ui.Ui_main_window):
 
 # TODO: Move TableModel and ListModel classes outside main_window.py file.
 class TableModel(QAbstractTableModel):
-    def __init__(self, data, parent=None):
-        super(TableModel, self).__init__(parent)
-        self.dict_key = sorted(data.keys())[0]  # default key
-        self._data = data[self.dict_key]._df_outgoing  # data  # data is a dict, _data is a pandas dataframe
+    """
+    TODO docstring TableModel()
+    """
 
+    def __init__(self, pcp_table='', parent=None):
+        super(TableModel, self).__init__(parent)
+        self._data = pd.DataFrame()  # It's a Pandas dataframe
+        self._pcp_table = pcp_table
+
+    def add_spacecraft(self):
+        n = len(self._data.keys())
+
+        self.beginResetModel()
+        self._data['Spacecraft ' + str(n + 1)] = spacecraft.SonetSpacecraft()
+        self.endResetModel()
+
+        lm = getMainWindow().getListModel()
+        lm.update()
 
     def set_key(self, key):
         print('TableModel() Slot set_key() called.')
         self.beginResetModel()
-        self.dict_key = key
+        self._data = getDB()[key].getPCPTable(self._pcp_table)
         self.endResetModel()
 
     def rowCount(self, QModelIndex_parent=None, *args, **kwargs):
-        return self._data.shape[0]
+        # try:
+        #     self.dict_key
+        # except AttributeError:
+        #     return 0
+        # else:
+        #     return self._data[self.dict_key].getPCPTable(self._pcp_table).shape[0]
+        return self._data.shape[0]  # Number of rows of the dataframe
 
     def columnCount(self, QModelIndex_parent=None, *args, **kwargs):
-        return self._data.shape[1]
+        # try:
+        #     self.dict_key
+        # except AttributeError:
+        #     return 0
+        # else:
+        #     return self._data[self.dict_key].getPCPTable(self._pcp_table).shape[1]
+        return self._data.shape[1]  # Number of columns of the dataframe
 
     def data(self, index=QModelIndex, role=None):
 
@@ -112,10 +160,11 @@ class TableModel(QAbstractTableModel):
         column = index.column()
 
         # if role == Qt.DisplayRole:
-            #return str(self._data[self.dict_key]._df_outgoing.iloc[row, column])
+        # return str(self._data[self.dict_key]._df_outgoing.iloc[row, column])
         if role == Qt.DisplayRole:
             # return str(self._data.iloc[index.row(), index.column()])
             # Get the raw value
+            # value = self._data[self.dict_key].getPCPTable(self._pcp_table).iloc[row, column]
             value = self._data.iloc[row, column]
 
             # Perform per-type checks and render accordingly.
@@ -148,20 +197,33 @@ class TableModel(QAbstractTableModel):
 
         if role == Qt.DisplayRole:
             if orientation == Qt.Horizontal:
+                # return str(self._data[self.dict_key].getPCPTable(self._pcp_table).columns[section])
                 return str(self._data.columns[section])
             if orientation == Qt.Vertical:
+                # return str(self._data[self.dict_key].getPCPTable(self._pcp_table).index[section])
                 return str(self._data.index[section])
         return None
+
 class ListModel(QAbstractListModel):
-    def __init__(self, data, parent=None):
+    """
+    TODO docstring ListModel()
+    """
+
+    def __init__(self, data=None, parent=None):
         super(ListModel, self).__init__(parent)
-        self._data = sorted(data.keys())
+        self._data = {}.keys()  # It's a dictionary keys
 
     def list_clicked(self, index):
         row = index.row()
         key = self._data[row]
-        main_window.getTableModel().set_key(key)
+        getMainWindow().getTableModel('outgoing').set_key(key)
+        getMainWindow().getTableModel('incoming').set_key(key)
 
+    def update(self):
+        print('ListModel() Slot update() called.')
+        self.beginResetModel()
+        self._data = sorted(getMainWindow()._obj_db.keys())
+        self.endResetModel()
 
     def rowCount(self, QModelIndex_parent=None, *args, **kwargs):
         return len(self._data)
@@ -173,7 +235,6 @@ class ListModel(QAbstractListModel):
 
     def flags(self, QModelIndex):
         return Qt.ItemIsEnabled | Qt.ItemIsSelectable
-
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
