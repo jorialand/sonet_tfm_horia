@@ -24,11 +24,6 @@ def build_mock_data():
               'Spacecraft 5': spacecraft.SonetSpacecraft()}
     return result
 
-def remove_spacecraft(dict={}):
-    if len(dict.keys()) is 0:
-        return
-    dict.popitem()
-
 def getMainWindow():
     return main_window
 
