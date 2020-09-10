@@ -37,6 +37,35 @@ class Ui_main_window(object):
         self.centralwidget.setObjectName(u"centralwidget")
         self.gridLayout = QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName(u"gridLayout")
+        self.sonet_mission_tree_qgb = QGroupBox(self.centralwidget)
+        self.sonet_mission_tree_qgb.setObjectName(u"sonet_mission_tree_qgb")
+        sizePolicy.setHeightForWidth(self.sonet_mission_tree_qgb.sizePolicy().hasHeightForWidth())
+        self.sonet_mission_tree_qgb.setSizePolicy(sizePolicy)
+        self.verticalLayout_2 = QVBoxLayout(self.sonet_mission_tree_qgb)
+        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.sonet_mission_tree_qlv = QListView(self.sonet_mission_tree_qgb)
+        self.sonet_mission_tree_qlv.setObjectName(u"sonet_mission_tree_qlv")
+
+        self.verticalLayout_2.addWidget(self.sonet_mission_tree_qlv)
+
+        self.horizontalLayout_4 = QHBoxLayout()
+        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
+        self.sonet_add_spacecraft_qpb = QPushButton(self.sonet_mission_tree_qgb)
+        self.sonet_add_spacecraft_qpb.setObjectName(u"sonet_add_spacecraft_qpb")
+
+        self.horizontalLayout_4.addWidget(self.sonet_add_spacecraft_qpb)
+
+        self.sonet_remove_spacecraft_qpb = QPushButton(self.sonet_mission_tree_qgb)
+        self.sonet_remove_spacecraft_qpb.setObjectName(u"sonet_remove_spacecraft_qpb")
+
+        self.horizontalLayout_4.addWidget(self.sonet_remove_spacecraft_qpb)
+
+
+        self.verticalLayout_2.addLayout(self.horizontalLayout_4)
+
+
+        self.gridLayout.addWidget(self.sonet_mission_tree_qgb, 0, 1, 1, 1)
+
         self.sonet_pcp_table_qgb = QGroupBox(self.centralwidget)
         self.sonet_pcp_table_qgb.setObjectName(u"sonet_pcp_table_qgb")
         self.verticalLayout = QVBoxLayout(self.sonet_pcp_table_qgb)
@@ -77,32 +106,13 @@ class Ui_main_window(object):
 
         self.verticalLayout.addWidget(self.sonet_pcp_tabs_qtw)
 
-
-        self.gridLayout.addWidget(self.sonet_pcp_table_qgb, 0, 0, 1, 1)
-
-        self.sonet_mission_tree_qgb = QGroupBox(self.centralwidget)
-        self.sonet_mission_tree_qgb.setObjectName(u"sonet_mission_tree_qgb")
-        sizePolicy.setHeightForWidth(self.sonet_mission_tree_qgb.sizePolicy().hasHeightForWidth())
-        self.sonet_mission_tree_qgb.setSizePolicy(sizePolicy)
-        self.verticalLayout_2 = QVBoxLayout(self.sonet_mission_tree_qgb)
-        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.sonet_mission_tree_qlv = QListView(self.sonet_mission_tree_qgb)
-        self.sonet_mission_tree_qlv.setObjectName(u"sonet_mission_tree_qlv")
-
-        self.verticalLayout_2.addWidget(self.sonet_mission_tree_qlv)
-
-
-        self.gridLayout.addWidget(self.sonet_mission_tree_qgb, 0, 1, 1, 1)
-
-        self.sonet_add_spacecraft_qpb = QPushButton(self.centralwidget)
-        self.sonet_add_spacecraft_qpb.setObjectName(u"sonet_add_spacecraft_qpb")
-
-        self.gridLayout.addWidget(self.sonet_add_spacecraft_qpb, 1, 1, 1, 1)
-
-        self.sonet_pcp_filter_qpb = QPushButton(self.centralwidget)
+        self.sonet_pcp_filter_qpb = QPushButton(self.sonet_pcp_table_qgb)
         self.sonet_pcp_filter_qpb.setObjectName(u"sonet_pcp_filter_qpb")
 
-        self.gridLayout.addWidget(self.sonet_pcp_filter_qpb, 1, 0, 1, 1)
+        self.verticalLayout.addWidget(self.sonet_pcp_filter_qpb)
+
+
+        self.gridLayout.addWidget(self.sonet_pcp_table_qgb, 0, 0, 1, 1)
 
         main_window.setCentralWidget(self.centralwidget)
         self.statusbar = QStatusBar(main_window)
@@ -138,11 +148,12 @@ class Ui_main_window(object):
         self.exit.setText(QCoreApplication.translate("main_window", u"&Exit", None))
         self.open_pcp_filter.setText(QCoreApplication.translate("main_window", u"Apply filter to PCP table", None))
         self.actionHelp.setText(QCoreApplication.translate("main_window", u"Help", None))
+        self.sonet_mission_tree_qgb.setTitle(QCoreApplication.translate("main_window", u"Mission tree", None))
+        self.sonet_add_spacecraft_qpb.setText(QCoreApplication.translate("main_window", u"Add spacecraft", None))
+        self.sonet_remove_spacecraft_qpb.setText(QCoreApplication.translate("main_window", u"Remove spacecraft", None))
         self.sonet_pcp_table_qgb.setTitle(QCoreApplication.translate("main_window", u"PCP table", None))
         self.sonet_pcp_tabs_qtw.setTabText(self.sonet_pcp_tabs_qtw.indexOf(self.sonet_pcp_table_transit_1), QCoreApplication.translate("main_window", u"Earth - Mars", None))
         self.sonet_pcp_tabs_qtw.setTabText(self.sonet_pcp_tabs_qtw.indexOf(self.sonet_pcp_table_transit_2), QCoreApplication.translate("main_window", u"Mars - Earth ", None))
-        self.sonet_mission_tree_qgb.setTitle(QCoreApplication.translate("main_window", u"Mission tree", None))
-        self.sonet_add_spacecraft_qpb.setText(QCoreApplication.translate("main_window", u"Add spacecraft", None))
         self.sonet_pcp_filter_qpb.setText(QCoreApplication.translate("main_window", u"Apply filter", None))
         self.file.setTitle(QCoreApplication.translate("main_window", u"&File", None))
         self.menuEdit.setTitle(QCoreApplication.translate("main_window", u"Edit", None))

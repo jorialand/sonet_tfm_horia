@@ -24,12 +24,10 @@ def build_mock_data():
               'Spacecraft 5': spacecraft.SonetSpacecraft()}
     return result
 
-
 def remove_spacecraft(dict={}):
     if len(dict.keys()) is 0:
         return
     dict.popitem()
-
 
 def getMainWindow():
     return main_window
@@ -66,6 +64,7 @@ class MainWindow(QMainWindow, main_window_ui.Ui_main_window):
         # Connect signals and slots
         self.sonet_pcp_filter_qpb.clicked.connect(self.open_sonet_pcp_filter_qt)
         self.sonet_add_spacecraft_qpb.clicked.connect(self.new_spacecraft)
+        self.sonet_remove_spacecraft_qpb.clicked.connect(self.remove_spacecraft)
         self.sonet_mission_tree_qlv.clicked.connect(self._list_model.list_clicked)
 
     # Signals should be defined only within classes inheriting from QObject!
@@ -92,19 +91,46 @@ class MainWindow(QMainWindow, main_window_ui.Ui_main_window):
     @Slot()
     def new_spacecraft(self):
         print("Slot new_spacecraft called.")
+
+        # Create new spacecraft
         n = len(self._obj_db.keys())
         self._obj_db['Spacecraft ' + str(n+1)] = spacecraft.SonetSpacecraft()
 
-        # Update
+        # Update list model
         lm = self.getListModel()
         lm.update()
 
+    @Slot()
+    def remove_spacecraft(self):
+        print("Slot remove_spacecraft called.")
+
+        # Get the current list view selection.
+        selection = self.sonet_mission_tree_qlv.currentIndex().row()
+
+        # If there's no spacecraft, then return.
+        if (selection is -1):
+            print('There is no spacecrafts to remove.')
+            return 0
+
+        # Remove it from the database.
+        db = getDB()
+        key = list(db.keys())[selection] # The selected object (e.g. spacecraft).
+        del db[key]
+
+        # Update table models.
+        self.getTableModel('outgoing').reset_model()
+        self.getTableModel('incoming').reset_model()
+
+        # Update list model.
+        lm = self.getListModel()
+        lm.update()
+
+        return 0
 
     @Slot()
     def exit_app(self):
         print("Slot exit_app called.")
         sys.exit()
-
 
 # TODO: Move TableModel and ListModel classes outside main_window.py file.
 class TableModel(QAbstractTableModel):
@@ -133,6 +159,12 @@ class TableModel(QAbstractTableModel):
         self._data = getDB()[key].getPCPTable(self._pcp_table)
         self.endResetModel()
 
+    def reset_model(self):
+        print('TableModel() Slot reset_model() called.')
+        self.beginResetModel()
+        self._data = None
+        self.endResetModel()
+
     def rowCount(self, QModelIndex_parent=None, *args, **kwargs):
         # try:
         #     self.dict_key
@@ -140,6 +172,8 @@ class TableModel(QAbstractTableModel):
         #     return 0
         # else:
         #     return self._data[self.dict_key].getPCPTable(self._pcp_table).shape[0]
+        if self._data is None:
+            return 0
         return self._data.shape[0]  # Number of rows of the dataframe
 
     def columnCount(self, QModelIndex_parent=None, *args, **kwargs):
@@ -149,6 +183,8 @@ class TableModel(QAbstractTableModel):
         #     return 0
         # else:
         #     return self._data[self.dict_key].getPCPTable(self._pcp_table).shape[1]
+        if self._data is None:
+            return 0
         return self._data.shape[1]  # Number of columns of the dataframe
 
     def data(self, index=QModelIndex, role=None):
