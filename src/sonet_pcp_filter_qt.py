@@ -7,17 +7,27 @@ from src import sonet_pcp_filter_qt_ui
 
 
 class sonet_pcp_filter_qt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
-    def __init__(self, *args, **kwargs):
-        super(sonet_pcp_filter_qt, self).__init__(*args, **kwargs)
+    def __init__(self, *args, ar_list_spacecrafts=[], ar_current_index=-1):
+        super(sonet_pcp_filter_qt, self).__init__(*args)#, **kwargs)
         self.setupUi(self)
+        self.init(ar_list_spacecrafts, ar_current_index)
 
-        self.init()
-
-    def init(self):
+    def init(self, ar_list_spacecrafts=[], ar_current_index=-1):
         self.top_left_group_box.setEnabled(False)  # TODO Implement dept arriv filter group box.
         self.time_of_flight_group_box.setEnabled(False)  # TODO Implement time of flight filter group box.
 
-        # Connect signals and slots
+        # Fill select_spacecraft combo box with the available spacecrafts.
+        # And select the one selected by the user.
+        # If no selection (ar_current_index = -1, then 0 should be selected, which tells
+        # the user that it has to do a selection.
+        self.select_spacecraft.addItems(ar_list_spacecrafts)
+        if ar_current_index is not -1:
+            self.select_spacecraft.setCurrentIndex(ar_current_index+1)  # The '+1' is because the combo box is already
+            # populated with 'Select spacecraft...' item when the above addItems() is executed.
+        else:
+            self.select_spacecraft.setCurrentIndex(0)
+
+        # Connect signals and slots.
         self.btn_accept = self.dialog_button_box.button(QDialogButtonBox.Ok)
         self.btn_accept.clicked.connect(self.accept)
 

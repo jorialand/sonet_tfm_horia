@@ -79,21 +79,20 @@ class MainWindow(QMainWindow, main_window_ui.Ui_main_window):
 
     @Slot()
     def open_sonet_pcp_filter_qt(self):
-        print("Slot open_sonet_pcp_filter_qt called.")
-        filter_dialog_qt = sonet_pcp_filter_qt(self)
+        # print("Slot open_sonet_pcp_filter_qt called.")
+        ans1 = self.getListModel().get_data()
+        ans2 = self.sonet_mission_tree_qlv.currentIndex().row()
+        filter_dialog_qt = sonet_pcp_filter_qt(self, ar_list_spacecrafts=ans1, ar_current_index=ans2)
         filter_dialog_qt.setModal(True)
         filter_dialog_qt.show()
 
-        # Dev
-        ans = self.getListModel().get_data()
-        print(ans)
-
     @Slot()
     def new_spacecraft(self):
-        print("Slot new_spacecraft called.")
+        # print("Slot new_spacecraft called.")
 
         # Create new spacecraft
-        self.n = self.n + 1
+        #self.n = self.n + 1
+        self.n += 1
         self._obj_db['Spacecraft ' + str(self.n)] = spacecraft.SonetSpacecraft()
 
         # Update list model
@@ -102,7 +101,7 @@ class MainWindow(QMainWindow, main_window_ui.Ui_main_window):
 
     @Slot()
     def remove_spacecraft(self):
-        print("Slot remove_spacecraft called.")
+        # print("Slot remove_spacecraft called.")
 
         # Get the current list view selection.
         selection = self.sonet_mission_tree_qlv.currentIndex().row()
@@ -118,6 +117,8 @@ class MainWindow(QMainWindow, main_window_ui.Ui_main_window):
 
         # Remove it from the database.
         key = list(db.keys())[selection] # The selected object (e.g. spacecraft).
+        # print(selection)
+        # print(key)
         del db[key]
 
         # Update table models.
@@ -132,7 +133,7 @@ class MainWindow(QMainWindow, main_window_ui.Ui_main_window):
 
     @Slot()
     def exit_app(self):
-        print("Slot exit_app called.")
+        # print("Slot exit_app called.")
         sys.exit()
 
 # TODO: Move TableModel and ListModel classes outside main_window.py file.
@@ -157,13 +158,13 @@ class TableModel(QAbstractTableModel):
         lm.update()
 
     def set_key(self, key):
-        print('TableModel() Slot set_key() called.')
+        # print('TableModel() Slot set_key() called.')
         self.beginResetModel()
         self._data = getDB()[key].getPCPTable(self._pcp_table)
         self.endResetModel()
 
     def reset_model(self):
-        print('TableModel() Slot reset_model() called.')
+        # print('TableModel() Slot reset_model() called.')
         self.beginResetModel()
         self._data = None
         self.endResetModel()
@@ -263,9 +264,10 @@ class ListModel(QAbstractListModel):
         getMainWindow().getTableModel('incoming').set_key(key)
 
     def update(self):
-        print('ListModel() Slot update() called.')
+        # print('ListModel() Slot update() called.')
         self.beginResetModel()
-        self._data = sorted(getMainWindow()._obj_db.keys())
+        # self._data = sorted(getMainWindow()._obj_db.keys())
+        self._data = list(getMainWindow()._obj_db.keys())
         self.endResetModel()
 
     def rowCount(self, QModelIndex_parent=None, *args, **kwargs):
