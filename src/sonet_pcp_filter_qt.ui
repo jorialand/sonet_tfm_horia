@@ -17,31 +17,7 @@
    <string>Apply filter to PCP table</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="7" column="0" rowspan="2" colspan="2">
-    <layout class="QHBoxLayout" name="horizontalLayout_9">
-     <item>
-      <widget class="QPushButton" name="pb_clean">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="text">
-        <string>Reset</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pb_add_6">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="text">
-        <string>Add</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="16" column="0" colspan="2">
+   <item row="17" column="0" colspan="2">
     <widget class="QGroupBox" name="bottom_group_box">
      <property name="enabled">
       <bool>true</bool>
@@ -98,7 +74,88 @@
      </layout>
     </widget>
    </item>
-   <item row="2" column="0" colspan="2">
+   <item row="4" column="0">
+    <spacer name="verticalSpacer_5">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="10" column="0">
+    <spacer name="verticalSpacer_6">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="18" column="1">
+    <widget class="QDialogButtonBox" name="dialog_button_box">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="cursor">
+      <cursorShape>PointingHandCursor</cursorShape>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="2">
+    <widget class="QComboBox" name="select_spacecraft">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <item>
+      <property name="text">
+       <string>Select spacecraft</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="8" column="0" rowspan="2" colspan="2">
+    <layout class="QHBoxLayout" name="horizontalLayout_9">
+     <item>
+      <widget class="QPushButton" name="pb_clean">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>Reset</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pb_add_6">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>Add</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="3" column="0" colspan="2">
     <layout class="QGridLayout" name="top_grid_layout">
      <item row="1" column="2">
       <widget class="QGroupBox" name="time_of_flight_group_box">
@@ -190,16 +247,6 @@
           </item>
          </layout>
         </item>
-        <item row="0" column="0">
-         <widget class="QCheckBox" name="cb_time_of_flight">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
         <item row="2" column="0">
          <spacer name="verticalSpacer_4">
           <property name="enabled">
@@ -216,6 +263,16 @@
           </property>
          </spacer>
         </item>
+        <item row="0" column="0">
+         <widget class="QCheckBox" name="cb_time_of_flight">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
        </layout>
       </widget>
      </item>
@@ -229,21 +286,21 @@
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
+         <widget class="QCheckBox" name="cb_energy">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item>
          <layout class="QGridLayout" name="energy_grid_layout">
-          <item row="0" column="0">
-           <widget class="QCheckBox" name="cb_energy">
-            <property name="enabled">
-             <bool>true</bool>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
           <item row="1" column="2">
            <widget class="QSpinBox" name="spin_energy_number">
             <property name="enabled">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
             <property name="maximum">
              <number>999999</number>
@@ -253,36 +310,36 @@
           <item row="1" column="0">
            <widget class="QComboBox" name="combo_energy_parameter">
             <property name="enabled">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
             <item>
              <property name="text">
-              <string>DVt</string>
+              <string>dvt</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>DVd</string>
+              <string>dvd</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>DVa</string>
+              <string>dva</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>C3d</string>
+              <string>c3d</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>C3a</string>
+              <string>c3a</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>Theta</string>
+              <string>theta</string>
              </property>
             </item>
            </widget>
@@ -290,7 +347,7 @@
           <item row="1" column="1">
            <widget class="QComboBox" name="combo_energy_operator">
             <property name="enabled">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
             <item>
              <property name="text">
@@ -312,7 +369,7 @@
           <item row="1" column="3">
            <widget class="QComboBox" name="combo_energy_units">
             <property name="enabled">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
             <item>
              <property name="text">
@@ -638,61 +695,23 @@
      </item>
     </layout>
    </item>
-   <item row="3" column="0">
-    <spacer name="verticalSpacer_5">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="0" column="0" colspan="2">
-    <widget class="QComboBox" name="select_spacecraft">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
+   <item row="1" column="0" colspan="2">
+    <widget class="QComboBox" name="comboBox">
      <item>
       <property name="text">
-       <string>Select spacecraft</string>
+       <string>Select trip</string>
       </property>
      </item>
-    </widget>
-   </item>
-   <item row="9" column="0">
-    <spacer name="verticalSpacer_6">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="17" column="1">
-    <widget class="QDialogButtonBox" name="dialog_button_box">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="cursor">
-      <cursorShape>PointingHandCursor</cursorShape>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
+     <item>
+      <property name="text">
+       <string>Earth - Mars</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Mars - Earth</string>
+      </property>
+     </item>
     </widget>
    </item>
   </layout>

@@ -14,7 +14,8 @@ from src.sonet_pcp_filter_qt import sonet_pcp_filter_qt
 
 # QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)  # To avoid AA_ShareOpenGLContexts warning in QtCreator.
 
-# TODO: Instead of a predefined mock_data dict, the user should be capable of adding and removing spacecrafts.
+# TODOs
+# TODO When user selects one item, all row should be selected instead.
 
 def build_mock_data():
     result = {'Spacecraft 1': spacecraft.SonetSpacecraft(),
@@ -78,10 +79,9 @@ class MainWindow(QMainWindow, main_window_ui.Ui_main_window):
     @Slot()
     def open_sonet_pcp_filter_qt(self):
         print("Slot open_sonet_pcp_filter_qt called.")
-        # dialog = sonet_pcp_filter_qt()
-        dialog = sonet_pcp_filter_qt(self)
-        dialog.setModal(True)
-        dialog.show()
+        filter_dialog_qt = sonet_pcp_filter_qt(self)
+        filter_dialog_qt.setModal(True)
+        filter_dialog_qt.show()
 
     @Slot()
     def new_spacecraft(self):
