@@ -47,6 +47,7 @@ class MainWindow(QMainWindow, main_window_ui.Ui_main_window):
 
         # Objects database
         self._obj_db = {}
+        self.n = 0  # Counter for spacecrafts naming, to be deprecated.
         # Table models, it should be declared prior to list model
         self._table_model_outgoing = TableModel('outgoing')
         self._table_model_incoming = TableModel('incoming')
@@ -83,13 +84,17 @@ class MainWindow(QMainWindow, main_window_ui.Ui_main_window):
         filter_dialog_qt.setModal(True)
         filter_dialog_qt.show()
 
+        # Dev
+        ans = self.getListModel().get_data()
+        print(ans)
+
     @Slot()
     def new_spacecraft(self):
         print("Slot new_spacecraft called.")
 
         # Create new spacecraft
-        n = len(self._obj_db.keys())
-        self._obj_db['Spacecraft ' + str(n+1)] = spacecraft.SonetSpacecraft()
+        self.n = self.n + 1
+        self._obj_db['Spacecraft ' + str(self.n)] = spacecraft.SonetSpacecraft()
 
         # Update list model
         lm = self.getListModel()
@@ -103,12 +108,15 @@ class MainWindow(QMainWindow, main_window_ui.Ui_main_window):
         selection = self.sonet_mission_tree_qlv.currentIndex().row()
 
         # If there's no spacecraft, then return.
-        if (selection is -1):
+        db = getDB()
+        if len(list(db.keys())) is 0:
             print('There is no spacecrafts to remove.')
             return 0
+        # If there is no selection, remove last spacecraft.
+        if (selection is -1):
+            selection = len(list(db.keys())) - 1
 
         # Remove it from the database.
-        db = getDB()
         key = list(db.keys())[selection] # The selected object (e.g. spacecraft).
         del db[key]
 
@@ -159,6 +167,7 @@ class TableModel(QAbstractTableModel):
         self.beginResetModel()
         self._data = None
         self.endResetModel()
+        return 0
 
     def rowCount(self, QModelIndex_parent=None, *args, **kwargs):
         # try:
@@ -243,6 +252,9 @@ class ListModel(QAbstractListModel):
     def __init__(self, data=None, parent=None):
         super(ListModel, self).__init__(parent)
         self._data = {}.keys()  # It's a dictionary keys
+
+    def get_data(self):
+        return list(self._data)
 
     def list_clicked(self, index):
         row = index.row()
