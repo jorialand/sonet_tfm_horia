@@ -7,8 +7,9 @@ from PySide2.QtGui import QColor
 from PySide2.QtWidgets import QApplication, QMainWindow
 
 # From module X import class Y.
-from src import main_window_ui
+from src import sonet_main_window_ui
 from src import sonet_spacecraft as spacecraft
+from src.sonet_Utils import SpacecraftType
 from src.sonet_pcp_filter_qt import sonet_pcp_filter_qt
 
 
@@ -31,7 +32,7 @@ def getMainWindow():
 def getDB():
     return getMainWindow()._obj_db
 
-class MainWindow(QMainWindow, main_window_ui.Ui_main_window):
+class MainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
     """
     docstring
     """
@@ -88,21 +89,31 @@ class MainWindow(QMainWindow, main_window_ui.Ui_main_window):
 
     @Slot()
     def new_spacecraft(self):
-        # print("Slot new_spacecraft called.")
+        """
+        This method is called when clicking over 'Add spacecraft' QPushButton, it creates a new spacecraft.
+        :return: bool 0 if OK, 1 else.
+        """
 
         # Create new spacecraft
-        #self.n = self.n + 1
+        # print(self.sonet_spacecraft_type_qcmb.currentIndex(), self.sonet_spacecraft_type_qcmb.currentText())
         self.n += 1
-        self._obj_db['Spacecraft ' + str(self.n)] = spacecraft.SonetSpacecraft()
+        _ = self.sonet_spacecraft_type_qcmb.currentText()
+        # Lesson Learned - Don't use 'is' keyword to compare QStrings match with given text, use '==' instead.
+        if _ == 'Crewed':
+            _ = SpacecraftType.CREWED
+        elif _ == 'Cargo':
+            _ = SpacecraftType.CARGO
+        self._obj_db['Spacecraft ' + str(self.n)] = spacecraft.SonetSpacecraft(_)
 
         # Update list model
         lm = self.getListModel()
         lm.update()
 
+        print('Spacecraft ' + str(self.n) + ' of type ' + str(_) + ' created.')
+        return 0
+
     @Slot()
     def remove_spacecraft(self):
-        # print("Slot remove_spacecraft called.")
-
         # Get the current list view selection.
         selection = self.sonet_mission_tree_qlv.currentIndex().row()
 
@@ -129,6 +140,7 @@ class MainWindow(QMainWindow, main_window_ui.Ui_main_window):
         lm = self.getListModel()
         lm.update()
 
+        print(key + ' removed.')
         return 0
 
     @Slot()
@@ -145,7 +157,7 @@ class TableModel(QAbstractTableModel):
     def __init__(self, pcp_table='', parent=None):
         super(TableModel, self).__init__(parent)
         self._data = pd.DataFrame()  # It's a Pandas dataframe
-        self._pcp_table = pcp_table
+        self._pcp_table = pcp_table  # str ['outgoing'|'incoming']
 
     def add_spacecraft(self):
         n = len(self._data.keys())
@@ -260,6 +272,7 @@ class ListModel(QAbstractListModel):
     def list_clicked(self, index):
         row = index.row()
         key = self._data[row]
+        print(key)
         getMainWindow().getTableModel('outgoing').set_key(key)
         getMainWindow().getTableModel('incoming').set_key(key)
 

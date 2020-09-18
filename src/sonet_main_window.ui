@@ -39,42 +39,6 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="1">
-     <widget class="QGroupBox" name="sonet_mission_tree_qgb">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="title">
-       <string>Mission tree</string>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout_2">
-       <item>
-        <widget class="QListView" name="sonet_mission_tree_qlv"/>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_4">
-         <item>
-          <widget class="QPushButton" name="sonet_add_spacecraft_qpb">
-           <property name="text">
-            <string>Add spacecraft</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="sonet_remove_spacecraft_qpb">
-           <property name="text">
-            <string>Remove spacecraft</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </widget>
-    </item>
     <item row="0" column="0">
      <widget class="QGroupBox" name="sonet_pcp_table_qgb">
       <property name="title">
@@ -132,6 +96,55 @@
            </item>
           </layout>
          </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="0" column="2">
+     <layout class="QVBoxLayout" name="verticalLayout_7"/>
+    </item>
+    <item row="0" column="1">
+     <widget class="QGroupBox" name="sonet_mission_tree_qgb">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="title">
+       <string>Mission tree</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QListView" name="sonet_mission_tree_qlv"/>
+       </item>
+       <item>
+        <widget class="QComboBox" name="sonet_spacecraft_type_qcmb">
+         <item>
+          <property name="text">
+           <string>Crewed</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Cargo</string>
+          </property>
+         </item>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="sonet_add_spacecraft_qpb">
+         <property name="text">
+          <string>Add spacecraft</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="sonet_remove_spacecraft_qpb">
+         <property name="text">
+          <string>Remove spacecraft</string>
+         </property>
         </widget>
        </item>
        <item>
