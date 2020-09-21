@@ -6,6 +6,7 @@ from PySide2.QtCore import Slot, QAbstractListModel, QAbstractTableModel, QModel
 from PySide2.QtGui import QColor
 from PySide2.QtWidgets import QApplication, QMainWindow
 
+from src import database
 # From module X import class Y.
 from src import sonet_main_window_ui
 from src import sonet_spacecraft as spacecraft
@@ -29,9 +30,6 @@ def build_mock_data():
 def getMainWindow():
     return main_window
 
-def getDB():
-    return getMainWindow()._obj_db
-
 class MainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
     """
     docstring
@@ -47,7 +45,6 @@ class MainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         # TODO Añadir QActions (e.g. Exit, Save, etc.).
 
         # Objects database
-        self._obj_db = {}
         self.n = 0  # Counter for spacecrafts naming, to be deprecated.
         # Table models, it should be declared prior to list model
         self._table_model_outgoing = TableModel('outgoing')
@@ -103,7 +100,7 @@ class MainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
             _ = SpacecraftType.CREWED
         elif _ == 'Cargo':
             _ = SpacecraftType.CARGO
-        self._obj_db['Spacecraft ' + str(self.n)] = spacecraft.SonetSpacecraft(_)
+        database.db['Spacecraft ' + str(self.n)] = spacecraft.SonetSpacecraft(_)
 
         # Update list model
         lm = self.getListModel()
@@ -118,7 +115,7 @@ class MainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         selection = self.sonet_mission_tree_qlv.currentIndex().row()
 
         # If there's no spacecraft, then return.
-        db = getDB()
+        db = database.db
         if len(list(db.keys())) is 0:
             print('There is no spacecrafts to remove.')
             return 0
@@ -172,7 +169,7 @@ class TableModel(QAbstractTableModel):
     def set_key(self, key):
         # print('TableModel() Slot set_key() called.')
         self.beginResetModel()
-        self._data = getDB()[key].getPCPTable(self._pcp_table)
+        self._data = database.db[key].getPCPTable(self._pcp_table)
         self.endResetModel()
 
     def reset_model(self):
@@ -279,8 +276,7 @@ class ListModel(QAbstractListModel):
     def update(self):
         # print('ListModel() Slot update() called.')
         self.beginResetModel()
-        # self._data = sorted(getMainWindow()._obj_db.keys())
-        self._data = list(getMainWindow()._obj_db.keys())
+        self._data = list(database.db.keys())
         self.endResetModel()
 
     def rowCount(self, QModelIndex_parent=None, *args, **kwargs):
