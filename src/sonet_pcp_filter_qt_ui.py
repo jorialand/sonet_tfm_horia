@@ -375,7 +375,6 @@ class Ui_sonet_pcp_filter(object):
         self.gridLayout.addLayout(self.top_grid_layout, 3, 0, 1, 2)
 
         self.select_trip = QComboBox(sonet_pcp_filter)
-        self.select_trip.addItem("")
         self.select_trip.setObjectName(u"select_trip")
 
         self.gridLayout.addWidget(self.select_trip, 1, 0, 1, 2)
@@ -454,8 +453,6 @@ class Ui_sonet_pcp_filter(object):
         self.combo_when_2.setItemText(0, QCoreApplication.translate("sonet_pcp_filter", u"On", None))
         self.combo_when_2.setItemText(1, QCoreApplication.translate("sonet_pcp_filter", u"Before", None))
         self.combo_when_2.setItemText(2, QCoreApplication.translate("sonet_pcp_filter", u"After", None))
-
-        self.select_trip.setItemText(0, QCoreApplication.translate("sonet_pcp_filter", u"Select trip", None))
 
     # retranslateUi
 

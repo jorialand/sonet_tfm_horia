@@ -3,7 +3,9 @@ import sys
 from PySide2.QtCore import QCoreApplication, Qt
 from PySide2.QtWidgets import QDialog, QApplication, QDialogButtonBox
 
+from src import database
 from src import sonet_pcp_filter_qt_ui
+from src.sonet_Utils import SpacecraftType
 
 
 class sonet_pcp_filter_qt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
@@ -21,6 +23,7 @@ class sonet_pcp_filter_qt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         self.btn_cancel.clicked.connect(self.reject)
 
         self.select_spacecraft.currentIndexChanged.connect(self.cmb_select_spacecraft_changed)
+        self.select_trip.currentIndexChanged.connect(self.cmb_select_trip_changed)
         self.cb_energy.stateChanged.connect(self.cb_energy_changed)
         self.combo_energy_parameter.currentIndexChanged.connect(self.cmb_energy_parameter_changed)
 
@@ -46,6 +49,8 @@ class sonet_pcp_filter_qt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
     def cmb_select_spacecraft_changed(self, index):
         """
+        Triggered when the select_spacecfraft combo box index changes.
+
         Updates the 'Select trip' combo box every time the 'Select spacecraft' changes.
         If the spacecraft is crewed, then it will have both outgoing and incoming trips.
         If the spacecraft is cargo, then it will have only outgoing trip.
@@ -53,8 +58,49 @@ class sonet_pcp_filter_qt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         :param index:
         :return:
         """
-        print('Slot cmb_select_spacecraft_changed() called.')
-        print(self.select_spacecraft.itemText(index))
+        # print('Slot cmb_select_spacecraft_changed() called.')
+
+        # Retrieve the selected spacecraft.
+        selected_spacecraft = self.select_spacecraft.itemText(index)
+
+        # Get the spacecraft type.
+        if selected_spacecraft == 'Select spacecraft':
+            self.select_trip.clear()
+            self.select_trip.addItems(['Select trip'])
+            return True
+        else:
+            spacecraft_type = database.db[selected_spacecraft].getSpacecraftType()
+
+            if spacecraft_type == SpacecraftType.CREWED:
+                items = ['Select trip', 'Earth - Mars', 'Mars - Earth']
+            elif spacecraft_type == SpacecraftType.CARGO:
+                items = ['Select trip', 'Earth - Mars']
+
+            self.select_trip.clear()
+            self.select_trip.addItems(items)
+            return True
+    def cmb_select_trip_changed(self, index):
+        """
+        Triggered when the select_trip combo box index changes.
+
+        Only once both combo boxes (select_spacecraft, and select_trip) are valid, then we will be able
+        to work with a specific table (outgoing or incoming). Once the selection is valid, we'll enable the
+        different filtering options combo boxes (i.e. by trajectory energy, by time of flight, etc.).
+        """
+        selection_is_valid = self.selection_is_valid()
+
+        if selection_is_valid:
+            self.activate_combos(True)
+        elif not selection_is_valid:
+            self.activate_combos(False)
+
+    def activate_combos(self, ar_activate):
+        self.activate_energy_groupbox(ar_activate)
+    def activate_energy_groupbox(self, ar_activate):
+        self.energy_group_box.setEnabled(ar_activate)
+        if ar_activate is False:
+            self.cb_energy.setChecked(False)
+        self.cb_energy.setEnabled(ar_activate)
 
     def cmb_energy_parameter_changed(self,index):
         cmb_units = self.combo_energy_units
@@ -74,6 +120,16 @@ class sonet_pcp_filter_qt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         else:
             print('Warning: cmb_energy_parameter_changed()')
 
+    def selection_is_valid(self):
+        c1 = self.select_spacecraft.currentText() == 'Select spacecraft'
+        c2 = self.select_trip.currentText() == 'Select trip'
+        if not c1 and not c2:
+            print('Selection is valid.')
+            return True
+        else:
+            print("Selection isn't valid.")
+            # print(self.select_trip.currentText())
+            return False
     def cb_energy_changed(self):
         cb = self.cb_energy
         if cb.isChecked():
