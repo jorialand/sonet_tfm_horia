@@ -19,7 +19,7 @@ class Ui_sonet_pcp_filter(object):
         if not sonet_pcp_filter.objectName():
             sonet_pcp_filter.setObjectName(u"sonet_pcp_filter")
         sonet_pcp_filter.setEnabled(True)
-        sonet_pcp_filter.resize(697, 704)
+        sonet_pcp_filter.resize(697, 707)
         self.gridLayout = QGridLayout(sonet_pcp_filter)
         self.gridLayout.setObjectName(u"gridLayout")
         self.bottom_group_box = QGroupBox(sonet_pcp_filter)
@@ -31,17 +31,17 @@ class Ui_sonet_pcp_filter(object):
         self.bottom_grid_layout.setObjectName(u"bottom_grid_layout")
         self.horizontalLayout_14 = QHBoxLayout()
         self.horizontalLayout_14.setObjectName(u"horizontalLayout_14")
-        self.pb_add_4 = QPushButton(self.bottom_group_box)
-        self.pb_add_4.setObjectName(u"pb_add_4")
-        self.pb_add_4.setEnabled(False)
+        self.pb_delete = QPushButton(self.bottom_group_box)
+        self.pb_delete.setObjectName(u"pb_delete")
+        self.pb_delete.setEnabled(False)
 
-        self.horizontalLayout_14.addWidget(self.pb_add_4)
+        self.horizontalLayout_14.addWidget(self.pb_delete)
 
-        self.pb_add = QPushButton(self.bottom_group_box)
-        self.pb_add.setObjectName(u"pb_add")
-        self.pb_add.setEnabled(False)
+        self.pb_delete_all = QPushButton(self.bottom_group_box)
+        self.pb_delete_all.setObjectName(u"pb_delete_all")
+        self.pb_delete_all.setEnabled(False)
 
-        self.horizontalLayout_14.addWidget(self.pb_add)
+        self.horizontalLayout_14.addWidget(self.pb_delete_all)
 
 
         self.bottom_grid_layout.addLayout(self.horizontalLayout_14, 2, 0, 1, 1)
@@ -89,17 +89,17 @@ class Ui_sonet_pcp_filter(object):
 
         self.horizontalLayout_9 = QHBoxLayout()
         self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
-        self.pb_clean = QPushButton(sonet_pcp_filter)
-        self.pb_clean.setObjectName(u"pb_clean")
-        self.pb_clean.setEnabled(False)
+        self.pb_reset = QPushButton(sonet_pcp_filter)
+        self.pb_reset.setObjectName(u"pb_reset")
+        self.pb_reset.setEnabled(True)
 
-        self.horizontalLayout_9.addWidget(self.pb_clean)
+        self.horizontalLayout_9.addWidget(self.pb_reset)
 
-        self.pb_add_6 = QPushButton(sonet_pcp_filter)
-        self.pb_add_6.setObjectName(u"pb_add_6")
-        self.pb_add_6.setEnabled(False)
+        self.pb_add = QPushButton(sonet_pcp_filter)
+        self.pb_add.setObjectName(u"pb_add")
+        self.pb_add.setEnabled(False)
 
-        self.horizontalLayout_9.addWidget(self.pb_add_6)
+        self.horizontalLayout_9.addWidget(self.pb_add)
 
 
         self.gridLayout.addLayout(self.horizontalLayout_9, 8, 0, 2, 2)
@@ -272,11 +272,11 @@ class Ui_sonet_pcp_filter(object):
         self.verticalLayout_3 = QVBoxLayout()
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.verticalLayout_3.setSizeConstraint(QLayout.SetMinimumSize)
-        self.checkBox = QCheckBox(self.top_left_group_box)
-        self.checkBox.setObjectName(u"checkBox")
-        self.checkBox.setEnabled(False)
+        self.cb_dates_1 = QCheckBox(self.top_left_group_box)
+        self.cb_dates_1.setObjectName(u"cb_dates_1")
+        self.cb_dates_1.setEnabled(False)
 
-        self.verticalLayout_3.addWidget(self.checkBox)
+        self.verticalLayout_3.addWidget(self.cb_dates_1)
 
         self.spin_number = QSpinBox(self.top_left_group_box)
         self.spin_number.setObjectName(u"spin_number")
@@ -330,11 +330,11 @@ class Ui_sonet_pcp_filter(object):
         self.verticalLayout_7 = QVBoxLayout()
         self.verticalLayout_7.setObjectName(u"verticalLayout_7")
         self.verticalLayout_7.setSizeConstraint(QLayout.SetMinimumSize)
-        self.checkBox_2 = QCheckBox(self.top_left_group_box)
-        self.checkBox_2.setObjectName(u"checkBox_2")
-        self.checkBox_2.setEnabled(False)
+        self.cb_dates_2 = QCheckBox(self.top_left_group_box)
+        self.cb_dates_2.setObjectName(u"cb_dates_2")
+        self.cb_dates_2.setEnabled(False)
 
-        self.verticalLayout_7.addWidget(self.checkBox_2)
+        self.verticalLayout_7.addWidget(self.cb_dates_2)
 
         self.combo_when_2 = QComboBox(self.top_left_group_box)
         self.combo_when_2.addItem("")
@@ -389,13 +389,13 @@ class Ui_sonet_pcp_filter(object):
     def retranslateUi(self, sonet_pcp_filter):
         sonet_pcp_filter.setWindowTitle(QCoreApplication.translate("sonet_pcp_filter", u"Apply filter to PCP table", None))
         self.bottom_group_box.setTitle(QCoreApplication.translate("sonet_pcp_filter", u"Applied filters", None))
-        self.pb_add_4.setText(QCoreApplication.translate("sonet_pcp_filter", u"Delete", None))
-        self.pb_add.setText(QCoreApplication.translate("sonet_pcp_filter", u"Delete all", None))
+        self.pb_delete.setText(QCoreApplication.translate("sonet_pcp_filter", u"Delete", None))
+        self.pb_delete_all.setText(QCoreApplication.translate("sonet_pcp_filter", u"Delete all", None))
         self.label.setText(QCoreApplication.translate("sonet_pcp_filter", u"55 rows selected", None))
         self.select_spacecraft.setItemText(0, QCoreApplication.translate("sonet_pcp_filter", u"Select spacecraft", None))
 
-        self.pb_clean.setText(QCoreApplication.translate("sonet_pcp_filter", u"Reset", None))
-        self.pb_add_6.setText(QCoreApplication.translate("sonet_pcp_filter", u"Add", None))
+        self.pb_reset.setText(QCoreApplication.translate("sonet_pcp_filter", u"Reset", None))
+        self.pb_add.setText(QCoreApplication.translate("sonet_pcp_filter", u"Add", None))
         self.time_of_flight_group_box.setTitle(QCoreApplication.translate("sonet_pcp_filter", u"Time of flight", None))
         self.combo_time_of_flight.setItemText(0, QCoreApplication.translate("sonet_pcp_filter", u"Time of flight", None))
 
@@ -434,7 +434,7 @@ class Ui_sonet_pcp_filter(object):
         self.combo_planet.setItemText(0, QCoreApplication.translate("sonet_pcp_filter", u"Earth", None))
         self.combo_planet.setItemText(1, QCoreApplication.translate("sonet_pcp_filter", u"Mars", None))
 
-        self.checkBox.setText("")
+        self.cb_dates_1.setText("")
         self.combo_time_scale.setItemText(0, QCoreApplication.translate("sonet_pcp_filter", u"Days", None))
         self.combo_time_scale.setItemText(1, QCoreApplication.translate("sonet_pcp_filter", u"Weeks", None))
         self.combo_time_scale.setItemText(2, QCoreApplication.translate("sonet_pcp_filter", u"Months", None))
@@ -449,7 +449,7 @@ class Ui_sonet_pcp_filter(object):
 
         self.combo_select_spacecraft.setItemText(0, QCoreApplication.translate("sonet_pcp_filter", u"Select spacecraft", None))
 
-        self.checkBox_2.setText("")
+        self.cb_dates_2.setText("")
         self.combo_when_2.setItemText(0, QCoreApplication.translate("sonet_pcp_filter", u"On", None))
         self.combo_when_2.setItemText(1, QCoreApplication.translate("sonet_pcp_filter", u"Before", None))
         self.combo_when_2.setItemText(2, QCoreApplication.translate("sonet_pcp_filter", u"After", None))

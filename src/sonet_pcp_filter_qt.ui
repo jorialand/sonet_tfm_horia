@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>697</width>
-    <height>704</height>
+    <height>707</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -31,7 +31,7 @@
         <item row="2" column="0">
          <layout class="QHBoxLayout" name="horizontalLayout_14">
           <item>
-           <widget class="QPushButton" name="pb_add_4">
+           <widget class="QPushButton" name="pb_delete">
             <property name="enabled">
              <bool>false</bool>
             </property>
@@ -41,7 +41,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pb_add">
+           <widget class="QPushButton" name="pb_delete_all">
             <property name="enabled">
              <bool>false</bool>
             </property>
@@ -134,9 +134,9 @@
    <item row="8" column="0" rowspan="2" colspan="2">
     <layout class="QHBoxLayout" name="horizontalLayout_9">
      <item>
-      <widget class="QPushButton" name="pb_clean">
+      <widget class="QPushButton" name="pb_reset">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="text">
         <string>Reset</string>
@@ -144,7 +144,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pb_add_6">
+      <widget class="QPushButton" name="pb_add">
        <property name="enabled">
         <bool>false</bool>
        </property>
@@ -484,7 +484,7 @@
                <enum>QLayout::SetMinimumSize</enum>
               </property>
               <item>
-               <widget class="QCheckBox" name="checkBox">
+               <widget class="QCheckBox" name="cb_dates_1">
                 <property name="enabled">
                  <bool>false</bool>
                 </property>
@@ -618,7 +618,7 @@
                <enum>QLayout::SetMinimumSize</enum>
               </property>
               <item>
-               <widget class="QCheckBox" name="checkBox_2">
+               <widget class="QCheckBox" name="cb_dates_2">
                 <property name="enabled">
                  <bool>false</bool>
                 </property>

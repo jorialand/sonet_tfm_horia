@@ -2,7 +2,7 @@ import random
 
 import pandas as pd
 
-
+SONET_DEBUG = True
 def PrintDict(ar_dict):
     """
     Convenience function for printing a dictionary to console.
