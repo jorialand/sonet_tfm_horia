@@ -1,11 +1,11 @@
 import sys
 
-from PySide2.QtCore import QCoreApplication, Qt
+from PySide2.QtCore import QCoreApplication, Qt, QAbstractTableModel, QModelIndex
 from PySide2.QtWidgets import QDialog, QApplication, QDialogButtonBox
 
 from src import database
 from src import sonet_pcp_filter_qt_ui
-from src.sonet_Utils import SpacecraftType, SONET_DEBUG
+from src.sonet_utils import SpacecraftType, SONET_DEBUG
 
 
 class sonet_pcp_filter_qt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
@@ -13,6 +13,10 @@ class sonet_pcp_filter_qt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         super(sonet_pcp_filter_qt, self).__init__(*args)  # , **kwargs)
         self.setupUi(self)
         self.init(ar_list_spacecrafts, ar_current_index)
+
+        # Draft
+        self._applied_filters_table_model = sonet_applied_filters_TableModel()
+        self.applied_filters_table_view.setModel(self._applied_filters_table_model)
 
     def init(self, ar_list_spacecrafts=[], ar_current_index=-1):
         """
@@ -296,6 +300,30 @@ class sonet_pcp_filter_qt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         pass
 
     def clicked_pb_delete_all(self):
+        pass
+
+
+class sonet_applied_filters_TableModel(QAbstractTableModel):
+    """
+    Table model for the applied filters QTableView. Only two columns:
+    Column 1: Checkbox to enable/disable the filter.
+    Column 2: String describing the filter, if several filters were applied it displays them with the format [filter1]
+    AND [filter2] AND [filterN].
+    """
+
+    def __init__(self, pcp_table='', parent=None):
+        pass
+
+    def rowCount(self, QModelIndex_parent=None, *args, **kwargs):
+        pass
+
+    def columnCount(self, QModelIndex_parent=None, *args, **kwargs):
+        pass
+
+    def data(self, index=QModelIndex, role=None):
+        pass
+
+    def headerData(self, section, orientation, role):
         pass
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@ import random
 
 import pandas as pd
 
-from src.sonet_Utils import ObjectType, SpacecraftType
+from src.sonet_utils import ObjectType, SpacecraftType
 
 
 class SonetSpacecraft:
@@ -29,7 +29,6 @@ class SonetSpacecraft:
             fin = random.randint(11, 22)
             self._df_incoming = self._df_incoming.iloc[ini:fin]
 
-
         elif _ is SpacecraftType.CARGO:
             self._df_outgoing = pd.read_csv(dir_path + '10kPCP_Earth2Mars.txt')
 
@@ -37,6 +36,8 @@ class SonetSpacecraft:
             ini = random.randint(0, 10)
             fin = random.randint(11, 22)
             self._df_outgoing = self._df_outgoing.iloc[ini:fin]
+        else:
+            print('Error in SonetSpacecraft constructor, wrong SpacecraftType.')
 
     # Public methods
     def getSpacecraftType(self):
@@ -68,7 +69,6 @@ class SonetSpacecraft:
                 return None
         except AttributeError:
             return pd.DataFrame()
-
 
     # Private methods
 # TODO: Convert DepDates column to readable date (e.g. YYYY-MM-DD)

@@ -10,8 +10,8 @@ from src import database
 # From module X import class Y.
 from src import sonet_main_window_ui
 from src import sonet_spacecraft as spacecraft
-from src.sonet_Utils import SpacecraftType
 from src.sonet_pcp_filter_qt import sonet_pcp_filter_qt
+from src.sonet_utils import SpacecraftType
 
 
 # QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)  # To avoid AA_ShareOpenGLContexts warning in QtCreator.
