@@ -8,10 +8,10 @@ import sys
 
 from PySide2 import QtCore, QtWidgets
 
-from src import sonet_spacecraft
+from src import SonetSpacecraft
 
-new_spacecraft = sonet_spacecraft.SonetSpacecraft
-#mock_data = {'Spacecraft 1': new_spacecraft('mock1.txt'), 'Spacecraft 2': new_spacecraft('mock2.txt')}
+new_spacecraft = SonetSpacecraft.SonetSpacecraft
+mock_data = {'Spacecraft 1': new_spacecraft('mock1.txt'), 'Spacecraft 2': new_spacecraft('mock2.txt')}
 
 class TableModel(QtCore.QAbstractTableModel):
     def __init__(self, data, parent=None):

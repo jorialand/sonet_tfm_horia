@@ -2,25 +2,30 @@ import random
 
 import pandas as pd
 
-from src.sonet_utils import ObjectType, SpacecraftType
+from src import database
+from src.SonetTrajectoryFilter import SonetTrajectoryFilter
+from src.SonetUtils import ObjectType, ObjectState, SpacecraftType
 
 
 class SonetSpacecraft:
     def __init__(self, a_spacecraft_type=None):
-        # Private members
+        # Instance members
         self._obj_type = ObjectType.SPACECRAFT
         self._spacecraft_type = a_spacecraft_type
-
-        # Public members
-        # ...
+        self._obj_state = ObjectState.OK
 
         dir_path = '/Users/Jorialand/code/tfm/sonet/sonet_tfm_horia/src/'
-        _ = self.getSpacecraftType()
-        if _ is SpacecraftType.CREWED:
-            self._df_outgoing = pd.read_csv(dir_path + '10kPCP_Earth2Mars.txt')
-            self._df_incoming = pd.read_csv(dir_path + '10kPCP_Mars2Earth.txt')
+        _ = self.get_spacecraft_type()
 
-            # Debug
+        # Crewed spacecrafts travel to and from Mars. Cargo ones travel only once to Mars and remain there.
+        if _ is SpacecraftType.CREWED:
+            # Earth - Mars (outgoing) and Mars - Earth (incoming) porkchop plots (pcp).
+            self._df_outgoing = database.pcp_outgoing#pd.read_csv(dir_path + '10kPCP_Earth2Mars.txt')
+            self._df_incoming = database.pcp_incoming#pd.read_csv(dir_path + '10kPCP_Mars2Earth.txt')
+            self._filter_outgoing = SonetTrajectoryFilter()
+            self._filter_incoming = SonetTrajectoryFilter()
+
+            # Debug [POSSIBLE COPY WARNING]
             ini = random.randint(0, 10)
             fin = random.randint(11, 22)
             self._df_outgoing = self._df_outgoing.iloc[ini:fin]
@@ -29,24 +34,31 @@ class SonetSpacecraft:
             fin = random.randint(11, 22)
             self._df_incoming = self._df_incoming.iloc[ini:fin]
 
+            #
+
         elif _ is SpacecraftType.CARGO:
             self._df_outgoing = pd.read_csv(dir_path + '10kPCP_Earth2Mars.txt')
 
-            # Debug
+            # Debug [POSSIBLE COPY WARNING]
             ini = random.randint(0, 10)
             fin = random.randint(11, 22)
             self._df_outgoing = self._df_outgoing.iloc[ini:fin]
         else:
+            self._obj_state = ObjectState.ERROR
             print('Error in SonetSpacecraft constructor, wrong SpacecraftType.')
 
+
     # Public methods
-    def getSpacecraftType(self):
+    def get_object_state(self):
+        return self._obj_state
+
+    def get_spacecraft_type(self):
         return self._spacecraft_type
 
-    def getObjectType(self):
+    def get_object_type(self):
         return self._obj_type
 
-    def getPCPTable(self, a_table=None):
+    def get_pcp_table(self, a_table=None):
         """
         Returns the Pandas dataframe representing the porkchop table of the outgoing (e.g. Earth-Mars) or
         incoming trip.

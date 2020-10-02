@@ -6,12 +6,12 @@ from PySide2.QtCore import Slot, QAbstractListModel, QAbstractTableModel, QModel
 from PySide2.QtGui import QColor
 from PySide2.QtWidgets import QApplication, QMainWindow
 
+from src import SonetSpacecraft as spacecraft
 from src import database
 # From module X import class Y.
 from src import sonet_main_window_ui
-from src import sonet_spacecraft as spacecraft
+from src.SonetUtils import SpacecraftType
 from src.sonet_pcp_filter_qt import sonet_pcp_filter_qt
-from src.sonet_utils import SpacecraftType
 
 
 # QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)  # To avoid AA_ShareOpenGLContexts warning in QtCreator.
@@ -169,7 +169,7 @@ class TableModel(QAbstractTableModel):
     def set_key(self, key):
         # print('TableModel() Slot set_key() called.')
         self.beginResetModel()
-        self._data = database.db[key].getPCPTable(self._pcp_table)
+        self._data = database.db[key].get_pcp_table(self._pcp_table)
         self.endResetModel()
 
     def reset_model(self):
@@ -185,7 +185,7 @@ class TableModel(QAbstractTableModel):
         # except AttributeError:
         #     return 0
         # else:
-        #     return self._data[self.dict_key].getPCPTable(self._pcp_table).shape[0]
+        #     return self._data[self.dict_key].get_pcp_table(self._pcp_table).shape[0]
         if self._data is None:
             return 0
         return self._data.shape[0]  # Number of rows of the dataframe
@@ -196,7 +196,7 @@ class TableModel(QAbstractTableModel):
         # except AttributeError:
         #     return 0
         # else:
-        #     return self._data[self.dict_key].getPCPTable(self._pcp_table).shape[1]
+        #     return self._data[self.dict_key].get_pcp_table(self._pcp_table).shape[1]
         if self._data is None:
             return 0
         return self._data.shape[1]  # Number of columns of the dataframe
@@ -214,7 +214,7 @@ class TableModel(QAbstractTableModel):
         if role == Qt.DisplayRole:
             # return str(self._data.iloc[index.row(), index.column()])
             # Get the raw value
-            # value = self._data[self.dict_key].getPCPTable(self._pcp_table).iloc[row, column]
+            # value = self._data[self.dict_key].get_pcp_table(self._pcp_table).iloc[row, column]
             value = self._data.iloc[row, column]
 
             # Perform per-type checks and render accordingly.
@@ -247,10 +247,10 @@ class TableModel(QAbstractTableModel):
 
         if role == Qt.DisplayRole:
             if orientation == Qt.Horizontal:
-                # return str(self._data[self.dict_key].getPCPTable(self._pcp_table).columns[section])
+                # return str(self._data[self.dict_key].get_pcp_table(self._pcp_table).columns[section])
                 return str(self._data.columns[section])
             if orientation == Qt.Vertical:
-                # return str(self._data[self.dict_key].getPCPTable(self._pcp_table).index[section])
+                # return str(self._data[self.dict_key].get_pcp_table(self._pcp_table).index[section])
                 return str(self._data.index[section])
         return None
 

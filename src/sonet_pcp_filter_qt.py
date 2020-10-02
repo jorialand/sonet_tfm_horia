@@ -5,7 +5,7 @@ from PySide2.QtWidgets import QDialog, QApplication, QDialogButtonBox
 
 from src import database
 from src import sonet_pcp_filter_qt_ui
-from src.sonet_utils import SpacecraftType, SONET_DEBUG
+from src.SonetUtils import SpacecraftType, SONET_DEBUG
 
 
 class sonet_pcp_filter_qt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
@@ -16,7 +16,7 @@ class sonet_pcp_filter_qt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
         # Draft
         self._applied_filters_table_model = sonet_applied_filters_TableModel()
-        self.applied_filters_table_view.setModel(self._applied_filters_table_model)
+        # self.applied_filters_table_view.setModel(self._applied_filters_table_model)
 
     def init(self, ar_list_spacecrafts=[], ar_current_index=-1):
         """
@@ -27,6 +27,7 @@ class sonet_pcp_filter_qt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         """
         # Connect signals and slots.
         self.btn_accept = self.dialog_button_box.button(QDialogButtonBox.Ok)
+        self.btn_accept.clicked.connect(self.clicked_pb_accept)
         self.btn_accept.clicked.connect(self.accept)
 
         self.btn_cancel = self.dialog_button_box.button(QDialogButtonBox.Cancel)
@@ -207,7 +208,7 @@ class sonet_pcp_filter_qt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
             self.select_trip.addItems(['Select trip'])
             return True
         else:
-            spacecraft_type = database.db[selected_spacecraft].getSpacecraftType()
+            spacecraft_type = database.db[selected_spacecraft].get_spacecraft_type()
 
             if spacecraft_type == SpacecraftType.CREWED:
                 items = ['Select trip', 'Earth - Mars', 'Mars - Earth']
@@ -260,7 +261,14 @@ class sonet_pcp_filter_qt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         else:
             self.enable_energy_combos(False)
 
+    def clicked_pb_accept(self):
+        if SONET_DEBUG:
+            print('clicked_pb_accept()')
+
     def clicked_pb_reset(self):
+        if SONET_DEBUG:
+            print('clicked_pb_reset()')
+
         self.reset_filter_energy()
 
         # Pending implementation
@@ -273,7 +281,7 @@ class sonet_pcp_filter_qt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         Traverses all the checked filters and adds them to the filters table.
         """
         if SONET_DEBUG:
-            print('pb_add_clicked()')
+            print('clicked_pb_add()')
 
         list_checked_cb = self.which_cb_checked()
 
@@ -306,13 +314,14 @@ class sonet_pcp_filter_qt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 class sonet_applied_filters_TableModel(QAbstractTableModel):
     """
     Table model for the applied filters QTableView. Only two columns:
-    Column 1: Checkbox to enable/disable the filter.
-    Column 2: String describing the filter, if several filters were applied it displays them with the format [filter1]
-    AND [filter2] AND [filterN].
+    Col 1: Status - Checkbox to enable/disable the filter.
+    Col 2: Filter type - Energy, Time of flight, Dates.
+    Col 3: Filter - String describing the filter, if several filters were applied, each one will be splitted in a row.
     """
 
     def __init__(self, pcp_table='', parent=None):
-        pass
+        super(sonet_applied_filters_TableModel, self).__init__(parent)
+        self._data = []
 
     def rowCount(self, QModelIndex_parent=None, *args, **kwargs):
         pass

@@ -24,6 +24,14 @@ class ObjectType(Enum):
     NA = 0  # NA stands for Not Assigned
     SPACECRAFT = 1
 
+@unique
+class ObjectState(Enum):
+    """
+    Enum representing the state of the objects, useful to find errors. if(ObjectState==Error)...
+    """
+    NA = 0
+    OK = 1
+    ERROR = 2
 
 @unique
 class SpacecraftType(Enum):
@@ -34,6 +42,16 @@ class SpacecraftType(Enum):
     CREWED = 1
     CARGO = 2
 
+@unique
+class FilterType(Enum):
+    """
+    Enum representing the type of filter applied to the spacecrafts trajectories.
+    """
+    NA = 0
+    ENERGY = 1  # ['dvt', '<', '4', 'km/s']
+    TOF = 2  # ['Time of flight', '<', '200', 'days']
+    DATES = 3  # ['Departs', 'Earth', 'Before', '20/07/2021']
+    DATES_2 = 4  # ['Departs', 'Mars', 'At the same time', 'Spacecraft 1', 'Leaves Earth']
 
 def build_mock_DataFrame(num_rows=5, num_columns=8, min=0, max=10):
     # Build columns
