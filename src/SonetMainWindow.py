@@ -10,8 +10,8 @@ from src import SonetSpacecraft as spacecraft
 from src import database
 # From module X import class Y.
 from src import sonet_main_window_ui
+from src.SonetPCPFilterQt import SonetPCPFilterQt
 from src.SonetUtils import SpacecraftType
-from src.sonet_pcp_filter_qt import sonet_pcp_filter_qt
 
 
 # QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)  # To avoid AA_ShareOpenGLContexts warning in QtCreator.
@@ -80,7 +80,7 @@ class MainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         # print("Slot open_sonet_pcp_filter_qt called.")
         ans1 = self.getListModel().get_data()
         ans2 = self.sonet_mission_tree_qlv.currentIndex().row()
-        filter_dialog_qt = sonet_pcp_filter_qt(self, ar_list_spacecrafts=ans1, ar_current_index=ans2)
+        filter_dialog_qt = SonetPCPFilterQt(self, ar_list_spacecrafts=ans1, ar_current_index=ans2)
         filter_dialog_qt.setModal(True)
         filter_dialog_qt.show()
 
@@ -153,16 +153,18 @@ class TableModel(QAbstractTableModel):
 
     def __init__(self, pcp_table='', parent=None):
         super(TableModel, self).__init__(parent)
-        self._data = pd.DataFrame()  # It's a Pandas dataframe
+        self._data = pd.DataFrame()  # A Pandas dataframe
         self._pcp_table = pcp_table  # str ['outgoing'|'incoming']
 
     def add_spacecraft(self):
         n = len(self._data.keys())
 
+        # The XResetModel() notifies all the attached views that the model is about to be updated.
         self.beginResetModel()
         self._data['Spacecraft ' + str(n + 1)] = spacecraft.SonetSpacecraft()
         self.endResetModel()
 
+        # Custom update procedure to update the MainWindow's list model and list view.
         lm = getMainWindow().getListModel()
         lm.update()
 
@@ -202,7 +204,6 @@ class TableModel(QAbstractTableModel):
         return self._data.shape[1]  # Number of columns of the dataframe
 
     def data(self, index=QModelIndex, role=None):
-
         if not index.isValid():
             return None
 

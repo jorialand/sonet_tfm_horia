@@ -25,7 +25,7 @@ class SonetSpacecraft:
             self._filter_outgoing = SonetTrajectoryFilter()
             self._filter_incoming = SonetTrajectoryFilter()
 
-            # Debug [POSSIBLE COPY WARNING]
+            # Draft [POSSIBLE COPY WARNING]
             ini = random.randint(0, 10)
             fin = random.randint(11, 22)
             self._df_outgoing = self._df_outgoing.iloc[ini:fin]
@@ -34,15 +34,14 @@ class SonetSpacecraft:
             fin = random.randint(11, 22)
             self._df_incoming = self._df_incoming.iloc[ini:fin]
 
-            #
-
         elif _ is SpacecraftType.CARGO:
             self._df_outgoing = pd.read_csv(dir_path + '10kPCP_Earth2Mars.txt')
 
-            # Debug [POSSIBLE COPY WARNING]
+            # Draft [POSSIBLE COPY WARNING]
             ini = random.randint(0, 10)
             fin = random.randint(11, 22)
             self._df_outgoing = self._df_outgoing.iloc[ini:fin]
+
         else:
             self._obj_state = ObjectState.ERROR
             print('Error in SonetSpacecraft constructor, wrong SpacecraftType.')

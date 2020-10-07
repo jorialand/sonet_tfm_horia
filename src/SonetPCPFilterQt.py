@@ -1,22 +1,27 @@
+# General imports
 import sys
 
+import pandas as pd
+# Pyside2 imports
 from PySide2.QtCore import QCoreApplication, Qt, QAbstractTableModel, QModelIndex
+from PySide2.QtGui import QColor
 from PySide2.QtWidgets import QDialog, QApplication, QDialogButtonBox
 
+# Sonet imports
 from src import database
 from src import sonet_pcp_filter_qt_ui
-from src.SonetUtils import SpacecraftType, SONET_DEBUG
+from src.SonetUtils import SpacecraftType, SONET_DEBUG, FilterType
 
 
-class sonet_pcp_filter_qt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
+class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
     def __init__(self, *args, ar_list_spacecrafts=[], ar_current_index=-1):
-        super(sonet_pcp_filter_qt, self).__init__(*args)  # , **kwargs)
+        super(SonetPCPFilterQt, self).__init__(*args)  # , **kwargs)
         self.setupUi(self)
         self.init(ar_list_spacecrafts, ar_current_index)
 
         # Draft
-        self._applied_filters_table_model = sonet_applied_filters_TableModel()
-        # self.applied_filters_table_view.setModel(self._applied_filters_table_model)
+        self._applied_filters_table_model = SonetAppliedFiltersTableModel()
+        self.applied_filters_table_view.setModel(self._applied_filters_table_model)
 
     def init(self, ar_list_spacecrafts=[], ar_current_index=-1):
         """
@@ -43,6 +48,7 @@ class sonet_pcp_filter_qt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         self.cb_energy.stateChanged.connect(self.enable_pb_add)
         self.cb_energy.stateChanged.connect(self.changed_cb_energy)
 
+        ###
         # Fill select_spacecraft combo with the available spacecrafts and select the current one.
         self.init_combo_select_spacecraft(ar_list_spacecrafts, ar_current_index)
 
@@ -89,6 +95,7 @@ class sonet_pcp_filter_qt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         :return: bool 0 if no errors, 1 otherwise.
         """
         self.enable_groupbox_energy(ar_activate)
+        self.enable_groupbox_applied_filters(ar_activate)
         return 0
 
     def enable_energy_combos(self, ar_enable):
@@ -101,6 +108,11 @@ class sonet_pcp_filter_qt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         if ar_activate is False:
             self.cb_energy.setChecked(False)
         self.cb_energy.setEnabled(ar_activate)
+
+    def enable_groupbox_applied_filters(self, ar_activate):
+        self.bottom_group_box.setEnabled(ar_activate)
+        self.applied_filters_table_view.setEnabled(ar_activate)
+        self.label.setEnabled(ar_activate)
 
     def get_filter_data_energy(self):
         """
@@ -311,7 +323,7 @@ class sonet_pcp_filter_qt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         pass
 
 
-class sonet_applied_filters_TableModel(QAbstractTableModel):
+class SonetAppliedFiltersTableModel(QAbstractTableModel):
     """
     Table model for the applied filters QTableView. Only two columns:
     Col 1: Status - Checkbox to enable/disable the filter.
@@ -319,25 +331,70 @@ class sonet_applied_filters_TableModel(QAbstractTableModel):
     Col 3: Filter - String describing the filter, if several filters were applied, each one will be splitted in a row.
     """
 
-    def __init__(self, pcp_table='', parent=None):
-        super(sonet_applied_filters_TableModel, self).__init__(parent)
-        self._data = []
+    def __init__(self, parent=None):
+        super(SonetAppliedFiltersTableModel, self).__init__(parent)
+        self._data = pd.DataFrame(columns=['Status', 'Type', 'Filter'])#pd.DataFrame()  # A Pandas dataframe
+
+        # Draft
+        new_row = {'Status': 1, 'Type': FilterType.ENERGY, 'Filter': 'filter1'}
+        self._data = self._data.append(new_row, ignore_index=True)
+        self._data = self._data.append(new_row, ignore_index=True)
 
     def rowCount(self, QModelIndex_parent=None, *args, **kwargs):
-        pass
+        if self._data is None:
+            return 0
+        return self._data.shape[0]  # Number of rows of the dataframe
 
     def columnCount(self, QModelIndex_parent=None, *args, **kwargs):
-        pass
+        if self._data is None:
+            return 0
+        return self._data.shape[1]  # Number of columns of the dataframe
 
     def data(self, index=QModelIndex, role=None):
-        pass
+        if not index.isValid():
+            return None
+
+        row = index.row()
+        column = index.column()
+
+        if role == Qt.DisplayRole:
+            # Get the raw value
+            value = self._data.iloc[row, column]
+
+            # Perform per-type checks and render accordingly.
+            if isinstance(value, float):
+                # Render float to 2 dp
+                return "%.2f" % value
+            if isinstance(value, str):
+                # Render strings with quotes
+                return '%s' % value
+            if isinstance(FilterType.ENERGY, FilterType):
+                # Render own enums as strings
+                return '%s' % value
+            # Default (anything not captured above: e.g. int)
+            return value
+
+        if role == Qt.BackgroundRole:
+            # Pair rows will have different color, to visually distinguish them from the even ones.
+            if row % 2 is not 0:
+                return QColor(255, 230, 255)
+            # Very light blue 230, 242, 255
+            # Very light purple 240, 240, 245
+            # Very light pink 255, 230, 255
+
+        return None
 
     def headerData(self, section, orientation, role):
-        pass
+        if role == Qt.DisplayRole:
+            if orientation == Qt.Horizontal:
+                return str(self._data.columns[section])
+            if orientation == Qt.Vertical:
+                return str(self._data.index[section])
+        return None
 
 if __name__ == "__main__":
     QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)  # To avoid AA_ShareOpenGLContexts Qt warning.
     app = QApplication([])
-    dialog = sonet_pcp_filter_qt()
+    dialog = SonetPCPFilterQt()
     dialog.show()
     sys.exit(app.exec_())

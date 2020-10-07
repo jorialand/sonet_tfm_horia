@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'sonet_pcp_filter_qt.ui'
+## Form generated from reading UI file 'SonetPCPFilterQt.ui'
 ##
 ## Created by: Qt User Interface Compiler version 5.14.2
 ##
