@@ -65,7 +65,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         self.select_spacecraft.addItems(ar_list_spacecrafts)
         if ar_current_index is not -1:
             self.select_spacecraft.setCurrentIndex(ar_current_index + 1)  # The '+1' is because the combo box is already
-            # populated with 'Select spacecraft...' item when the above addItems() is executed.
+            # populated with 'Select SonetSpacecraft...' item when the above addItems() is executed.
         else:
             self.select_spacecraft.setCurrentIndex(0)
 
@@ -90,7 +90,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
     def enable_combos(self, ar_activate):
         """
-        Activates the group box combos if a valid spacecraft and trip are selected.
+        Activates the group box combos if a valid SonetSpacecraft and trip are selected.
         :param ar_activate: bool flag.
         :return: bool 0 if no errors, 1 otherwise.
         """
@@ -159,7 +159,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
             return False
 
     def is_selection_valid(self):
-        c1 = self.select_spacecraft.currentText() == 'Select spacecraft'
+        c1 = self.select_spacecraft.currentText() == 'Select SonetSpacecraft'
         c2 = self.select_trip.currentText() == 'Select trip'
         if not c1 and not c2:
             print('Selection is valid.')
@@ -202,20 +202,20 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         """
         Triggered when the select_spacecraft combo box index changes.
 
-        Updates the 'Select trip' combo box every time the 'Select spacecraft' changes.
-        If the spacecraft is crewed, then it will have both outgoing and incoming trips.
-        If the spacecraft is cargo, then it will have only outgoing trip.
+        Updates the 'Select trip' combo box every time the 'Select SonetSpacecraft' changes.
+        If the SonetSpacecraft is crewed, then it will have both outgoing and incoming trips.
+        If the SonetSpacecraft is cargo, then it will have only outgoing trip.
         Each trip is represented by a Pandas dataframe.
         :param index:
         :return:
         """
         # print('Slot cmb_select_spacecraft_changed() called.')
 
-        # Retrieve the selected spacecraft.
+        # Retrieve the selected SonetSpacecraft.
         selected_spacecraft = self.select_spacecraft.itemText(index)
 
-        # Get the spacecraft type.
-        if selected_spacecraft == 'Select spacecraft':
+        # Get the SonetSpacecraft type.
+        if selected_spacecraft == 'Select SonetSpacecraft':
             self.select_trip.clear()
             self.select_trip.addItems(['Select trip'])
             return True
