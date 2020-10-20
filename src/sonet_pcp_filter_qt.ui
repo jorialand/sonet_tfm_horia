@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>770</width>
+    <width>697</width>
     <height>707</height>
    </rect>
   </property>
@@ -196,12 +196,17 @@
             </property>
             <item>
              <property name="text">
-              <string>&lt;=</string>
+              <string>is</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>&gt;=</string>
+              <string>is less than</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>is greater than</string>
              </property>
             </item>
            </widget>
@@ -263,12 +268,6 @@
           <property name="enabled">
            <bool>false</bool>
           </property>
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
           <property name="text">
            <string/>
           </property>
@@ -290,12 +289,6 @@
          <widget class="QCheckBox" name="cb_energy">
           <property name="enabled">
            <bool>false</bool>
-          </property>
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
           </property>
           <property name="text">
            <string/>
@@ -356,26 +349,19 @@
             <property name="enabled">
              <bool>false</bool>
             </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>0</height>
-             </size>
-            </property>
             <item>
              <property name="text">
-              <string>&lt;=</string>
+              <string>=</string>
              </property>
             </item>
             <item>
              <property name="text">
-              <string>&gt;=</string>
+              <string>&gt;</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>&lt;</string>
              </property>
             </item>
            </widget>
@@ -397,7 +383,7 @@
             </item>
             <item>
              <property name="text">
-              <string>deg</string>
+              <string>º</string>
              </property>
             </item>
            </widget>
