@@ -218,7 +218,7 @@ class TableModel(QAbstractTableModel):
         self.beginResetModel()
         self._data = None
         self.endResetModel()
-        return 0
+        return True
 
     def rowCount(self, QModelIndex_parent=None, *args, **kwargs):
         # try:

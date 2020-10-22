@@ -20,8 +20,8 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         self.init(ar_list_spacecrafts, ar_current_index)
 
         # Draft
-        self._applied_filters_table_model = SonetAppliedFiltersTableModel()
-        self.applied_filters_table_view.setModel(self._applied_filters_table_model)
+        # self._applied_filters_table_model = SonetAppliedFiltersTableModel()
+        # self.applied_filters_table_view.setModel(self._applied_filters_table_model)
 
     def init(self, ar_list_spacecrafts=[], ar_current_index=-1):
         """
@@ -48,9 +48,13 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         self.cb_energy.stateChanged.connect(self.enable_pb_add)
         self.cb_energy.stateChanged.connect(self.changed_cb_energy)
 
-        ###
         # Fill select_spacecraft combo with the available spacecrafts and select the current one.
         self.init_combo_select_spacecraft(ar_list_spacecrafts, ar_current_index)
+
+        # Retrieve the current filters.
+        self.init_filters(ar_list_spacecrafts)
+        # Init table model and table view
+        self.init_table_model()
 
     def init_combo_select_spacecraft(self, ar_list_spacecrafts=[], ar_current_index=-1):
         """
@@ -68,6 +72,31 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
             # populated with 'Select SonetSpacecraft...' item when the above addItems() is executed.
         else:
             self.select_spacecraft.setCurrentIndex(0)
+
+    def init_filters(self, ar_list_spacecrafts=[]):
+        """
+        Retrieves the filters for the spacecrafts in ar_list_spacecrafts, and stores them in a dict.
+        Copies that dict to restore it in case the user cancels the window.
+        :param ar_list_spacecrafts:
+        """
+        # Retrieve the filters into a dict.
+        self._dict_filters_current = {}
+        for i in ar_list_spacecrafts:
+            spacecraft = database.db[i] # SonetSpacecraft object.
+            self._dict_filters_current[i] = spacecraft.get_filter()
+
+        # Create a copy dict, to restore the information in case the user cancels the window.
+        self._dict_filters_backup = self._dict_filters_current.copy()
+
+        print(self._dict_filters_backup)
+
+    def init_table_model(self):
+        """
+        Initialize the table model and connect the table view to it.
+        :return:
+        """
+        self._applied_filters_table_model = SonetAppliedFiltersTableModel()
+        self.applied_filters_table_view.setModel(self._applied_filters_table_model)
 
     def enable_pb_add(self):
         """
@@ -127,6 +156,13 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
                          self.combo_energy_units.currentText()]
         print(the_selection)
 
+    def get_table_model(self):
+        """
+        Getter method.
+        :return:
+        """
+        return self._applied_filters_table_model
+
     def reset_filter_energy(self):
         """
         Disables the energy filter checkbox and resets all the fields to their default value.
@@ -161,10 +197,12 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         c1 = self.select_spacecraft.currentText() == 'Select SonetSpacecraft'
         c2 = self.select_trip.currentText() == 'Select trip'
         if not c1 and not c2:
-            print('Selection is valid.')
+            if SONET_DEBUG:
+                print('Selection is valid.')
             return True
         else:
-            print("Selection isn't valid.")
+            if SONET_DEBUG:
+                print("Selection isn't valid.")
             # print(self.select_trip.currentText())
             return False
 
@@ -235,13 +273,17 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         Triggered when the select_trip combo box index changes.
 
         Only once both combo boxes (select_spacecraft, and select_trip) are valid, then we will be able
-        to work with a specific table (outgoing or incoming). Once the selection is valid, we'll enable the
-        different filtering options combo boxes (i.e. by trajectory energy, by time of flight, etc.).
+        to work with a specific porkchop plot table (outgoing or incoming). Once the selection is valid,
+        we'll enable the different filtering options combo boxes (i.e. by trajectory energy, by time of flight, etc.).
         """
         selection_is_valid = self.is_selection_valid()
 
         if selection_is_valid:
             self.enable_combos(True)
+            # Update the table model (and its view) with the current filter.
+            spc_selection = self.select_spacecraft.currentText()
+            trip_selection = self.select_trip.currentText()
+            self.get_table_model().reset_model(self._dict_filters_current, spc_selection, trip_selection)
         elif not selection_is_valid:
             self.enable_combos(False)
 
@@ -333,9 +375,9 @@ class SonetAppliedFiltersTableModel(QAbstractTableModel):
         self._data = pd.DataFrame(columns=['Status', 'Type', 'Filter'])#pd.DataFrame()  # A Pandas dataframe
 
         # Draft
-        new_row = {'Status': 1, 'Type': FilterType.ENERGY, 'Filter': 'filter1'}
-        self._data = self._data.append(new_row, ignore_index=True)
-        self._data = self._data.append(new_row, ignore_index=True)
+        # new_row = {'Status': 1, 'Type': FilterType.ENERGY, 'Filter': 'filter1'}
+        # self._data = self._data.append(new_row, ignore_index=True)
+        # self._data = self._data.append(new_row, ignore_index=True)
 
     def rowCount(self, QModelIndex_parent=None, *args, **kwargs):
         if self._data is None:
@@ -388,6 +430,39 @@ class SonetAppliedFiltersTableModel(QAbstractTableModel):
             if orientation == Qt.Vertical:
                 return str(self._data.index[section])
         return None
+
+    def reset_model(self, a_dict_filters_current, a_spc_selection, a_trip_selection):
+        """
+        Reset the table model.
+        index == 1 -> Earth - Mars trip
+        index == 2 -> Mars - Earth trip
+        """
+        if SONET_DEBUG:
+            print('SonetAppliedFiltersTableModel.reset_model called.')
+
+        # Get the filter
+        the_dataframe_filter = a_dict_filters_current[a_spc_selection]
+        has_return_trajectory = database.db[a_spc_selection].get_has_return_trajectory()
+        if has_return_trajectory:
+            # the_dataframe_filter is not a dataframe, but a list of two dataframes, with both the outgoing and incoming
+            # trip filters/dataframes.
+            if a_trip_selection == 'Earth - Mars':
+                the_dataframe_filter = the_dataframe_filter[0]
+            elif a_trip_selection == 'Mars - Earth':
+                the_dataframe_filter = the_dataframe_filter[1]
+            else:
+                if SONET_DEBUG:
+                    print('Error in SonetAppliedFiltersTableModel.reset_model.')
+                return False
+        else:
+            # the_dataframe_filter is a dataframe, with the outgoing trip dataframe.
+            pass
+
+        self.beginResetModel()
+        self._data = the_dataframe_filter.get_data()
+        self.endResetModel()
+        return True
+
 
 if __name__ == "__main__":
     QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)  # To avoid AA_ShareOpenGLContexts Qt warning.
