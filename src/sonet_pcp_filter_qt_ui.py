@@ -44,13 +44,7 @@ class Ui_sonet_pcp_filter(object):
         self.horizontalLayout_14.addWidget(self.pb_delete_all)
 
 
-        self.bottom_grid_layout.addLayout(self.horizontalLayout_14, 2, 0, 1, 1)
-
-        self.label = QLabel(self.bottom_group_box)
-        self.label.setObjectName(u"label")
-        self.label.setEnabled(False)
-
-        self.bottom_grid_layout.addWidget(self.label, 1, 0, 1, 2)
+        self.bottom_grid_layout.addLayout(self.horizontalLayout_14, 1, 0, 1, 1)
 
         self.applied_filters_table_view = QTableView(self.bottom_group_box)
         self.applied_filters_table_view.setObjectName(u"applied_filters_table_view")
@@ -127,7 +121,6 @@ class Ui_sonet_pcp_filter(object):
         self.time_of_flight_grid_layout.addWidget(self.combo_time_of_flight, 0, 0, 1, 2)
 
         self.combo_time_of_flight_operator = QComboBox(self.time_of_flight_group_box)
-        self.combo_time_of_flight_operator.addItem("")
         self.combo_time_of_flight_operator.addItem("")
         self.combo_time_of_flight_operator.addItem("")
         self.combo_time_of_flight_operator.setObjectName(u"combo_time_of_flight_operator")
@@ -400,7 +393,6 @@ class Ui_sonet_pcp_filter(object):
         self.bottom_group_box.setTitle(QCoreApplication.translate("sonet_pcp_filter", u"Applied filters", None))
         self.pb_delete.setText(QCoreApplication.translate("sonet_pcp_filter", u"Delete", None))
         self.pb_delete_all.setText(QCoreApplication.translate("sonet_pcp_filter", u"Delete all", None))
-        self.label.setText(QCoreApplication.translate("sonet_pcp_filter", u"55 rows selected", None))
         self.select_spacecraft.setItemText(0, QCoreApplication.translate("sonet_pcp_filter", u"Select spacecraft", None))
 
         self.pb_reset.setText(QCoreApplication.translate("sonet_pcp_filter", u"Reset", None))
@@ -408,9 +400,8 @@ class Ui_sonet_pcp_filter(object):
         self.time_of_flight_group_box.setTitle(QCoreApplication.translate("sonet_pcp_filter", u"Time of flight", None))
         self.combo_time_of_flight.setItemText(0, QCoreApplication.translate("sonet_pcp_filter", u"Time of flight", None))
 
-        self.combo_time_of_flight_operator.setItemText(0, QCoreApplication.translate("sonet_pcp_filter", u"is", None))
-        self.combo_time_of_flight_operator.setItemText(1, QCoreApplication.translate("sonet_pcp_filter", u"is less than", None))
-        self.combo_time_of_flight_operator.setItemText(2, QCoreApplication.translate("sonet_pcp_filter", u"is greater than", None))
+        self.combo_time_of_flight_operator.setItemText(0, QCoreApplication.translate("sonet_pcp_filter", u"<=", None))
+        self.combo_time_of_flight_operator.setItemText(1, QCoreApplication.translate("sonet_pcp_filter", u">=", None))
 
         self.combo_time_scale_2.setItemText(0, QCoreApplication.translate("sonet_pcp_filter", u"Days", None))
         self.combo_time_scale_2.setItemText(1, QCoreApplication.translate("sonet_pcp_filter", u"Weeks", None))
@@ -432,7 +423,7 @@ class Ui_sonet_pcp_filter(object):
 
         self.combo_energy_units.setItemText(0, QCoreApplication.translate("sonet_pcp_filter", u"km/s", None))
         self.combo_energy_units.setItemText(1, QCoreApplication.translate("sonet_pcp_filter", u"km2/s2", None))
-        self.combo_energy_units.setItemText(2, QCoreApplication.translate("sonet_pcp_filter", u"\u00ba", None))
+        self.combo_energy_units.setItemText(2, QCoreApplication.translate("sonet_pcp_filter", u"deg", None))
 
         self.top_left_group_box.setTitle(QCoreApplication.translate("sonet_pcp_filter", u"Departure and arrival dates", None))
         self.cb_time_of_flight_2.setText("")

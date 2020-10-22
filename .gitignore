@@ -11,7 +11,7 @@
 .old/qt_python_data_visualization_tutorial_5.py
 .old/qt_python_data_visualization_tutorials.py
 .old/qt_python_data_visualization_tutorials_2.py
-src/.ipynb_checkpoints/Playground-checkpoint.ipynb
+.old/.ipynb_checkpoints/Playground-checkpoint.ipynb
 src/10kPCP_Earth2Mars.txt
 src/10kPCP_Mars2Earth.txt
 src/__pycache__/main_window_ui.cpython-37.pyc
@@ -43,3 +43,5 @@ src/__pycache__/Utils.cpython-37.pyc
 src/__pycache__/Utils.cpython-37.pyc
 *.pyc
 src/__pycache__/Utils.cpython-37.pyc
+/[13]_First_working_version__-_Created_SonetTrajectoryFilter_py_to_host_the_filter_function.patch
+/[13]_First_working_version__-_Created_SonetTrajectoryFilter_py_to_host_the_filter_function.patch

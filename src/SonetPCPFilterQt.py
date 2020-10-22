@@ -10,7 +10,7 @@ from PySide2.QtWidgets import QDialog, QApplication, QDialogButtonBox
 # Sonet imports
 from src import database
 from src import sonet_pcp_filter_qt_ui
-from src.SonetUtils import SpacecraftType, SONET_DEBUG, FilterType
+from src.SonetUtils import SONET_DEBUG, FilterType
 
 
 class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
@@ -25,7 +25,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
     def init(self, ar_list_spacecrafts=[], ar_current_index=-1):
         """
-        Initializes the this QDialog window. It does the signal/slot connections.
+        Initializes the QDialog window. It also sets the signal/slot connections.
         :param ar_list_spacecrafts:
         :param ar_current_index:
         :return:
@@ -112,7 +112,6 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
     def enable_groupbox_applied_filters(self, ar_activate):
         self.bottom_group_box.setEnabled(ar_activate)
         self.applied_filters_table_view.setEnabled(ar_activate)
-        self.label.setEnabled(ar_activate)
 
     def get_filter_data_energy(self):
         """
@@ -203,9 +202,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         Triggered when the select_spacecraft combo box index changes.
 
         Updates the 'Select trip' combo box every time the 'Select SonetSpacecraft' changes.
-        If the SonetSpacecraft is crewed, then it will have both outgoing and incoming trips.
-        If the SonetSpacecraft is cargo, then it will have only outgoing trip.
-        Each trip is represented by a Pandas dataframe.
+        Checks wether the SonetSpacecraft has only outgoing trip or both outgoing and incoming.
         :param index:
         :return:
         """
@@ -215,16 +212,16 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         selected_spacecraft = self.select_spacecraft.itemText(index)
 
         # Get the SonetSpacecraft type.
-        if selected_spacecraft == 'Select SonetSpacecraft':
+        if selected_spacecraft == 'Select spacecraft':
             self.select_trip.clear()
             self.select_trip.addItems(['Select trip'])
             return True
         else:
-            spacecraft_type = database.db[selected_spacecraft].get_spacecraft_type()
+            has_return_trajectory = database.db[selected_spacecraft].get_has_return_trajectory()
 
-            if spacecraft_type == SpacecraftType.CREWED:
+            if has_return_trajectory == True:
                 items = ['Select trip', 'Earth - Mars', 'Mars - Earth']
-            elif spacecraft_type == SpacecraftType.CARGO:
+            elif has_return_trajectory == False:
                 items = ['Select trip', 'Earth - Mars']
             else:
                 return False
