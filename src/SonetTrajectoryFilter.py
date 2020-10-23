@@ -89,6 +89,11 @@ class SonetTrajectoryFilter:
         return self._trip_type
 
     def set_data(self, a_data):
+        """
+        Setter method.
+        :param a_data:
+        :return:
+        """
         # Check that input is a pandas DataFrame.
         if not isinstance(a_data, pd.core.frame.DataFrame):
             return False

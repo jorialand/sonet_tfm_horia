@@ -36,6 +36,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         self.btn_accept.clicked.connect(self.accept)
 
         self.btn_cancel = self.dialog_button_box.button(QDialogButtonBox.Cancel)
+        self.btn_cancel.clicked.connect(self.clicked_pb_cancel)
         self.btn_cancel.clicked.connect(self.reject)
 
         self.pb_add.clicked.connect(self.clicked_pb_add)
@@ -315,6 +316,10 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
     def clicked_pb_accept(self):
         if SONET_DEBUG:
             print('clicked_pb_accept()')
+
+    def clicked_pb_cancel(self):
+        if SONET_DEBUG:
+            print('clicked_pb_cancel()')
 
     def clicked_pb_reset(self):
         if SONET_DEBUG:

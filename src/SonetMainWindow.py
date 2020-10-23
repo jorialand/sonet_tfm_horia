@@ -90,6 +90,7 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         filter_dialog_qt.setModal(True)
         filter_dialog_qt.show()
 
+    #@Slot()
     def trip_tab_changed(self, index):
         if SONET_DEBUG:
             print('Slot trip_tab_changed called.')
@@ -321,10 +322,7 @@ class ListModel(QAbstractListModel):
         key = self._data[row]
 
         if SONET_DEBUG:
-            print(key + ' selected.')
-
-        # getMainWindow().getTableModel(TripType.OUTGOING).set_model_data(key)
-        # getMainWindow().getTableModel(TripType.INCOMING).set_model_data(key)
+            print('ListModel.list_clicked: ' + key + ' selected.')
 
         the_spacecraft = database.db[key]
         the_filter = the_spacecraft.get_filter()
@@ -335,11 +333,12 @@ class ListModel(QAbstractListModel):
         # model.
         try:
             # Case where spacecraft only has got only outgoing trajectory.
-            the_filtered_dataframe = the_filter.get_filtered_pcp()
-            main_window._table_model_outgoing.set_model_data(the_filtered_dataframe)
-            the_filtered_dataframe = pd.DataFrame()
             if SONET_DEBUG:
                 print('This spacecraft has no return trajectory.')
+            the_filtered_dataframe = the_filter.get_filtered_pcp()
+            main_window._table_model_outgoing.set_model_data(the_filtered_dataframe)
+
+            the_filtered_dataframe = pd.DataFrame()
             main_window._table_model_incoming.set_model_data(the_filtered_dataframe)
         except AttributeError:
             # Case where spacecraft only has got both outgoing and incoming trajectories.
@@ -350,6 +349,10 @@ class ListModel(QAbstractListModel):
         except:
             print('Error in ListModel.list_clicked.')
             return False
+
+        # Docstring
+        index = getMainWindow().sonet_pcp_tabs_qtw.currentIndex()
+        getMainWindow().sonet_pcp_tabs_qtw.currentChanged.emit(index)
 
     def update(self):
         # print('ListModel() Slot update() called.')
