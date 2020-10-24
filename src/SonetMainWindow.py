@@ -12,7 +12,7 @@ import sys
 
 import pandas as pd
 # From module X import class Y.
-from PySide2.QtCore import Slot, QAbstractListModel, QAbstractTableModel, QModelIndex, Qt
+from PySide2.QtCore import QAbstractListModel, QAbstractTableModel, QModelIndex, Qt
 from PySide2.QtGui import QColor
 from PySide2.QtWidgets import QApplication, QMainWindow
 
@@ -81,10 +81,10 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
     def getListModel(self):
         return self._list_model
 
-    @Slot()
+    #@Slot()
     def open_sonet_pcp_filter_qt(self):
         # print("Slot open_sonet_pcp_filter_qt called.")
-        ans1 = self.getListModel().get_data()
+        ans1 = database.get_spacecrafts_list()  # self.getListModel().get_data()
         ans2 = self.sonet_mission_tree_qlv.currentIndex().row()
         filter_dialog_qt = SonetPCPFilterQt(self, ar_list_spacecrafts=ans1, ar_current_index=ans2)
         filter_dialog_qt.setModal(True)
@@ -106,7 +106,7 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
                 n = database.get_pcp_table(TripType.OUTGOING).shape[0]
                 self.sonet_label_rows_filtered_visible.setText(str(n_filtered) + ' rows visible out of ' + str(n))
 
-    @Slot()
+    #@Slot()
     def new_spacecraft(self):
         """
         This method is called when clicking over 'Add SonetSpacecraft' QPushButton, it creates a new SonetSpacecraft.
@@ -138,7 +138,7 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
                   + ' (' + spacecraft_type_crew + ', ' + spacecraft_type_return + ')')
         return True
 
-    @Slot()
+    #@Slot()
     def remove_spacecraft(self):
         # Get the current list view selection.
         selection = self.sonet_mission_tree_qlv.currentIndex().row()
@@ -169,7 +169,7 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         print(key + ' removed.')
         return True
 
-    @Slot()
+    #@Slot()
     def exit_app(self):
         # print("Slot exit_app called.")
         sys.exit()
@@ -319,7 +319,8 @@ class ListModel(QAbstractListModel):
         """
         # key is a string identifying a SonetSpacecraft objet within the database.
         row = index.row()
-        key = self._data[row]
+        #key = self._data[row]
+        key = list(self._data)[row]
 
         if SONET_DEBUG:
             print('ListModel.list_clicked: ' + key + ' selected.')
@@ -366,7 +367,7 @@ class ListModel(QAbstractListModel):
     def data(self, QModelIndex, int_role=None):
         row = QModelIndex.row()
         if int_role == Qt.DisplayRole:
-            return str(self._data[row])
+            return str(list(self._data)[row])
 
     def flags(self, QModelIndex):
         return Qt.ItemIsEnabled | Qt.ItemIsSelectable

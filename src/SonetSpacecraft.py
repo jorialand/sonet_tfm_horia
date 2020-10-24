@@ -66,31 +66,14 @@ class SonetSpacecraft:
         #     return False
 
     # Public methods
-    def get_spacecraft_type(self):
-        """
-        Getter method.
-        :return: Enum (SpacecraftType). If the variable hasn't been setted, then it will return the default value,
-        None, which is considered a boolean False.
-        """
-        return self._spacecraft_type
-
-    def get_has_return_trajectory(self):
-        """
-        Getter method.
-        :return: bool. If the variable hasn't been setted, then it will return the default value,
-        None, which is considered a boolean False.
-        """
-        return self._has_return_trajectory
-
     def get_filter(self):
         """
         Getter method.
         :return: a pandas dataframe, a Python list of pandas dataframe if there is more than one filter.
         """
-        has_return_trajectory = self.get_has_return_trajectory()
 
         # Type check.
-        if not isinstance(has_return_trajectory, bool):
+        if not isinstance(self._has_return_trajectory, bool):
             return False
 
         # set_filters method has to be called at least once, before accessing the filters.
@@ -101,38 +84,55 @@ class SonetSpacecraft:
         except TypeError:
             return False
 
-            # return False
-        # else:
-        #     return self._data[self.dict_key].get_pcp_table(self._trip_type).shape[0]
-
-
-        # if has_return_trajectory:
-        #     # Two way trip.
-        #     return list(self._pcp_filter1, self._pcp_filter2)
-        # else:
-        #     # One way trip.
-        #     return self._pcp_filter
-        # return True
-
-    def set_spacecraft_type(self, a_spacecraft_type=None):
+    def get_has_return_trajectory(self):
         """
-        Method for constructing a SonetSpacecraft object.
-        :param a_spacecraft_type: Enum (SpacecraftType)
+        Getter method.
+        :return: bool. If the variable hasn't been setted, then it will return the default value,
+        None, which is considered a boolean False.
+        """
+        return self._has_return_trajectory
+
+    def get_spacecraft_type(self):
+        """
+        Getter method.
+        :return: Enum (SpacecraftType). If the variable hasn't been setted, then it will return the default value,
+        None, which is considered a boolean False.
+        """
+        return self._spacecraft_type
+
+    def set_filter(self, a_the_filter):
+        """
+        Setter method.
+        Sets the argument filter as current SonetSpacecraft's filter. If the input is a list of filters, then the
+        spacecraft has outgoing and return trajectories and has two filters, otherwise only has outgoing trajectory and
+        has only one filter.
+        :return: bool true if everything was ok, false otherwise.
+        """
+        if isinstance(a_the_filter, list):
+            self._pcp_filter1.set_data(a_the_filter[0].get_data().copy())
+            self._pcp_filter2.set_data(a_the_filter[1].get_data().copy())
+        elif isinstance(a_the_filter, SonetTrajectoryFilter):
+            self._pcp_filter.set_data(a_the_filter.get_data().copy())
+
+    def set_filters(self):
+        """
+        Method for constructing a SonetSpacecraft object. The spacecraft has one filter per trajectory.
+        TODO: Bad practice - defining instance attributes outside the class constructor.
         :return: True if everything was ok, false otherwise.
-
         """
-        # Convert string input to SpacecraftType enum.
-        if isinstance(a_spacecraft_type, str):
-            if a_spacecraft_type == 'Crewed':
-                a_spacecraft_type = SpacecraftType.CREWED
-            elif a_spacecraft_type == 'Cargo':
-                a_spacecraft_type = SpacecraftType.CARGO
+        has_return_trajectory = self._has_return_trajectory
 
-        # Check.
-        if not SpacecraftType.is_valid(a_spacecraft_type):
+        # Type check.
+        if not isinstance(has_return_trajectory, bool):
             return False
 
-        self._spacecraft_type = a_spacecraft_type
+        if has_return_trajectory:
+            # Two way trip.
+            self._pcp_filter1 = SonetTrajectoryFilter(TripType.OUTGOING)
+            self._pcp_filter2 = SonetTrajectoryFilter(TripType.INCOMING)
+        else:
+            # One way trip.
+            self._pcp_filter = SonetTrajectoryFilter(TripType.OUTGOING)
         return True
 
     def set_has_return_trajectory(self, a_has_return_trajectory=None):
@@ -156,25 +156,25 @@ class SonetSpacecraft:
         self._has_return_trajectory = a_has_return_trajectory
         return True
 
-    def set_filters(self):
+    def set_spacecraft_type(self, a_spacecraft_type=None):
         """
-        Method for constructing a SonetSpacecraft object. The spacecraft has one filter per trajectory.
-        TODO: Bad practice - defining instance attributes outside the class constructor.
+        Method for constructing a SonetSpacecraft object.
+        :param a_spacecraft_type: Enum (SpacecraftType)
         :return: True if everything was ok, false otherwise.
-        """
-        has_return_trajectory = self._has_return_trajectory
 
-        # Type check.
-        if not isinstance(has_return_trajectory, bool):
+        """
+        # Convert string input to SpacecraftType enum.
+        if isinstance(a_spacecraft_type, str):
+            if a_spacecraft_type == 'Crewed':
+                a_spacecraft_type = SpacecraftType.CREWED
+            elif a_spacecraft_type == 'Cargo':
+                a_spacecraft_type = SpacecraftType.CARGO
+
+        # Check.
+        if not SpacecraftType.is_valid(a_spacecraft_type):
             return False
 
-        if has_return_trajectory:
-            # Two way trip.
-            self._pcp_filter1 = SonetTrajectoryFilter(TripType.OUTGOING)
-            self._pcp_filter2 = SonetTrajectoryFilter(TripType.INCOMING)
-        else:
-            # One way trip.
-            self._pcp_filter = SonetTrajectoryFilter(TripType.OUTGOING)
+        self._spacecraft_type = a_spacecraft_type
         return True
 
     # Private methods
