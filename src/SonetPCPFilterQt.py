@@ -10,7 +10,7 @@ from PySide2.QtWidgets import QDialog, QApplication, QDialogButtonBox
 # Sonet imports
 from src import database
 from src import sonet_pcp_filter_qt_ui
-from src.SonetUtils import SONET_DEBUG, FilterType
+from src.SonetUtils import SONET_DEBUG, FilterType, TripType
 
 
 class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
@@ -143,20 +143,20 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         self.bottom_group_box.setEnabled(ar_activate)
         self.applied_filters_table_view.setEnabled(ar_activate)
 
-    def get_filter_data_energy(self):
+    def get_energy_combos_selection(self):
         """
         Retrieves the energy combo boxes data, to apply filters.
-        :return:
+        :return: a dict, representing a pandas dataframe row.
         """
         if SONET_DEBUG:
-            print('get_filter_data_energy() called.')
+            print('SonetPCPFilterQt.get_energy_combos_selection.')
 
         the_selection = [self.combo_energy_parameter.currentText(),
                          self.combo_energy_operator.currentText(),
                          self.spin_energy_number.text(),
                          self.combo_energy_units.currentText()]
-        print(the_selection)
-
+        # return the_selection
+        return {'Status': 1, 'Type': 'Energy', 'Filter': the_selection}
     def get_table_model(self):
         """
         Getter method.
@@ -204,7 +204,6 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         else:
             if SONET_DEBUG:
                 print("Selection isn't valid.")
-            # print(self.select_trip.currentText())
             return False
 
     def which_cb_checked(self):
@@ -282,11 +281,17 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         if selection_is_valid:
             self.enable_combos(True)
             # Update the table model (and its view) with the current filter.
-            spc_selection = self.select_spacecraft.currentText()
-            trip_selection = self.select_trip.currentText()
+            spc_selection, trip_selection = self.get_current_selection()
             self.get_table_model().reset_model(self._dict_filters_current, spc_selection, trip_selection)
         elif not selection_is_valid:
             self.enable_combos(False)
+
+    def get_current_selection(self):
+        """
+        Gette function.
+        :return: The current spacecraft and trip combo selection.
+        """
+        return self.select_spacecraft.currentText(), self.select_trip.currentText()
 
     def changed_cmb_energy_parameter(self, index):
         cmb_units = self.combo_energy_units
@@ -356,28 +361,50 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         Traverses all the checked filters and adds them to the filters table.
         """
         if SONET_DEBUG:
-            print('clicked_pb_add()')
+            print('SonetPCPFilterQt.clicked_pb_add')
 
         list_checked_cb = self.which_cb_checked()
 
         if len(list_checked_cb) == 0:
             if SONET_DEBUG:
-                print('Empty list: list_checked_cb.')
-            return True
+                print('SonetPCPFilterQt.clicked_pb_add: no checkbox is enabled.')
+            return False
         else:
             # The switcher implementation is an efficient alternative to multiple if statements, as it
             # only checks one time each variable. E.g. it can be seen as a sort of switch-case clause, from c++.
 
             switcher = {
-                'cb_energy': self.get_filter_data_energy(),
+                'cb_energy': self.get_energy_combos_selection(),
                 'cb_time_of_flight': 'Pending implementation',
                 'cb_time_of_flight_2': 'Pending implementation',
                 'cb_dates_1': 'Pending implementation',
                 'cb_dates_2': 'Pending implementation',
             }
 
+            # Get the spacecraft's filter.
+            spc, trip = self.get_current_selection()
+            the_spacecraft = database.get_spacecraft(spc)
+            the_filter = the_spacecraft.get_filter(TripType.convert_to_enum(trip))
+            the_filter_data = the_filter.get_data()
+            # Add the filter.
+            if not isinstance(the_filter_data, pd.DataFrame):
+                if SONET_DEBUG:
+                    print('Error in SonetPCPFilterQt.clicked_pb_add: the returned filter is not a pandas '
+                          'dataframe.')
+                return False
+
             for cb in list_checked_cb:
-                switcher.get(cb, 'Error in clicked_pb_add()')
+                # Get the combos selection, to be added to the spacecraft's filter.
+                the_new_row = \
+                    switcher.get(cb, 'Error in SonetPCPFilterQt.clicked_pb_add: argument not present in switcher')
+                the_filter_data = the_filter_data.append(the_new_row, ignore_index=True)
+
+            # After modifying the SonetTrajectoryFitler of the selected spacecraft and trip, we should oupdate the
+            # table model.
+            the_filter.set_data(the_filter_data)
+            self.get_table_model().reset_model(self._dict_filters_current, spc, trip)
+            return True
+
 
     def clicked_pb_delete(self):
         pass
@@ -465,25 +492,25 @@ class SonetAppliedFiltersTableModel(QAbstractTableModel):
             print('SonetAppliedFiltersTableModel.reset_model called.')
 
         # Get the filter
-        the_dataframe_filter = a_dict_filters_current[a_spc_selection]
-        has_return_trajectory = database.db[a_spc_selection].get_has_return_trajectory()
+        the_filter = a_dict_filters_current[a_spc_selection]
+        has_return_trajectory = database.get_spacecraft(a_spc_selection).get_has_return_trajectory()
         if has_return_trajectory:
-            # the_dataframe_filter is not a dataframe, but a list of two dataframes, with both the outgoing and incoming
+            # the_filter is not a SonetTrajectoryFilter, but a list of them, with both the outgoing and incoming
             # trip filters/dataframes.
             if a_trip_selection == 'Earth - Mars':
-                the_dataframe_filter = the_dataframe_filter[0]
+                the_filter = the_filter[0]
             elif a_trip_selection == 'Mars - Earth':
-                the_dataframe_filter = the_dataframe_filter[1]
+                the_filter = the_filter[1]
             else:
                 if SONET_DEBUG:
                     print('Error in SonetAppliedFiltersTableModel.reset_model.')
                 return False
         else:
-            # the_dataframe_filter is a dataframe, with the outgoing trip dataframe.
+            # the_filter is a SonetTrajectoryFilter, with the outgoing trip dataframe inside.
             pass
 
         self.beginResetModel()
-        self._data = the_dataframe_filter.get_data()
+        self._data = the_filter.get_data()
         self.endResetModel()
         return True
 

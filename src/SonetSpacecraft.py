@@ -1,4 +1,4 @@
-# initial commit to new branch
+from overloading import overload
 
 from src.SonetTrajectoryFilter import SonetTrajectoryFilter
 from src.SonetUtils import SpacecraftType, TripType, SONET_DEBUG
@@ -66,15 +66,16 @@ class SonetSpacecraft:
         #     return False
 
     # Public methods
+    @overload
     def get_filter(self):
         """
         Getter method.
-        :return: a pandas dataframe, a Python list of pandas dataframe if there is more than one filter.
+        :return: a SonetTrajectoryFilter, a Python list of SonetTrajectoryFilter if there is more than one filter.
         """
 
         # Type check.
         if not isinstance(self._has_return_trajectory, bool):
-            return False
+            return False  # _has_return_trajectory should be bool, if not, there's some error.
 
         # set_filters method has to be called at least once, before accessing the filters.
         try:
@@ -83,6 +84,38 @@ class SonetSpacecraft:
             return [self._pcp_filter1, self._pcp_filter2]
         except TypeError:
             return False
+
+    @overload
+    def get_filter(self, a_trip_type):
+        """
+        Getter method, overload with a more specific functionality. It returns a concrete SonetTrajectoryFilter, based
+        in the input a_trip_type.
+        :param a_trip_type: TripType enum.
+        :return: SonetTrajectoryFilter.
+        """
+        # Type check.
+        if not isinstance(self._has_return_trajectory, bool):
+            if SONET_DEBUG:
+                print('Error in SonetSpacecraft.get_filter: bad constructed spacecraft')
+            return False  # _has_return_trajectory should be bool, if not, there's some error.
+
+        if not isinstance(a_trip_type, TripType):
+            if SONET_DEBUG:
+                print('Error in SonetSpacecraft.get_filter: wrong argument type')
+            return False
+
+        if self._has_return_trajectory:
+            if a_trip_type is TripType.OUTGOING:
+                return self._pcp_filter1
+            elif a_trip_type is TripType.INCOMING:
+                return self._pcp_filter2
+        else:
+            if a_trip_type is TripType.OUTGOING:
+                return self._pcp_filter
+            elif a_trip_type is TripType.INCOMING:
+                if SONET_DEBUG:
+                    print('Error in SonetSpacecraft.get_filter: Asked for incoming filter in a outgoing only spacecraft.')
+                return False
 
     def get_has_return_trajectory(self):
         """

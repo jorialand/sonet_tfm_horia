@@ -31,6 +31,11 @@ class SonetTrajectoryFilter:
 
     # Public methods
     def get_data(self):
+        """
+        Getter method.
+        Gets the internal data.
+        :return: a pandas dataframe.
+        """
         return self._data
 
     def get_filtered_pcp(self):
@@ -102,7 +107,7 @@ class SonetTrajectoryFilter:
         if not list(a_data.columns) == ['Status', 'Type', 'Filter']:
             return False
 
-        self._data = a_data
+        self._data = a_data.copy()
         return True
 
     def set_trip_type(self, a_trip_type):
