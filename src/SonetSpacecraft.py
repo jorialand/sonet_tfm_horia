@@ -114,8 +114,41 @@ class SonetSpacecraft:
                 return self._pcp_filter
             elif a_trip_type is TripType.INCOMING:
                 if SONET_DEBUG:
-                    print('Error in SonetSpacecraft.get_filter: Asked for incoming filter in a outgoing only spacecraft.')
+                    print('Error in SonetSpacecraft.get_filter: Asked for incoming filter in a outgoing only '
+                          'spacecraft.')
                 return False
+
+    def get_filter_data(self, get_dataframe_copy=False):
+        """
+        Getter method.
+        It's not the same to return a dataframe and a dataframe.copy(). get_dataframe_copy controls if we are getting
+        the pointers to the original dataframes or copies of them.
+         - If I return a dataframe, I am returning a pointer to the original dataframe, so all modifications are going
+         to affect to the original dataframe.
+         - If I return a dataframe copy, I am returning a new dataframe, so all modifications are not going to affect to
+         the original dataframe.
+         :param get_dataframe_copy: bool representing if we want original dataframes or copies.
+        :return: a pandas dataframe or a list of them.
+        """
+        # Type check.
+        if not isinstance(self._has_return_trajectory, bool):
+            if SONET_DEBUG:
+                print('Error in SonetSpacecraft.get_filter_data: bad constructed spacecraft')
+            return False  # _has_return_trajectory should be bool, if not, there's some error.
+
+        if self._has_return_trajectory:
+            # If there are both outgoing and incoming trajectories, we return a list with both filter's dataframes.
+            if get_dataframe_copy:
+                return [self._pcp_filter1.get_data().copy(), self._pcp_filter2.get_data().copy()]
+            else:
+                return [self._pcp_filter1.get_data(), self._pcp_filter2.get_data()]
+
+        else:
+            # In case the spacecraft has no return trajectory, we just get the filter dataframe of the outgoing one.
+            if get_dataframe_copy:
+                return self._pcp_filter.get_data().copy()
+            else:
+                return self._pcp_filter.get_data()
 
     def get_has_return_trajectory(self):
         """

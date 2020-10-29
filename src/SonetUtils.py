@@ -65,6 +65,21 @@ class TripType(Enum):
     OUTGOING = 1
     INCOMING = 2
 
+
+    @staticmethod
+    def convert_to_enum(a_trip_type):
+        if a_trip_type == 'Earth - Mars':
+            return TripType.OUTGOING
+        elif a_trip_type == 'Mars - Earth':
+            return TripType.INCOMING
+
+    @staticmethod
+    def get_index(a_trip_type):
+        if a_trip_type == 'Earth - Mars':
+            return 0
+        elif a_trip_type == 'Mars - Earth':
+            return 1
+
     @staticmethod
     def get_the_list():
         """
@@ -85,12 +100,6 @@ class TripType(Enum):
             return True
         return False
 
-    @staticmethod
-    def convert_to_enum(a_trip_type):
-        if a_trip_type == 'Earth - Mars':
-            return TripType.OUTGOING
-        elif a_trip_type == 'Mars - Earth':
-            return TripType.INCOMING
 
 def build_mock_DataFrame(num_rows=5, num_columns=8, min=0, max=10):
     """

@@ -80,16 +80,17 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         Copies that dict to restore it in case the user cancels the window.
         :param ar_list_spacecrafts:
         """
-        # Retrieve the filters into a dict.
+        # Retrieve the filters dataframes into a dict.
         self._dict_filters_current = {}
         for i in ar_list_spacecrafts:
-            spacecraft = database.db[i] # SonetSpacecraft object.
-            self._dict_filters_current[i] = spacecraft.get_filter()
+            spacecraft = database.db[i]  # SonetSpacecraft object.
+            self._dict_filters_current[i] = spacecraft.get_filter_data(get_dataframe_copy=True)
 
         # Create a copy dict, to restore the information in case the user cancels the window.
         self._dict_filters_backup = self._dict_filters_current.copy()
 
-        print(self._dict_filters_backup)
+        if SONET_DEBUG:
+            print(self._dict_filters_backup)
 
     def init_table_model(self):
         """
@@ -157,6 +158,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
                          self.combo_energy_units.currentText()]
         # return the_selection
         return {'Status': 1, 'Type': 'Energy', 'Filter': the_selection}
+
     def get_table_model(self):
         """
         Getter method.
@@ -288,7 +290,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
     def get_current_selection(self):
         """
-        Gette function.
+        Getter function.
         :return: The current spacecraft and trip combo selection.
         """
         return self.select_spacecraft.currentText(), self.select_trip.currentText()
@@ -312,6 +314,9 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
             print('Warning: cmb_energy_parameter_changed()')
 
     def changed_cb_energy(self):
+        """
+        Slot which enables or disables the energy group box combos, depending on the energy group box checkbox state.
+        """
         cb = self.cb_energy
         if cb.isChecked():
             self.enable_energy_combos(True)
@@ -319,42 +324,12 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
             self.enable_energy_combos(False)
 
     def clicked_pb_accept(self):
+        """
+        docstring
+        """
         if SONET_DEBUG:
             print('clicked_pb_accept()')
-
-    def clicked_pb_cancel(self):
-        """
-        When the user cancels the window, all the filters should be reestablished to their original state, when the
-        window was opened.
-
-        In a 1st version, I will visit all the spacecrafts, and restore their filter to the one stored in
-        self._dict_filters_backup.
-
-        In a 2nd and more efficient version of this method, I should only reset those filters which have been modified.
-        """
-        if SONET_DEBUG:
-            print('clicked_pb_cancel()')
-
-        # Get all the spacecrafts.
-        spacecrafts_list = database.get_spacecrafts_list()
-
-        # Traverse them and reestablish their filter to the original one stored when opened the window.
-        for spc in spacecrafts_list:
-            the_spacecraft = database.get_spacecraft(spc)
-            the_original_filter = self._dict_filters_backup[spc]
-
-            the_spacecraft.set_filter(the_original_filter)
-
-    def clicked_pb_reset(self):
-        if SONET_DEBUG:
-            print('clicked_pb_reset()')
-
-        self.reset_filter_energy()
-
-        # Pending implementation
-        # self.reset_filter_time_of_flight()
-        # self.reset_filter_time_of_flight_2()
-        # self.reset.filter_dates()
+        pass
 
     def clicked_pb_add(self):
         """
@@ -384,33 +359,73 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
             # Get the spacecraft's filter.
             spc, trip = self.get_current_selection()
             the_spacecraft = database.get_spacecraft(spc)
-            the_filter = the_spacecraft.get_filter(TripType.convert_to_enum(trip))
-            the_filter_data = the_filter.get_data()
-            # Add the filter.
-            if not isinstance(the_filter_data, pd.DataFrame):
-                if SONET_DEBUG:
-                    print('Error in SonetPCPFilterQt.clicked_pb_add: the returned filter is not a pandas '
-                          'dataframe.')
-                return False
+            has_return_trajectory = the_spacecraft.get_has_return_trajectory()
+            the_filter_data = self._dict_filters_current.get(spc)
 
+            # the_filter_data can be a dataframe or a list of them.
+            # If has_return_trajectory is true, then I should get the dataframe from a list, otherwise the_filter_data
+            # is a dataframe.
             for cb in list_checked_cb:
                 # Get the combos selection, to be added to the spacecraft's filter.
                 the_new_row = \
                     switcher.get(cb, 'Error in SonetPCPFilterQt.clicked_pb_add: argument not present in switcher')
-                the_filter_data = the_filter_data.append(the_new_row, ignore_index=True)
+                # the_filter_data = the_filter_data.append(the_new_row, ignore_index=True).copy()
 
-            # After modifying the SonetTrajectoryFitler of the selected spacecraft and trip, we should oupdate the
-            # table model.
-            the_filter.set_data(the_filter_data)
+                # Add it as a new row into the selected spacecraft and trip dataframe.
+                # Note: it's not efficient to use append every time you add a row to a dataframe, but it's not a problem
+                # as our filters dataframes are really small.
+                if has_return_trajectory:
+                    self._dict_filters_current[spc][TripType.get_index(trip)] = \
+                        self._dict_filters_current[spc][TripType.get_index(trip)].append(
+                            the_new_row, ignore_index=True)
+                else:
+                    self._dict_filters_current[spc] = \
+                        self._dict_filters_current[spc].append(the_new_row, ignore_index=True)
+
+            # After modifying the filter data of the selected spacecraft and trip, we update the
+            # table model to let the user inspect the currently applied filters.
             self.get_table_model().reset_model(self._dict_filters_current, spc, trip)
             return True
 
+    def clicked_pb_cancel(self):
+        """
+        When the user cancels the window, all the filters should be reestablished to their original state, when the
+        window was opened.
+
+        In a 1st version, I will visit all the spacecrafts, and restore their filter to the one stored in
+        self._dict_filters_backup.
+
+        In a 2nd and more efficient version of this method, I should only reset those filters which have been modified.
+        """
+        if SONET_DEBUG:
+            print('clicked_pb_cancel()')
+
+        # Get all the spacecrafts.
+        spacecrafts_list = database.get_spacecrafts_list()
+
+        # Traverse them and reestablish their filter to the original one stored when opened the window.
+        for spc in spacecrafts_list:
+            the_spacecraft = database.get_spacecraft(spc)
+            the_original_filter = self._dict_filters_backup[spc]
+
+            the_spacecraft.set_filter(the_original_filter)
 
     def clicked_pb_delete(self):
         pass
 
     def clicked_pb_delete_all(self):
         pass
+
+    def clicked_pb_reset(self):
+        if SONET_DEBUG:
+            print('clicked_pb_reset()')
+
+        self.reset_filter_energy()
+
+        # Pending implementation
+        # self.reset_filter_time_of_flight()
+        # self.reset_filter_time_of_flight_2()
+        # self.reset.filter_dates()
 
 
 class SonetAppliedFiltersTableModel(QAbstractTableModel):
@@ -492,25 +507,25 @@ class SonetAppliedFiltersTableModel(QAbstractTableModel):
             print('SonetAppliedFiltersTableModel.reset_model called.')
 
         # Get the filter
-        the_filter = a_dict_filters_current[a_spc_selection]
+        the_filter_data = a_dict_filters_current[a_spc_selection]  # a dataframe or list of them.
         has_return_trajectory = database.get_spacecraft(a_spc_selection).get_has_return_trajectory()
         if has_return_trajectory:
-            # the_filter is not a SonetTrajectoryFilter, but a list of them, with both the outgoing and incoming
-            # trip filters/dataframes.
+            # the_filter_data is not a dataframe, but a list of them, with both the outgoing and incoming
+            # trip filter dataframe.
             if a_trip_selection == 'Earth - Mars':
-                the_filter = the_filter[0]
+                the_filter_data = the_filter_data[0]
             elif a_trip_selection == 'Mars - Earth':
-                the_filter = the_filter[1]
+                the_filter_data = the_filter_data[1]
             else:
                 if SONET_DEBUG:
                     print('Error in SonetAppliedFiltersTableModel.reset_model.')
                 return False
         else:
-            # the_filter is a SonetTrajectoryFilter, with the outgoing trip dataframe inside.
+            # the_filter_data is a dataframe, representing the outgoing trip filter.
             pass
 
         self.beginResetModel()
-        self._data = the_filter.get_data()
+        self._data = the_filter_data
         self.endResetModel()
         return True
 
