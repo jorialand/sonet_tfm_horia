@@ -86,12 +86,6 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
             spacecraft = database.db[i]  # SonetSpacecraft object.
             self._dict_filters_current[i] = spacecraft.get_filter_data(get_dataframe_copy=True)
 
-        # Create a copy dict, to restore the information in case the user cancels the window.
-        self._dict_filters_backup = self._dict_filters_current.copy()
-
-        if SONET_DEBUG:
-            print(self._dict_filters_backup)
-
     def init_table_model(self):
         """
         Initialize the table model and connect the table view to it.
@@ -329,6 +323,18 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         """
         if SONET_DEBUG:
             print('clicked_pb_accept()')
+
+        # Get all the spacecrafts.
+        spacecrafts_list = database.get_spacecrafts_list()
+
+        # Traverse them and update their filters.
+        for spc in spacecrafts_list:
+            the_spacecraft = database.get_spacecraft(spc)
+            the_spacecraft.set_filter(self._dict_filters_current.get(spc), dataframe=True)
+
+    def clicked_pb_cancel(self):
+        if SONET_DEBUG:
+            print('clicked_pb_cancel()')
         pass
 
     def clicked_pb_add(self):
@@ -386,29 +392,6 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
             # table model to let the user inspect the currently applied filters.
             self.get_table_model().reset_model(self._dict_filters_current, spc, trip)
             return True
-
-    def clicked_pb_cancel(self):
-        """
-        When the user cancels the window, all the filters should be reestablished to their original state, when the
-        window was opened.
-
-        In a 1st version, I will visit all the spacecrafts, and restore their filter to the one stored in
-        self._dict_filters_backup.
-
-        In a 2nd and more efficient version of this method, I should only reset those filters which have been modified.
-        """
-        if SONET_DEBUG:
-            print('clicked_pb_cancel()')
-
-        # Get all the spacecrafts.
-        spacecrafts_list = database.get_spacecrafts_list()
-
-        # Traverse them and reestablish their filter to the original one stored when opened the window.
-        for spc in spacecrafts_list:
-            the_spacecraft = database.get_spacecraft(spc)
-            the_original_filter = self._dict_filters_backup[spc]
-
-            the_spacecraft.set_filter(the_original_filter)
 
     def clicked_pb_delete(self):
         pass

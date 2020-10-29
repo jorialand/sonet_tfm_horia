@@ -26,7 +26,6 @@ class SonetTrajectoryFilter:
         if not TripType.is_valid(a_trip_type):
             if SONET_DEBUG:
                 print('Error in SonetTrajectoryFilter constructor.')
-            return False
         self._trip_type = a_trip_type
 
     # Public methods
@@ -82,9 +81,6 @@ class SonetTrajectoryFilter:
             except KeyError:
                 print('Error in SonetTrajectoryFilter.get_filtered_pcp: Wrong _trip_type')
                 return False
-            else:
-                print('Error in SonetTrajectoryFilter.get_filtered_pcp: Wrong _trip_type')
-                return False
 
     def get_trip_type(self):
         """
@@ -96,11 +92,10 @@ class SonetTrajectoryFilter:
     def set_data(self, a_data):
         """
         Setter method.
-        :param a_data:
-        :return:
+        :param a_data: a dataframe
         """
         # Check that input is a pandas DataFrame.
-        if not isinstance(a_data, pd.core.frame.DataFrame):
+        if not isinstance(a_data, pd.DataFrame):
             return False
 
         # Check columns.

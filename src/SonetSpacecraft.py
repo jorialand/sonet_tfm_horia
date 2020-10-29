@@ -1,3 +1,4 @@
+import pandas as pd
 from overloading import overload
 
 from src.SonetTrajectoryFilter import SonetTrajectoryFilter
@@ -166,7 +167,7 @@ class SonetSpacecraft:
         """
         return self._spacecraft_type
 
-    def set_filter(self, a_the_filter):
+    def set_filter(self, a_the_filter, dataframe=False):
         """
         Setter method.
         Sets the argument filter as current SonetSpacecraft's filter. If the input is a list of filters, then the
@@ -174,11 +175,18 @@ class SonetSpacecraft:
         has only one filter.
         :return: bool true if everything was ok, false otherwise.
         """
-        if isinstance(a_the_filter, list):
-            self._pcp_filter1.set_data(a_the_filter[0].get_data().copy())
-            self._pcp_filter2.set_data(a_the_filter[1].get_data().copy())
-        elif isinstance(a_the_filter, SonetTrajectoryFilter):
-            self._pcp_filter.set_data(a_the_filter.get_data().copy())
+        if dataframe is True:
+            if isinstance(a_the_filter, list):
+                self._pcp_filter1.set_data(a_the_filter[0].copy())
+                self._pcp_filter2.set_data(a_the_filter[1].copy())
+            elif isinstance(a_the_filter, pd.DataFrame):
+                self._pcp_filter.set_data(a_the_filter.copy())
+        else:
+            if isinstance(a_the_filter, list):
+                self._pcp_filter1.set_data(a_the_filter[0].get_data().copy())
+                self._pcp_filter2.set_data(a_the_filter[1].get_data().copy())
+            elif isinstance(a_the_filter, SonetTrajectoryFilter):
+                self._pcp_filter.set_data(a_the_filter.get_data().copy())
 
     def set_filters(self):
         """
