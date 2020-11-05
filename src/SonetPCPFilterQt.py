@@ -22,6 +22,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         # Draft
         # self._applied_filters_table_model = SonetAppliedFiltersTableModel()
         # self.applied_filters_table_view.setModel(self._applied_filters_table_model)
+        self.applied_filters_table_view.resizeColumnsToContents()
 
     def init(self, ar_list_spacecrafts=None, ar_current_index=-1):
         """
@@ -41,7 +42,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
         self.pb_add.clicked.connect(self.clicked_pb_add)
         self.pb_reset.clicked.connect(self.clicked_pb_reset)
-
+        self.pb_delete_all.clicked.connect(self.clicked_pb_delete_all)
         self.select_spacecraft.currentIndexChanged.connect(self.changed_cmb_select_spacecraft)
         self.select_trip.currentIndexChanged.connect(self.changed_cmb_select_trip)
         self.combo_energy_parameter.currentIndexChanged.connect(self.changed_cmb_energy_parameter)
@@ -113,30 +114,40 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
         return True
 
-    def enable_combos(self, ar_activate):
+    def enable_pb_delete_all(self, ar_enable):
+        """
+        Activates, or not the 'Delete all' QPushButton.
+        :param ar_enable:
+        :return:
+        """
+        if ar_enable:
+            self.pb_delete_all.setEnabled(True)
+        else:
+            self.pb_delete_all.setEnabled(False)
+
+    def enable_combos(self, ar_enable):
         """
         Activates the group box combos if a valid SonetSpacecraft and trip are selected.
-        :param ar_activate: bool flag.
+        :param ar_enable: bool flag.
         :return: bool 0 if no errors, 1 otherwise.
         """
-        self.enable_groupbox_energy(ar_activate)
-        self.enable_groupbox_applied_filters(ar_activate)
-        return 0
+        self.enable_groupbox_energy(ar_enable)
+        self.enable_groupbox_applied_filters(ar_enable)
 
     def enable_energy_combos(self, ar_enable):
         self.combo_energy_parameter.setEnabled(ar_enable)
         self.combo_energy_operator.setEnabled(ar_enable)
         self.spin_energy_number.setEnabled(ar_enable)
 
-    def enable_groupbox_energy(self, ar_activate):
-        self.energy_group_box.setEnabled(ar_activate)
-        if ar_activate is False:
+    def enable_groupbox_energy(self, ar_enable):
+        self.energy_group_box.setEnabled(ar_enable)
+        if ar_enable is False:
             self.cb_energy.setChecked(False)
-        self.cb_energy.setEnabled(ar_activate)
+        self.cb_energy.setEnabled(ar_enable)
 
-    def enable_groupbox_applied_filters(self, ar_activate):
-        self.bottom_group_box.setEnabled(ar_activate)
-        self.applied_filters_table_view.setEnabled(ar_activate)
+    def enable_groupbox_applied_filters(self, ar_enable):
+        self.bottom_group_box.setEnabled(ar_enable)
+        self.applied_filters_table_view.setEnabled(ar_enable)
 
     def get_energy_combos_selection(self):
         """
@@ -173,6 +184,14 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         self.combo_energy_operator.setCurrentIndex(0)
         # self.spin_energy_number.clear()
         self.spin_energy_number.setValue(0)
+
+    def update_table_model(self):
+        """
+        Reset the table model.
+        """
+        spc_selection, trip_selection = self.get_current_selection()
+        self.get_table_model().update_model(self._dict_filters_current, spc_selection, trip_selection)
+        self.applied_filters_table_view.resizeColumnsToContents()
 
     def is_any_cb_checked(self):
         """
@@ -276,12 +295,12 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
         if selection_is_valid:
             self.enable_combos(True)
-            # Update the table model (and its view) with the current filter.
-            spc_selection, trip_selection = self.get_current_selection()
-            self.get_table_model().reset_model(self._dict_filters_current, spc_selection, trip_selection)
+            self.enable_pb_delete_all(True)
+            self.update_table_model()
         elif not selection_is_valid:
             self.enable_combos(False)
-
+            self.enable_pb_delete_all(False)
+            # self.update_table_model()
     def get_current_selection(self):
         """
         Getter function.
@@ -375,7 +394,6 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
                 # Get the combos selection, to be added to the spacecraft's filter.
                 the_new_row = \
                     switcher.get(cb, 'Error in SonetPCPFilterQt.clicked_pb_add: argument not present in switcher')
-                # the_filter_data = the_filter_data.append(the_new_row, ignore_index=True).copy()
 
                 # Add it as a new row into the selected spacecraft and trip dataframe.
                 # Note: it's not efficient to use append every time you add a row to a dataframe, but it's not a problem
@@ -390,14 +408,42 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
             # After modifying the filter data of the selected spacecraft and trip, we update the
             # table model to let the user inspect the currently applied filters.
-            self.get_table_model().reset_model(self._dict_filters_current, spc, trip)
+            self.update_table_model()
+
             return True
 
     def clicked_pb_delete(self):
         pass
 
     def clicked_pb_delete_all(self):
-        pass
+        """
+        Github issue [#18].
+        Slot executed when clicking over 'Delete all' QPushButton. It's main function is to delete all the filters
+        (e.g. reset the filter) of a given spacecraft and trip.
+        """
+        if SONET_DEBUG:
+            print('SonetPCPFilterQt.clicked_pb_delete_all')
+
+        # Get the current selected spacecraft and trip.
+        spc, trip = self.get_current_selection()
+        the_spacecraft = database.get_spacecraft(spc)
+        has_return_trajectory = the_spacecraft.get_has_return_trajectory()
+
+        # Get the dataframe columns, to reset the dataframe. Forma un poco guarra de sacar las columnas.
+        try:
+            cols = self._dict_filters_current.get(spc).columns
+        except AttributeError:
+            cols = self._dict_filters_current.get(spc)[0].columns
+
+        # Reset the filter data (which can be a dataframe, or a list of them, if the spc has two trips).
+        if has_return_trajectory:
+            self._dict_filters_current[spc][TripType.get_index(trip)] = pd.DataFrame(columns=cols)
+        else:
+            self._dict_filters_current[spc] = pd.DataFrame(columns=cols)
+
+        # After modifying the filter data of the selected spacecraft and trip, we update the
+        # table model to let the user inspect the currently applied filters.
+        self.update_table_model()
 
     def clicked_pb_reset(self):
         if SONET_DEBUG:
@@ -480,14 +526,21 @@ class SonetAppliedFiltersTableModel(QAbstractTableModel):
                 return str(self._data.index[section])
         return None
 
-    def reset_model(self, a_dict_filters_current, a_spc_selection, a_trip_selection):
+    def update_model(self, a_dict_filters_current, a_spc_selection, a_trip_selection):
         """
         Reset the table model.
         index == 1 -> Earth - Mars trip
         index == 2 -> Mars - Earth trip
         """
         if SONET_DEBUG:
-            print('SonetAppliedFiltersTableModel.reset_model called.')
+            print('SonetAppliedFiltersTableModel.update_model called.')
+
+        # If no valid selection, then we just reset the table model.
+        if a_spc_selection not in list(a_dict_filters_current.keys()) or not TripType.is_valid(TripType.convert_to_enum(a_trip_selection)):
+            self.beginResetModel()
+            self._data = pd.DataFrame(columns=['Status', 'Type', 'Filter'])
+            self.endResetModel()
+            return False
 
         # Get the filter
         the_filter_data = a_dict_filters_current[a_spc_selection]  # a dataframe or list of them.
@@ -501,7 +554,7 @@ class SonetAppliedFiltersTableModel(QAbstractTableModel):
                 the_filter_data = the_filter_data[1]
             else:
                 if SONET_DEBUG:
-                    print('Error in SonetAppliedFiltersTableModel.reset_model.')
+                    print('Error in SonetAppliedFiltersTableModel.update_model.')
                 return False
         else:
             # the_filter_data is a dataframe, representing the outgoing trip filter.
