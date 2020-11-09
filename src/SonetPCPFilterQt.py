@@ -42,6 +42,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
         self.pb_add.clicked.connect(self.clicked_pb_add)
         self.pb_reset.clicked.connect(self.clicked_pb_reset)
+        self.pb_delete.clicked.connect(self.clicked_pb_delete)
         self.pb_delete_all.clicked.connect(self.clicked_pb_delete_all)
         self.select_spacecraft.currentIndexChanged.connect(self.changed_cmb_select_spacecraft)
         self.select_trip.currentIndexChanged.connect(self.changed_cmb_select_trip)
@@ -114,16 +115,19 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
         return True
 
+    def enable_pb_delete(self, ar_enable):
+        """
+        Activates, or not the 'Delete' QPushButton.
+        :param ar_enable: bool
+        """
+        self.pb_delete.setEnabled(ar_enable)
+
     def enable_pb_delete_all(self, ar_enable):
         """
         Activates, or not the 'Delete all' QPushButton.
-        :param ar_enable:
-        :return:
+        :param ar_enable: bool
         """
-        if ar_enable:
-            self.pb_delete_all.setEnabled(True)
-        else:
-            self.pb_delete_all.setEnabled(False)
+        self.pb_delete_all.setEnabled(ar_enable)
 
     def enable_combos(self, ar_enable):
         """
@@ -296,10 +300,12 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         if selection_is_valid:
             self.enable_combos(True)
             self.enable_pb_delete_all(True)
+            self.enable_pb_delete(True)
             self.update_table_model()
         elif not selection_is_valid:
             self.enable_combos(False)
             self.enable_pb_delete_all(False)
+            self.enable_pb_delete(True)
             # self.update_table_model()
     def get_current_selection(self):
         """
@@ -413,7 +419,47 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
             return True
 
     def clicked_pb_delete(self):
-        pass
+        """
+        Github issue [#].
+        Slot executed whenclicking over 'Delete' QPushButton. It's main function is to delete the current selected
+        filter of a given spacecraft and trip.
+
+        :return: bool
+        """
+        if SONET_DEBUG:
+            print('SonetPCPFilterQt.clicked_pb_delete')
+
+        # Get the current selected spacecraft and trip.
+        spc, trip = self.get_current_selection()
+        the_spacecraft = database.get_spacecraft(spc)
+        has_return_trajectory = the_spacecraft.get_has_return_trajectory()
+        current_row = self.applied_filters_table_view.currentIndex().row()
+
+        # Remove the current row from the filter data (which can be a dataframe, or a list of them, if the spc has two
+        # trips).
+        try:
+            if has_return_trajectory:
+                self._dict_filters_current[spc][TripType.get_index(trip)] = \
+                    self._dict_filters_current[spc][TripType.get_index(trip)].drop(current_row).reset_index(drop=True)
+            else:
+                self._dict_filters_current[spc] = self._dict_filters_current[spc]\
+                    .drop(current_row).reset_index(drop=True)
+            #     The reset_index method is used to reset the resulting dataframe index, to avoid weird index numbers
+            # after deleting a row in the middle (e.g. 0,2,3...)
+
+            # After modifying the filter data of the selected spacecraft and trip, we update the
+            # table model to let the user inspect the currently applied filters.
+            self.update_table_model()
+            return True
+
+        except KeyError:
+            # Sometimes, when the user does a weird selection, KeyError is raised, in those cases, then just do nothing
+            # and return False, to show that sth went wrong.
+            if SONET_DEBUG:
+                print('SonetPCPFilterQt.clicked_pb_delete: Exception raised.')
+            return False
+
+
 
     def clicked_pb_delete_all(self):
         """
