@@ -23,7 +23,6 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         # self._applied_filters_table_model = SonetAppliedFiltersTableModel()
         # self.applied_filters_table_view.setModel(self._applied_filters_table_model)
         self.applied_filters_table_view.resizeColumnsToContents()
-
     def init(self, ar_list_spacecrafts=None, ar_current_index=-1):
         """
         Initializes the QDialog window. It also sets the signal/slot connections.
@@ -50,6 +49,9 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
         self.cb_energy.stateChanged.connect(self.enable_pb_add)
         self.cb_energy.stateChanged.connect(self.changed_cb_energy)
+
+        self.cb_time_of_flight.stateChanged.connect(self.enable_pb_add)
+        self.cb_time_of_flight.stateChanged.connect(self.changed_cb_time_of_flight)
 
         # Fill select_spacecraft combo with the available spacecrafts and select the current one.
         self.init_combo_select_spacecraft(ar_list_spacecrafts, ar_current_index)
@@ -113,8 +115,6 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         else:
             self.pb_add.setEnabled(False)
 
-        return True
-
     def enable_pb_delete(self, ar_enable):
         """
         Activates, or not the 'Delete' QPushButton.
@@ -133,9 +133,10 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         """
         Activates the group box combos if a valid SonetSpacecraft and trip are selected.
         :param ar_enable: bool flag.
-        :return: bool 0 if no errors, 1 otherwise.
+        :return: bool.
         """
         self.enable_groupbox_energy(ar_enable)
+        self.enable_groupbox_time_of_flight(ar_enable)
         self.enable_groupbox_applied_filters(ar_enable)
 
     def enable_energy_combos(self, ar_enable):
@@ -143,15 +144,36 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         self.combo_energy_operator.setEnabled(ar_enable)
         self.spin_energy_number.setEnabled(ar_enable)
 
-    def enable_groupbox_energy(self, ar_enable):
-        self.energy_group_box.setEnabled(ar_enable)
-        if ar_enable is False:
-            self.cb_energy.setChecked(False)
-        self.cb_energy.setEnabled(ar_enable)
+    def enable_time_of_flight_combos(self, ar_enable):
+        self.combo_time_of_flight.setEnabled(ar_enable)
+        self.combo_time_of_flight_operator.setEnabled(ar_enable)
+        self.spin_number_2.setEnabled(ar_enable)
+        self.combo_time_scale_2.setEnabled(ar_enable)
 
     def enable_groupbox_applied_filters(self, ar_enable):
         self.bottom_group_box.setEnabled(ar_enable)
         self.applied_filters_table_view.setEnabled(ar_enable)
+
+    def enable_groupbox_energy(self, ar_enable):
+        self.energy_group_box.setEnabled(ar_enable)
+        # If we are disabling the group box, then associated combo boxes should also be disabled.
+        if ar_enable is False:
+            self.cb_energy.setChecked(False)
+        self.cb_energy.setEnabled(ar_enable)
+
+    def enable_groupbox_time_of_flight(self, ar_enable):
+        self.time_of_flight_group_box.setEnabled(ar_enable)
+        # If we are disabling the group box, then associated combo boxes should also be disabled.
+        if ar_enable is False:
+            self.cb_time_of_flight.setChecked(False)
+        self.cb_time_of_flight.setEnabled(ar_enable)
+
+    def get_current_selection(self):
+        """
+        Getter function.
+        :return: The current spacecraft and trip combo selection.
+        """
+        return self.select_spacecraft.currentText(), self.select_trip.currentText()
 
     def get_energy_combos_selection(self):
         """
@@ -168,6 +190,20 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         # return the_selection
         return {'Status': 1, 'Type': 'Energy', 'Filter': the_selection}
 
+    def get_time_of_flight_combos_selection(self):
+        """
+        Retrieves the time of flight combo boxes data, to apply filters.
+        :return: a dict, representing a pandas dataframe row.
+        """
+        if SONET_DEBUG:
+            print('SonetPCPFilterQt.get_time_of_flight_combos_selection.')
+
+        the_selection = ['tof',
+                         self.combo_time_of_flight_operator.currentText(),
+                         self.spin_number_2.text(),
+                         self.combo_time_scale_2.currentText()]
+        # return the_selection
+        return {'Status': 1, 'Type': 'Time of flight', 'Filter': the_selection}
     def get_table_model(self):
         """
         Getter method.
@@ -178,7 +214,6 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
     def reset_filter_energy(self):
         """
         Disables the energy filter checkbox and resets all the fields to their default value.
-        :return:
         """
         if SONET_DEBUG:
             print('reset_filter_energy()')
@@ -188,6 +223,20 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         self.combo_energy_operator.setCurrentIndex(0)
         # self.spin_energy_number.clear()
         self.spin_energy_number.setValue(0)
+
+    def reset_filter_time_of_flight(self):
+        """
+        Disables the time of flight filter checkbox and resets all the fields to their default value.
+        """
+        if SONET_DEBUG:
+            print('reset_filter_time_of_flight()')
+
+        self.cb_time_of_flight.setChecked(False)
+        self.combo_time_of_flight.setCurrentIndex(0)
+        self.combo_time_of_flight_operator.setCurrentIndex(0)
+        self.combo_time_scale_2.setCurrentIndex(0)
+        self.spin_number_2.setValue(0)
+
 
     def update_table_model(self):
         """
@@ -204,7 +253,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         :return: bool
         """
         any_checked = any([self.cb_time_of_flight.isChecked(),
-                           self.cb_time_of_flight_2.isChecked(),
+                           self.cb_dep_arriv_dates.isChecked(),
                            self.cb_dates_1.isChecked(),
                            self.cb_dates_2.isChecked(),
                            self.cb_energy.isChecked()])
@@ -242,8 +291,8 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
                 the_list.append('cb_energy')
             if self.cb_time_of_flight.isChecked():
                 the_list.append('cb_time_of_flight')
-            if self.cb_time_of_flight_2.isChecked():
-                the_list.append('cb_time_of_flight_2')
+            if self.cb_dep_arriv_dates.isChecked():
+                the_list.append('cb_dep_arriv_dates')
             if self.cb_dates_1.isChecked():
                 the_list.append('cb_dates_1')
             if self.cb_dates_2.isChecked():
@@ -299,20 +348,14 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
         if selection_is_valid:
             self.enable_combos(True)
-            self.enable_pb_delete_all(True)
             self.enable_pb_delete(True)
+            self.enable_pb_delete_all(True)
             self.update_table_model()
         elif not selection_is_valid:
             self.enable_combos(False)
-            self.enable_pb_delete_all(False)
             self.enable_pb_delete(True)
+            self.enable_pb_delete_all(False)
             # self.update_table_model()
-    def get_current_selection(self):
-        """
-        Getter function.
-        :return: The current spacecraft and trip combo selection.
-        """
-        return self.select_spacecraft.currentText(), self.select_trip.currentText()
 
     def changed_cmb_energy_parameter(self, index):
         cmb_units = self.combo_energy_units
@@ -341,6 +384,13 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
             self.enable_energy_combos(True)
         else:
             self.enable_energy_combos(False)
+
+    def changed_cb_time_of_flight(self):
+        """
+        Slot which enables or disables the time of flight group box combos, depending on the time of flight group box
+        checkbox state.
+        """
+        self.enable_time_of_flight_combos(self.cb_time_of_flight.isChecked())
 
     def clicked_pb_accept(self):
         """
@@ -381,8 +431,8 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
             switcher = {
                 'cb_energy': self.get_energy_combos_selection(),
-                'cb_time_of_flight': 'Pending implementation',
-                'cb_time_of_flight_2': 'Pending implementation',
+                'cb_time_of_flight': self.get_time_of_flight_combos_selection(),
+                'cb_dep_arriv_dates': 'Pending implementation',
                 'cb_dates_1': 'Pending implementation',
                 'cb_dates_2': 'Pending implementation',
             }
@@ -459,8 +509,6 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
                 print('SonetPCPFilterQt.clicked_pb_delete: Exception raised.')
             return False
 
-
-
     def clicked_pb_delete_all(self):
         """
         Github issue [#18].
@@ -496,12 +544,15 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
             print('clicked_pb_reset()')
 
         self.reset_filter_energy()
+        self.reset_filter_time_of_flight()
 
         # Pending implementation
         # self.reset_filter_time_of_flight()
         # self.reset_filter_time_of_flight_2()
         # self.reset.filter_dates()
 
+    def clicked_ok_btn(self):
+        pass
 
 class SonetAppliedFiltersTableModel(QAbstractTableModel):
     """

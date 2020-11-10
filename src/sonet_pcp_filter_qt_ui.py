@@ -243,11 +243,11 @@ class Ui_sonet_pcp_filter(object):
         self.gridLayout_2.setObjectName(u"gridLayout_2")
         self.verticalLayout_11 = QVBoxLayout()
         self.verticalLayout_11.setObjectName(u"verticalLayout_11")
-        self.cb_time_of_flight_2 = QCheckBox(self.top_left_group_box)
-        self.cb_time_of_flight_2.setObjectName(u"cb_time_of_flight_2")
-        self.cb_time_of_flight_2.setEnabled(False)
+        self.cb_dep_arriv_dates = QCheckBox(self.top_left_group_box)
+        self.cb_dep_arriv_dates.setObjectName(u"cb_dep_arriv_dates")
+        self.cb_dep_arriv_dates.setEnabled(False)
 
-        self.verticalLayout_11.addWidget(self.cb_time_of_flight_2)
+        self.verticalLayout_11.addWidget(self.cb_dep_arriv_dates)
 
         self.combo_dept_arriv = QComboBox(self.top_left_group_box)
         self.combo_dept_arriv.addItem("")
@@ -390,7 +390,7 @@ class Ui_sonet_pcp_filter(object):
 
 
         self.retranslateUi(sonet_pcp_filter)
-        self.select_spacecraft.activated.connect(self.cb_time_of_flight_2.show)
+        self.select_spacecraft.activated.connect(self.cb_dep_arriv_dates.show)
 
         QMetaObject.connectSlotsByName(sonet_pcp_filter)
     # setupUi
@@ -433,7 +433,7 @@ class Ui_sonet_pcp_filter(object):
         self.combo_energy_units.setItemText(2, QCoreApplication.translate("sonet_pcp_filter", u"deg", None))
 
         self.top_left_group_box.setTitle(QCoreApplication.translate("sonet_pcp_filter", u"Departure and arrival dates", None))
-        self.cb_time_of_flight_2.setText("")
+        self.cb_dep_arriv_dates.setText("")
         self.combo_dept_arriv.setItemText(0, QCoreApplication.translate("sonet_pcp_filter", u"Departs", None))
         self.combo_dept_arriv.setItemText(1, QCoreApplication.translate("sonet_pcp_filter", u"Arrives", None))
 
