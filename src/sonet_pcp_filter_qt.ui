@@ -424,7 +424,7 @@
         <item row="0" column="0">
          <layout class="QVBoxLayout" name="verticalLayout_11">
           <item>
-           <widget class="QCheckBox" name="cb_time_of_flight_2">
+           <widget class="QCheckBox" name="cb_dep_arriv_dates">
             <property name="enabled">
              <bool>false</bool>
             </property>
@@ -724,7 +724,7 @@
   <connection>
    <sender>select_spacecraft</sender>
    <signal>activated(QString)</signal>
-   <receiver>cb_time_of_flight_2</receiver>
+   <receiver>cb_dep_arriv_dates</receiver>
    <slot>show()</slot>
    <hints>
     <hint type="sourcelabel">
