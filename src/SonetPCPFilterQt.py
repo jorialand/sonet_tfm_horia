@@ -5,12 +5,12 @@ import pandas as pd
 # Pyside2 imports
 from PySide2.QtCore import QCoreApplication, Qt, QAbstractTableModel, QModelIndex, QDate
 from PySide2.QtGui import QColor
-from PySide2.QtWidgets import QDialog, QApplication, QDialogButtonBox
+from PySide2.QtWidgets import QDialog, QApplication, QDialogButtonBox, QMessageBox
 
 # Sonet imports
 from src import database
 from src import sonet_pcp_filter_qt_ui
-from src.SonetUtils import SONET_DEBUG, FilterType, TripType
+from src.SonetUtils import SONET_DEBUG, FilterType, TripType, send_msg
 
 
 class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
@@ -67,6 +67,9 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         self.init_filters(ar_list_spacecrafts)
         # Init table model and table view
         self.init_table_model()
+
+        self.dateEdit.setDisplayFormat('dd-MM-yyyy')
+        self.dateEdit.setCalendarPopup(True)
 
     def init_combo_select_spacecraft(self, ar_list_spacecrafts=None, ar_current_index=-1):
         """
@@ -199,6 +202,21 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         :return: The current spacecraft and trip combo selection.
         """
         return self.select_spacecraft.currentText(), self.select_trip.currentText()
+
+    def get_dep_arriv_dates_combos_selection(self):
+        """
+        Retrieves the departure and arrival dates group box data, to apply filters.
+        :return: a dict, representing a pandas dataframe row.
+        """
+        if SONET_DEBUG:
+            print('SonetPCPFilterQt.get_dep_arriv_dates_combos_selection.')
+
+        the_selection = [self.combo_dept_arriv.currentText(),
+                         self.combo_planet.currentText(),
+                         self.combo_when_2.currentText(),
+                         self.dateEdit.date()]
+        # return the_selection
+        return {'Status': 1, 'Type': 'Date', 'Filter': the_selection}
 
     def get_energy_combos_selection(self):
         """
@@ -351,13 +369,13 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
                 the_list.append('cb_time_of_flight')
             if self.cb_dep_arriv_dates.isChecked():
                 the_list.append('cb_dep_arriv_dates')
-            if self.cb_dates_1.isChecked():
-                the_list.append('cb_dates_1')
-            if self.cb_dates_2.isChecked():
-                the_list.append('cb_dates_2')
+                if self.cb_dates_1.isChecked():
+                    the_list.append('cb_dates_1')
+                if self.cb_dates_2.isChecked():
+                    the_list.append('cb_dates_2')
 
         if SONET_DEBUG:
-            print(the_list)
+            print('Checked checkboxes' + str(the_list))
 
         return the_list
 
@@ -506,7 +524,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
         list_checked_cb = self.which_cb_checked()
 
-        if len(list_checked_cb) == 0:
+        if not list_checked_cb:
             if SONET_DEBUG:
                 print('SonetPCPFilterQt.clicked_pb_add: no checkbox is enabled.')
             return False
@@ -514,13 +532,30 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
             # The switcher implementation is an efficient alternative to multiple if statements, as it
             # only checks one time each variable. E.g. it can be seen as a sort of switch-case clause, from c++.
 
-            switcher = {
+            switcher = \
+            {
                 'cb_energy': self.get_energy_combos_selection(),
                 'cb_time_of_flight': self.get_time_of_flight_combos_selection(),
-                'cb_dep_arriv_dates': 'Pending implementation',
-                'cb_dates_1': 'Pending implementation',
-                'cb_dates_2': 'Pending implementation',
+                'cb_dep_arriv_dates': self.get_dep_arriv_dates_combos_selection()
             }
+
+            # Check: if the checkbox 'cb_dep_arriv_dates' is checked, then also 'cb_dates_1' or 'cb_dates_2' should be
+            # also checked, if not, the entire selection will be discarded, and asked the user to fix the selection.
+            c1 = 'cb_dep_arriv_dates' in list_checked_cb
+            c2 = 'cb_dates_1' in list_checked_cb
+            c3 = 'cb_dates_2' in list_checked_cb
+            if c1 and not (c2 or c3):
+                send_msg(window_title='Wrong filters selection',
+                         icon=QMessageBox.Information,
+                         text = 'Wrong filters selection!',
+                         info_text='If the departure/arrival dates filter is checked, then one of the two below'
+                                   ' options should be also selected. Please, do a valid filters selection.',
+                         )
+                return False
+
+            # PENDING IMPLEMENTATION #21
+            # PENDING IMPLEMENTATION #21
+            # PENDING IMPLEMENTATION #21
 
             # Get the spacecraft's filter.
             spc, trip = self.get_current_selection()
@@ -529,7 +564,8 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
             the_filter_data = self._dict_filters_current.get(spc)
 
             # the_filter_data can be a dataframe or a list of them.
-            # If has_return_trajectory is true, then I should get the dataframe from a list, otherwise the_filter_data
+            # If has_return_trajectory is true, then I should get the dataframe from a list (because a spacecraft with
+            # both out and inc trip, has one dataframe for each trip), otherwise the_filter_data
             # is a dataframe.
             for cb in list_checked_cb:
                 # Get the combos selection, to be added to the spacecraft's filter.

@@ -2,6 +2,7 @@ import random
 from enum import Enum, unique
 
 import pandas as pd
+from PySide2.QtWidgets import QMessageBox
 
 # Flag controlling if the debug messages are going to be printed in the Python console. Useful for debugging.
 SONET_DEBUG = True
@@ -100,6 +101,15 @@ class TripType(Enum):
             return True
         return False
 
+def send_msg(text='text', icon=QMessageBox.Information, info_text='info_text', window_title='window_title'):
+    msg = QMessageBox()
+    msg.setIcon(icon)
+    msg.setText(text)
+    msg.setInformativeText(info_text)
+    # msg.setDetailedText("The details are as follows:")
+    msg.setWindowTitle(window_title)
+    msg.setStandardButtons(QMessageBox.Ok)
+    msg.exec_()
 
 def build_mock_DataFrame(num_rows=5, num_columns=8, min=0, max=10):
     """
