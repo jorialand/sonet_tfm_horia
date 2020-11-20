@@ -48,6 +48,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         self.select_spacecraft.currentIndexChanged.connect(self.changed_cmb_select_spacecraft)
         self.select_trip.currentIndexChanged.connect(self.changed_cmb_select_trip)
         self.combo_energy_parameter.currentIndexChanged.connect(self.changed_cmb_energy_parameter)
+        self.combo_dept_arriv.currentIndexChanged.connect(self.changed_cmb_dept_arriv)
 
         self.cb_dep_arriv_dates.stateChanged.connect(self.enable_pb_add)
         self.cb_dep_arriv_dates.stateChanged.connect(self.changed_cb_departure_dates_step1)
@@ -152,7 +153,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
     def enable_departure_dates_step1_combos(self, ar_enable):
         self.combo_dept_arriv.setEnabled(ar_enable)
-        self.combo_planet.setEnabled(ar_enable)
+        # self.combo_planet.setEnabled(ar_enable)
 
     def enable_energy_combos(self, ar_enable):
         self.combo_energy_parameter.setEnabled(ar_enable)
@@ -214,7 +215,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         the_selection = [self.combo_dept_arriv.currentText(),
                          self.combo_planet.currentText(),
                          self.combo_when_2.currentText(),
-                         self.dateEdit.date()]
+                         self.dateEdit.text()]
         # return the_selection
         return {'Status': 1, 'Type': 'Date', 'Filter': the_selection}
 
@@ -264,7 +265,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
         self.cb_dep_arriv_dates.setChecked(False)
         self.combo_dept_arriv.setCurrentIndex(0)
-        self.combo_planet.setCurrentIndex(0)
+        # self.combo_planet.setCurrentIndex(0)
 
     def reset_filter_departure_dates_step2(self):
         """
@@ -369,15 +370,52 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
                 the_list.append('cb_time_of_flight')
             if self.cb_dep_arriv_dates.isChecked():
                 the_list.append('cb_dep_arriv_dates')
-                if self.cb_dates_1.isChecked():
-                    the_list.append('cb_dates_1')
-                if self.cb_dates_2.isChecked():
-                    the_list.append('cb_dates_2')
+                # if self.cb_dates_1.isChecked():
+                #     the_list.append('cb_dates_1')
+                # if self.cb_dates_2.isChecked():
+                #     the_list.append('cb_dates_2')
 
         if SONET_DEBUG:
             print('Checked checkboxes' + str(the_list))
 
         return the_list
+
+    def changed_cmb_dept_arriv(self, index):
+        """
+        Slot executed when the combo_dept_arriv changes its state. Example, if the 'Departure' option is activated,
+        then depending on the select_trip combo, the combo_planet will be setted to 'Earth' or 'Mars'.
+        :param index: int
+        """
+        trip = self.select_trip.currentText()
+        combo = self.combo_dept_arriv.currentText()
+
+        if (trip == 'Earth - Mars' and combo == 'Departs') or (trip == 'Mars - Earth' and combo == 'Arrives'):
+            res = 'Earth'
+        else:
+            res = 'Mars'
+
+        if res == 'Earth':
+            self.combo_planet.setCurrentIndex(0)
+        else:
+            self.combo_planet.setCurrentIndex(1)
+
+    def changed_cmb_energy_parameter(self, index):
+        cmb_units = self.combo_energy_units
+
+        if index in [0, 1, 2]:
+            # km/s
+            cmb_units.setCurrentIndex(0)
+            return 0
+        elif index in [3, 4]:
+            # km2/s2
+            cmb_units.setCurrentIndex(1)
+            return 0
+        elif index in [5]:
+            # º
+            cmb_units.setCurrentIndex(2)
+            return 0
+        else:
+            print('Warning: cmb_energy_parameter_changed()')
 
     def changed_cmb_select_spacecraft(self, index):
         """
@@ -429,28 +467,14 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         if selection_is_valid:
             self.update_table_model()
 
-    def changed_cmb_energy_parameter(self, index):
-        cmb_units = self.combo_energy_units
-
-        if index in [0, 1, 2]:
-            # km/s
-            cmb_units.setCurrentIndex(0)
-            return 0
-        elif index in [3, 4]:
-            # km2/s2
-            cmb_units.setCurrentIndex(1)
-            return 0
-        elif index in [5]:
-            # º
-            cmb_units.setCurrentIndex(2)
-            return 0
-        else:
-            print('Warning: cmb_energy_parameter_changed()')
+        # In any case, reset the filters checkboxes, in case any was checked.
+        self.clicked_pb_reset()
 
     def changed_cb_departure_dates_step1(self):
         """
         Slot which enables or disables the departure/arrival dates group box top combos, depending on the checkbox state.
         """
+        # The three combos share the same state.
         enable = self.cb_dep_arriv_dates.isChecked()
         self.enable_departure_dates_step1_combos(enable)
         self.cb_dates_1.setEnabled(enable)
@@ -460,6 +484,14 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         if not enable:
             self.cb_dates_1.setChecked(False)
             self.cb_dates_2.setChecked(False)
+
+        # Force combo_planet to be updated based on the combo_dept_arriv and combo select_trip values.
+        # self.combo_dept_arriv.currentIndexChanged.emit
+        # A la desesperada.
+        self.combo_dept_arriv.setCurrentIndex(0)
+        self.combo_dept_arriv.setCurrentIndex(1)
+        self.combo_dept_arriv.setCurrentIndex(0)
+        # TODO - Arreglar esta mierda.
 
     def changed_cb_departure_dates_step2(self):
         enable = self.cb_dates_1.isChecked()
@@ -542,20 +574,15 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
             # Check: if the checkbox 'cb_dep_arriv_dates' is checked, then also 'cb_dates_1' or 'cb_dates_2' should be
             # also checked, if not, the entire selection will be discarded, and asked the user to fix the selection.
             c1 = 'cb_dep_arriv_dates' in list_checked_cb
-            c2 = 'cb_dates_1' in list_checked_cb
-            c3 = 'cb_dates_2' in list_checked_cb
+            c2 = self.cb_dates_1.isChecked()
+            c3 = self.cb_dates_2.isChecked()
             if c1 and not (c2 or c3):
                 send_msg(window_title='Wrong filters selection',
                          icon=QMessageBox.Information,
                          text = 'Wrong filters selection!',
                          info_text='If the departure/arrival dates filter is checked, then one of the two below'
-                                   ' options should be also selected. Please, do a valid filters selection.',
-                         )
+                                   ' options should be also selected. Please, do a valid filters selection.')
                 return False
-
-            # PENDING IMPLEMENTATION #21
-            # PENDING IMPLEMENTATION #21
-            # PENDING IMPLEMENTATION #21
 
             # Get the spacecraft's filter.
             spc, trip = self.get_current_selection()
@@ -587,6 +614,8 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
             # table model to let the user inspect the currently applied filters.
             self.update_table_model()
 
+            # Reset the filters. Once you apply a filter, you probably won't apply the same filter again, so reset them.
+            self.clicked_pb_reset()
             return True
 
     def clicked_pb_delete(self):
