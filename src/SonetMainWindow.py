@@ -2,7 +2,7 @@
 This is the SonetMainWindow class, inherits from QMainWindow.
 
 Author: Horia Ghionoiu Martínez.
-Project:
+Project: Sonet Mars Mission Architecture Planner
 Started:
 Code submitted:
 Project defense:
@@ -14,7 +14,8 @@ import pandas as pd
 # From module X import class Y.
 from PySide2.QtCore import QAbstractListModel, QAbstractTableModel, QModelIndex, Qt
 from PySide2.QtGui import QColor
-from PySide2.QtWidgets import QApplication, QMainWindow
+from PySide2.QtWidgets import QMainWindow
+from fbs_runtime.application_context.PySide2 import ApplicationContext
 
 from src import database
 from src import sonet_main_window_ui
@@ -373,9 +374,19 @@ class ListModel(QAbstractListModel):
         return Qt.ItemIsEnabled | Qt.ItemIsSelectable
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
-
+    # app = QApplication(sys.argv)
+    appctxt = ApplicationContext()       # 1. Instantiate ApplicationContext
     main_window = SonetMainWindow()
     main_window.show()
 
-    sys.exit(app.exec_())
+    # sys.exit(app.exec_())
+    exit_code = appctxt.app.exec_()      # 2. Invoke appctxt.app.exec_()
+    sys.exit(exit_code)
+
+
+    # appctxt = ApplicationContext()       # 1. Instantiate ApplicationContext
+    # window = QMainWindow()
+    # window.resize(250, 150)
+    # window.show()
+    # exit_code = appctxt.app.exec_()      # 2. Invoke appctxt.app.exec_()
+    # sys.exit(exit_code)
