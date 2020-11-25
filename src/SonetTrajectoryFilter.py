@@ -1,7 +1,7 @@
 import pandas as pd
 
 from src import database
-from src.SonetUtils import FilterType, TripType, SONET_DEBUG
+from src.SonetUtils import TripType, SONET_DEBUG
 
 
 class SonetTrajectoryFilter:
@@ -39,16 +39,17 @@ class SonetTrajectoryFilter:
 
     def get_filtered_pcp(self):
         """
+        La clave.
         Applies the filter _data to the porkchop plot, and returns a filtered pandas Dataframe.
         If the _data dataframe is empty, the return will be the porkchop plot with no filter.
         If the filter is too restrictive, then the return will be an empty DataFrame.
         :return: A pandas DataFrame. If something went wrong, then it will return False.
         """
         # Get activated filters as pandas DataFrame.
-        the_filter_energy = self._get_activated_filters_of_a_given_type(self._data, True, FilterType.ENERGY)
-        the_filter_tof = self._get_activated_filters_of_a_given_type(self._data, True, FilterType.TOF)
-        the_filter_dates = self._get_activated_filters_of_a_given_type(self._data, True, FilterType.DATES)
-        the_filter_dates2 = self._get_activated_filters_of_a_given_type(self._data, True, FilterType.DATES_2)
+        the_filter_energy = self._get_activated_filters_of_a_given_type(self._data, True, 'Energy')
+        the_filter_tof = self._get_activated_filters_of_a_given_type(self._data, True, 'Time of flight')
+        the_filter_dates = self._get_activated_filters_of_a_given_type(self._data, True, 'Date')
+        the_filter_dates2 = self._get_activated_filters_of_a_given_type(self._data, True, '???')
 
         # Convert them to string.
         query_energy = self._get_query_string(the_filter_energy)
@@ -77,7 +78,9 @@ class SonetTrajectoryFilter:
         else:
             try:
                 # Return the filtered porkchop plot.
-                return the_pcp_table.query(query_string)
+                the_pcp_table.query(query_string).shape
+                res = the_pcp_table.query(query_string)
+                return res
             except KeyError:
                 print('Error in SonetTrajectoryFilter.get_filtered_pcp: Wrong _trip_type')
                 return False

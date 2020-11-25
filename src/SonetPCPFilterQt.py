@@ -541,6 +541,8 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         for spc in spacecrafts_list:
             the_spacecraft = database.get_spacecraft(spc)
             the_spacecraft.set_filter(self._dict_filters_current.get(spc), dataframe=True)
+            the_filtered_pcp = the_spacecraft.get_filter(TripType.OUTGOING).get_filtered_pcp()
+            # print(the_filtered_pcp)
 
     def clicked_pb_cancel(self):
         if SONET_DEBUG:
@@ -698,12 +700,6 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         self.reset_filter_departure_dates_step1()
         self.reset_filter_departure_dates_step2()
         self.reset_filter_departure_dates_step3()
-
-    def clicked_ok_btn(self):
-        if SONET_DEBUG:
-            print('clicked_ok_btn()')
-        print('CODING PENDING')
-        pass
 
 class SonetAppliedFiltersTableModel(QAbstractTableModel):
     """
