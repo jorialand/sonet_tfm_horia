@@ -67,33 +67,22 @@ class SonetSpacecraft:
         #     return False
 
     # Public methods
-    @overload
-    def get_filter(self):
-        """
-        Getter method.
-        :return: a SonetTrajectoryFilter, a Python list of SonetTrajectoryFilter if there is more than one filter.
-        """
-
-        # Type check.
-        if not isinstance(self._has_return_trajectory, bool):
-            return False  # _has_return_trajectory should be bool, if not, there's some error.
-
-        # set_filters method has to be called at least once, before accessing the filters.
-        try:
-            return self._pcp_filter
-        except AttributeError:
-            return [self._pcp_filter1, self._pcp_filter2]
-        except TypeError:
-            return False
-
-    @overload
-    def get_filter(self, a_trip_type):
+    def get_filter(self, a_trip_type=None):
         """
         Getter method, overload with a more specific functionality. It returns a concrete SonetTrajectoryFilter, based
-        in the input a_trip_type.
+        on the input a_trip_type.
         :param a_trip_type: TripType enum.
         :return: SonetTrajectoryFilter.
         """
+        # If no trip type specified, return all the filters.
+        if a_trip_type is None:
+            try:
+                return self._pcp_filter
+            except AttributeError:
+                return [self._pcp_filter1, self._pcp_filter2]
+            except TypeError:
+                return False
+
         # Type check.
         if not isinstance(self._has_return_trajectory, bool):
             if SONET_DEBUG:

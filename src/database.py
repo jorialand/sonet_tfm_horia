@@ -10,7 +10,9 @@ from src.SonetUtils import TripType
 
 db = {}
 
-dir_path = '/Users/Jorialand/code/tfm/sonet/sonet_tfm_horia/src/'
+# dir_path = '/Users/Jorialand/code/tfm/sonet/sonet_tfm_horia/src/'
+dir_path = 'C:/workcopy/data/'
+
 pcp_outgoing = pd.read_csv(dir_path + '10kPCP_Earth2Mars.txt')
 pcp_incoming = pd.read_csv(dir_path + '10kPCP_Mars2Earth.txt')
 
