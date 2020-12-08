@@ -289,7 +289,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
         self.cb_dates_2.setChecked(False)
         self.combo_when_2.setCurrentIndex(0)
-        self.dateEdit.setDate(QDate(2020,3,14))
+        self.dateEdit.setDate(QDate(2020, 5, 1))
 
     def reset_filter_energy(self):
         """
@@ -529,7 +529,8 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
     def clicked_pb_accept(self):
         """
-        docstring
+        Slot executed when clicked on 'Accept' button. It retrieves and stores all applied filters for all
+        the spacecrafts.
         """
         if SONET_DEBUG:
             print('clicked_pb_accept()')
@@ -541,8 +542,6 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         for spc in spacecrafts_list:
             the_spacecraft = database.get_spacecraft(spc)
             the_spacecraft.set_filter(self._dict_filters_current.get(spc), dataframe=True)
-            the_filtered_pcp = the_spacecraft.get_filter(TripType.OUTGOING).get_filtered_pcp()
-            # print(the_filtered_pcp)
 
     def clicked_pb_cancel(self):
         if SONET_DEBUG:
@@ -551,7 +550,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
     def clicked_pb_add(self):
         """
-        Traverses all the checked filters and adds them to the filters table.
+        Travers the applied filters, gets their data, and add it to the spacecraft state.
         """
         if SONET_DEBUG:
             print('SonetPCPFilterQt.clicked_pb_add')
@@ -567,11 +566,11 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
             # only checks one time each variable. E.g. it can be seen as a sort of switch-case clause, from c++.
 
             switcher = \
-            {
-                'cb_energy': self.get_energy_combos_selection(),
-                'cb_time_of_flight': self.get_time_of_flight_combos_selection(),
-                'cb_dep_arriv_dates': self.get_dep_arriv_dates_combos_selection()
-            }
+                {
+                    'cb_energy': self.get_energy_combos_selection(),
+                    'cb_time_of_flight': self.get_time_of_flight_combos_selection(),
+                    'cb_dep_arriv_dates': self.get_dep_arriv_dates_combos_selection()
+                }
 
             # Check: if the checkbox 'cb_dep_arriv_dates' is checked, then also 'cb_dates_1' or 'cb_dates_2' should be
             # also checked, if not, the entire selection will be discarded, and asked the user to fix the selection.
@@ -581,7 +580,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
             if c1 and not (c2 or c3):
                 send_msg(window_title='Wrong filters selection',
                          icon=QMessageBox.Information,
-                         text = 'Wrong filters selection!',
+                         text='Wrong filters selection!',
                          info_text='If the departure/arrival dates filter is checked, then one of the two below'
                                    ' options should be also selected. Please, do a valid filters selection.')
                 return False
@@ -644,7 +643,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
                 self._dict_filters_current[spc][TripType.get_index(trip)] = \
                     self._dict_filters_current[spc][TripType.get_index(trip)].drop(current_row).reset_index(drop=True)
             else:
-                self._dict_filters_current[spc] = self._dict_filters_current[spc]\
+                self._dict_filters_current[spc] = self._dict_filters_current[spc] \
                     .drop(current_row).reset_index(drop=True)
             #     The reset_index method is used to reset the resulting dataframe index, to avoid weird index numbers
             # after deleting a row in the middle (e.g. 0,2,3...)
@@ -701,6 +700,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         self.reset_filter_departure_dates_step2()
         self.reset_filter_departure_dates_step3()
 
+
 class SonetAppliedFiltersTableModel(QAbstractTableModel):
     """
     Table model for the applied filters QTableView. Only two columns:
@@ -711,7 +711,7 @@ class SonetAppliedFiltersTableModel(QAbstractTableModel):
 
     def __init__(self, parent=None):
         super(SonetAppliedFiltersTableModel, self).__init__(parent)
-        self._data = pd.DataFrame(columns=['Status', 'Type', 'Filter'])#pd.DataFrame()  # A Pandas dataframe
+        self._data = pd.DataFrame(columns=['Status', 'Type', 'Filter'])  # pd.DataFrame()  # A Pandas dataframe
 
         # Draft
         # new_row = {'Status': 1, 'Type': FilterType.ENERGY, 'Filter': 'filter1'}
@@ -780,7 +780,8 @@ class SonetAppliedFiltersTableModel(QAbstractTableModel):
             print('SonetAppliedFiltersTableModel.update_model called.')
 
         # If no valid selection, then we just reset the table model.
-        if a_spc_selection not in list(a_dict_filters_current.keys()) or not TripType.is_valid(TripType.convert_to_enum(a_trip_selection)):
+        if a_spc_selection not in list(a_dict_filters_current.keys()) or not TripType.is_valid(
+                TripType.convert_to_enum(a_trip_selection)):
             self.beginResetModel()
             self._data = pd.DataFrame(columns=['Status', 'Type', 'Filter'])
             self.endResetModel()

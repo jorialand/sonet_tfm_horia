@@ -688,6 +688,20 @@
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
+                <property name="minimumDate">
+                 <date>
+                  <year>2020</year>
+                  <month>1</month>
+                  <day>1</day>
+                 </date>
+                </property>
+                <property name="date">
+                 <date>
+                  <year>2021</year>
+                  <month>5</month>
+                  <day>1</day>
+                 </date>
+                </property>
                </widget>
               </item>
               <item>

@@ -3,7 +3,7 @@
 # Form implementation generated from reading ui file 'sonet_pcp_filter_qt.ui',
 # licensing of 'sonet_pcp_filter_qt.ui' applies.
 #
-# Created: Tue Dec  8 10:52:22 2020
+# Created: Tue Dec  8 12:14:11 2020
 #      by: pyside2-uic  running on PySide2 5.12.0
 #
 # WARNING! All changes made in this file will be lost!
@@ -303,6 +303,8 @@ class Ui_sonet_pcp_filter(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.dateEdit.sizePolicy().hasHeightForWidth())
         self.dateEdit.setSizePolicy(sizePolicy)
+        self.dateEdit.setMinimumDate(QtCore.QDate(2020, 1, 1))
+        self.dateEdit.setDate(QtCore.QDate(2021, 5, 1))
         self.dateEdit.setObjectName("dateEdit")
         self.verticalLayout_7.addWidget(self.dateEdit)
         spacerItem5 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
