@@ -91,25 +91,24 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
     def get_list_model(self):
         return self._list_model
 
-    #@Slot()
     def clicked_apply_filter(self):
-        # print("Slot clicked_apply_filter called.")
-        ans1 = database.get_spacecrafts_list()  # self.get_list_model().get_data()
-        ans2 = self.sonet_mission_tree_qlv.currentIndex().row()
-        filter_dialog_qt = SonetPCPFilterQt(self, ar_list_spacecrafts=ans1, ar_current_index=ans2)
+        if SONET_DEBUG:
+            print("clicked_apply_filter")
+
+        arg1 = database.get_spacecrafts_list()
+        arg2 = self.sonet_mission_tree_qlv.currentIndex().row()
+        filter_dialog_qt = SonetPCPFilterQt(self, ar_list_spacecrafts=arg1, ar_current_index=arg2)
 
         # Pre-action
         filter_dialog_qt.setModal(True)
         filter_dialog_qt.setSizeGripEnabled(True)
 
-        # filter_dialog_qt.show()
         filter_dialog_qt.exec_()
         # Force Qt repaint to update the table views.
         # TODO Awkward update, to improve.
         index = get_main_window().sonet_mission_tree_qlv.currentIndex()
         self.sonet_mission_tree_qlv.clicked.emit(index)
 
-    #@Slot()
     def clicked_new_spacecraft(self):
         """
         This method is called when clicking over 'Add SonetSpacecraft' QPushButton, it creates a new SonetSpacecraft.
@@ -300,7 +299,6 @@ class TableModel(QAbstractTableModel):
             # Very light blue 230, 242, 255
             # Very light purple 240, 240, 245
             # Very light pink 255, 230, 255
-
         return None
 
     def headerData(self, section, orientation, role):
@@ -329,16 +327,24 @@ class ListModel(QAbstractListModel):
 
     def list_clicked(self, index):
         """
-        Slot executed whenever an item from the ListModel is clicked. It sets both the outgoing and incoming
-        table models, and updates both associated table views.
+        Slot executed whenever an item from the ListModel is clicked. It sets both
+        the outgoing and incoming table models, and updates both associated table views.
 
-        There are two possible situations. The clicked spacecraft has only TripType.OUTGOING trip type, or both
-        TripType.OUTGOING and TripType.INCOMING. If it is the first case, then for the return trip, an empty dataframe
+        There are two possible situations. The clicked spacecraft has only
+        TripType.OUTGOING trip type, or both TripType.OUTGOING and TripType.INCOMING.
+        If it is the first case, then for the return trip, an empty dataframe
         is displayed.
         """
         # key is a string identifying a SonetSpacecraft objet within the database.
         row = index.row()
-        key = list(self._data)[row]
+        try:
+            key = list(self._data)[row]
+        except IndexError:
+            if row is -1:
+                # No spacecraft selected, possible when entered this method because
+                # of emmited signal, no problem in this cases.
+                return False
+            print('Warning in list_clicked')
 
         if SONET_DEBUG:
             print('ListModel.list_clicked: ' + key + ' selected.')
@@ -361,8 +367,10 @@ class ListModel(QAbstractListModel):
                 print('This spacecraft has no return trajectory.')
         except AttributeError:
             # Case where spacecraft only has got both outgoing and incoming trajectories.
+            # Outgoing. (la magia ocurre aquí)
             the_filtered_dataframe = the_filter[0].get_filtered_pcp()
             main_window._table_model_outgoing.set_model_data(the_filtered_dataframe)
+            # Incoming.
             the_filtered_dataframe = the_filter[1].get_filtered_pcp()
             main_window._table_model_incoming.set_model_data(the_filtered_dataframe)
         except:
@@ -370,11 +378,6 @@ class ListModel(QAbstractListModel):
             return False
 
         force_table_view_update()
-
-    # def force_table_view_update(self):
-    #     # Force update of the table views.
-    #     index = get_main_window().sonet_pcp_tabs_qtw.currentIndex()
-    #     get_main_window().sonet_pcp_tabs_qtw.currentChanged.emit(index)
 
     def update(self):
         # print('ListModel() Slot update() called.')

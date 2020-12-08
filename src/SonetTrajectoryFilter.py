@@ -41,7 +41,7 @@ class SonetTrajectoryFilter:
         """
         La clave.
         Applies the filter _data to the porkchop plot, and returns a filtered pandas Dataframe.
-        If the _data dataframe is empty, the return will be the porkchop plot with no filter.
+        If the _data dataframe is empty, the return will be the porkchop plot with no filter applied.
         If the filter is too restrictive, then the return will be an empty DataFrame.
         :return: A pandas DataFrame. If something went wrong, then it will return False.
         """
@@ -52,10 +52,10 @@ class SonetTrajectoryFilter:
         the_filter_dates2 = self._get_activated_filters_of_a_given_type(self._data, True, '???')
 
         # Convert them to string.
-        query_energy = self._get_query_string(the_filter_energy)
-        query_tof = self._get_query_string(the_filter_tof)
-        query_dates = self._get_query_string(the_filter_dates)
-        query_dates2 = self._get_query_string(the_filter_dates2)
+        query_energy = self._get_query_string(the_filter_energy, a_type='Energy')
+        query_tof = self._get_query_string(the_filter_tof, a_type='Time of flight')
+        query_dates = self._get_query_string(the_filter_dates, a_type='Date')
+        query_dates2 = self._get_query_string(the_filter_dates2, a_type='???')
 
         # Some of them can be empty, so not include them in the resultant query string.
         query_list = []
@@ -70,6 +70,8 @@ class SonetTrajectoryFilter:
 
         # Check, the_pcp_table shall be a dataframe
         if not isinstance(the_pcp_table, pd.DataFrame):
+            if SONET_DEBUG:
+                print('Error in get_filtered_pcp.')
             return False
 
         # Check, if empty query string, return the pcp DataFrame with no filter.
@@ -78,7 +80,6 @@ class SonetTrajectoryFilter:
         else:
             try:
                 # Return the filtered porkchop plot.
-                the_pcp_table.query(query_string).shape
                 res = the_pcp_table.query(query_string)
                 return res
             except KeyError:
@@ -111,7 +112,7 @@ class SonetTrajectoryFilter:
     def set_trip_type(self, a_trip_type):
         """
         Setter function.
-        :param a_trip_type:
+        :param a_trip_type:cd
         :return:
         """
         if not TripType.is_valid(a_trip_type):
@@ -122,11 +123,28 @@ class SonetTrajectoryFilter:
     def _get_activated_filters_of_a_given_type(self, a_filter, a_activated, a_filter_type):
         return a_filter.loc[(a_filter['Status'] == a_activated) & (a_filter['Type'] == a_filter_type), 'Filter'].copy()
 
-    def _get_query_string(self, a_filter):
-        # Get the filters, as a Python list.
+    def _get_query_string(self, a_filter, a_type=''):
+        """
+        Energy: [dvt, ==, 6, km/s ]
+        Time of flight:
+        Date:
+        ???
+        """
+        # The user can add any number of Energy/TOF/Dates filters to a_filter, get
+        # them as a Python list and then concatenate them with 'AND'.
         query_list = []
-        for f in list(a_filter):
-            query_list.append(' '.join(f[0:2]) + ' ' + str(f[2]))
+
+        if a_type == 'Energy' or a_type == 'Time of flight':
+            for f in list(a_filter):
+               query_list.append(' '.join(f[0:2]) + ' ' + str(f[2]))
+        elif a_type == 'Date':
+            # TODO: Esto es más complejo, pq hay que convertir ['Departs','Earth','==/+=/-=',tal] y ['Arrives','Mars','==/+=/-=',tal]
+            # Si yo digo 'Departs', me refiero a la columna de 'DepDates'.
+            # Si digo 'Arrives', me refiero a la suma de 'DepDates'+'tof'.
+            # Complejo, habrá q mirar en stackoverflow...
+            pass
+
+
         # Get the filters, as a unique string.
         query = ' and '.join(query_list)
         return query
