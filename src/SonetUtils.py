@@ -4,9 +4,6 @@ from enum import Enum, unique
 import pandas as pd
 from PySide2.QtWidgets import QMessageBox
 
-# Flag controlling if the debug messages are going to be printed in the Python console. Useful for debugging.
-SONET_DEBUG = True
-
 def PrintDict(ar_dict):
     """
     Convenience function for printing a dictionary to console.
@@ -101,7 +98,26 @@ class TripType(Enum):
             return True
         return False
 
-def send_msg(text='text', icon=QMessageBox.Information, info_text='info_text', window_title='window_title'):
+@unique
+class SonetDebugLevel(Enum):
+    """
+    Flag controlling if the debug messages are going to be printed in the Python console.
+    Useful for debugging.
+    """
+    NO_DEBUG = 0
+    ONLY_ERRORS = 1
+    FULL_VERBOSE = 2
+
+@unique
+class SonetLogType(Enum):
+    """
+    Type of message to be logged.
+    """
+    INFO = 0
+    WARNING = 1
+    ERROR = 2
+
+def popup_msg(text='text', icon=QMessageBox.Information, info_text='info_text', window_title='window_title'):
     msg = QMessageBox()
     msg.setIcon(icon)
     msg.setText(text)
@@ -121,7 +137,7 @@ def build_mock_DataFrame(num_rows=5, num_columns=8, min=0, max=10):
     :return:
     """
     # Build columns
-    num_rows = random.randint(1,1e2)
+    num_rows = random.randint(1,int(1e2))
     _ = ['col'+str(i) for i in range(num_columns)]
     result = pd.DataFrame(columns=_)
     build_row = lambda: [random.randint(min,max) for _ in range(num_columns)]
@@ -129,12 +145,7 @@ def build_mock_DataFrame(num_rows=5, num_columns=8, min=0, max=10):
         result.loc[len(result)] = build_row()
     return result
 
-
 def build_mock_filter():
-    """
-
-    :return:
-    """
     _data = pd.DataFrame(columns=['Status', 'Type', 'Filter'])
     new_row = {'Status': 0, 'Type': FilterType.ENERGY, 'Filter': ['dvt', '<=', 100, 'km/s']}
     _data = _data.append(new_row, ignore_index=True)
@@ -155,6 +166,35 @@ def build_mock_filter():
     _data = _data.append(new_row, ignore_index=True)
 
     return _data
+
+def sonet_log(a_log_type, a_log_msg):
+    """
+    Log to console the status of the sonet application.
+    Currently, there are three states logging modes: NO_DEBUG, ONLY_ERRORS, and FULL_VERBOSE.
+    If the global variable SONET_DEBUG_LEVEL is set to:
+     - NO_DEBUG, then no debug messages should be logged.
+     - ONLY_ERRORS, only errors or warnings should be logged.
+     - FULL_VERBOSE, any other message is logged. It also includes the ONLY_ERRORS level messages.
+    """
+
+    if SONET_DEBUG_LEVEL is SonetDebugLevel.NO_DEBUG:
+        # If debug logging is deactivated, then do nothing.
+        pass
+    else:
+        # Warnings/Errors should be logged whether the application log level is ONLY_ERRORS or FULL_VERBOSE.
+        if a_log_type is SonetLogType.WARNING:
+            print('Warning: ' + a_log_msg)
+        elif a_log_type is SonetLogType.ERROR:
+            print('Error: ' + a_log_msg)
+        elif a_log_type is SonetLogType.INFO:
+            # Info logs, are only printed in FULL_VERBOSE mode.
+            if SONET_DEBUG_LEVEL is SonetDebugLevel.FULL_VERBOSE:
+                print('Info: ' + a_log_msg)
+
+
+# Global debug verbose level for the application.
+SONET_DEBUG_LEVEL = SonetDebugLevel.ONLY_ERRORS
+
 
 if __name__ == "__main__":
     d = {'key1': 'value1', 'key2': 'value1'}

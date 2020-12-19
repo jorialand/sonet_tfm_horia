@@ -1,7 +1,9 @@
 import pandas as pd
 
+from PySide2.QtCore import QDate
+
 from src import database
-from src.SonetUtils import TripType, SONET_DEBUG
+from src.SonetUtils import TripType, sonet_log, SonetLogType
 
 
 class SonetTrajectoryFilter:
@@ -24,8 +26,8 @@ class SonetTrajectoryFilter:
         self._data = pd.DataFrame(columns=['Status', 'Type', 'Filter'])
 
         if not TripType.is_valid(a_trip_type):
-            if SONET_DEBUG:
-                print('Error in SonetTrajectoryFilter constructor.')
+            sonet_log(SonetLogType.ERROR, 'SonetTrajectoryFilter.__init__."Wrong TripType passed as argument"')
+
         self._trip_type = a_trip_type
 
     # Public methods
@@ -70,18 +72,17 @@ class SonetTrajectoryFilter:
 
         # Check, the_pcp_table shall be a dataframe
         if not isinstance(the_pcp_table, pd.DataFrame):
-            if SONET_DEBUG:
-                print('Error in get_filtered_pcp.')
+            sonet_log(SonetLogType.ERROR, 'SonetTrajectoryFilter.get_filtered_pcp."Returned type is not a dataframe"')
             return False
 
         # Check, if empty query string, return the pcp DataFrame with no filter.
         if not query_string:
-            return the_pcp_table
+            return self.convert_pcp_table_to_human_format(the_pcp_table.copy()) # hex(id(variable_here)) to see variable address.
         else:
             try:
                 # Return the filtered porkchop plot.
                 res = the_pcp_table.query(query_string)
-                return res
+                return self.convert_pcp_table_to_human_format(res.copy())
             except KeyError:
                 print('Error in SonetTrajectoryFilter.get_filtered_pcp: Wrong _trip_type')
                 return False
@@ -125,26 +126,81 @@ class SonetTrajectoryFilter:
 
     def _get_query_string(self, a_filter, a_type=''):
         """
-        Energy: [dvt, ==, 6, km/s ]
-        Time of flight:
-        Date:
-        ???
+        The user can add any number of Energy/TOF/Dates filters to a_filter, get
+        them as a Python list and then concatenate them with 'AND', finally returning them as a query string.
+
+        Example of input filters:
+         - Energy: [dvt, ==, 6, km/s ]
+         - Time of flight:
+         - Date: ['Departs','Earth','On', '01-05-2020']
         """
-        # The user can add any number of Energy/TOF/Dates filters to a_filter, get
-        # them as a Python list and then concatenate them with 'AND'.
         query_list = []
 
         if a_type == 'Energy' or a_type == 'Time of flight':
             for f in list(a_filter):
                query_list.append(' '.join(f[0:2]) + ' ' + str(f[2]))
         elif a_type == 'Date':
-            # TODO: Esto es más complejo, pq hay que convertir ['Departs','Earth','==/+=/-=',tal] y ['Arrives','Mars','==/+=/-=',tal]
-            # Si yo digo 'Departs', me refiero a la columna de 'DepDates'.
-            # Si digo 'Arrives', me refiero a la suma de 'DepDates'+'tof'.
-            # Complejo, habrá q mirar en stackoverflow...
-            pass
+            # ['Departs', 'Earth', 'On', '01-05-2020']
+            # ['Arrives', 'Earth', 'On', '01-05-2020']
+
+            # ['Departs', 'Mars', 'On', '01-05-2020']
+            # ['Arrives', 'Mars', 'On', '01-05-2020']
+
+            # [  ...    ,  ...  , 'On/Before/After', 'TAL']
+
+            for f in list(a_filter):
+                aux = self.convert_filter_to_query_format(f)
+                query_list.append(aux[0] + ' ' + aux[2] + ' ' + str(aux[3]))
 
 
         # Get the filters, as a unique string.
         query = ' and '.join(query_list)
         return query
+
+    def convert_filter_to_query_format(self, a_filter):
+        """
+        Convert a human readable filter to a machine friendly one.
+
+        Example of input filter: ['Departs', 'Earth', 'On', '01-05-2020']
+        """
+        # TODO: Warning! if-else labyrinth following... Not efficient but not needed at this stage.
+        action = a_filter[0]
+        planet = a_filter[1]  # No importa, the calling function knows if the spc is departing/arriving to/from Earth/Mars.
+        operator = a_filter[2]
+        date = a_filter[3]
+
+        # Convert action to query format (e.g. the table column's name).
+        if action == 'Departs':
+            action = 'DepDates'
+        elif action == 'Arrives':
+            action = 'ArrivDates'
+
+        # Convert planet to query format.
+        pass
+
+        # Convert operator to query format.
+        if operator == 'On':
+            operator = '=='
+        elif operator == 'Before':
+            operator = '<='
+        elif operator == 'After':
+            operator = '>='
+
+        # Convert date to query format.
+        date = QDate.toJulianDay(QDate.fromString(date, 'dd-MM-yyyy'))
+
+        return [action, planet, operator, date]
+
+    @staticmethod
+    def convert_pcp_table_to_human_format(a_pcp_table):
+        # Check that input is a dataframe.
+        # Check that input has right format.
+        # TODO: Convert all the dataframe dates rows each time it is called will
+        #  slow down the code... performance issue :(.
+        #if isinstance(a_pcp_table.iloc[0].DepDates) == QDate:
+        #    stop = True
+        # Convert DepDates & ArrivDates from JD to Gregorian calendar.
+        a_pcp_table['DepDates'] = (a_pcp_table.DepDates).apply(QDate.fromJulianDay)
+        a_pcp_table['ArrivDates'] = (a_pcp_table.ArrivDates).apply(QDate.fromJulianDay)
+
+        return a_pcp_table

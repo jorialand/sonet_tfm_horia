@@ -7,7 +7,7 @@ when closing the program)-
 import pandas as pd
 from numpy import pi
 from PySide2.QtCore import QDate
-from src.SonetUtils import SONET_DEBUG, TripType
+from src.SonetUtils import SONET_DEBUG_LEVEL, TripType, SonetLogType, sonet_log
 
 def get_pcp_table(a_trip_type):
     """
@@ -29,7 +29,7 @@ def get_pcp_table(a_trip_type):
 def get_spacecraft(a_spacecraft):
     """
     Getter function.
-
+---
     :param a_spacecraft: string
     :return: SonetSpacecraft.
     """
@@ -51,8 +51,7 @@ def import_pcp_from_matlab():
     For convenience, it adds a new row 'ArrivDates', which is a combination
     of 'DepDates'+'tof' columns.
     """
-    if SONET_DEBUG:
-        print('database.import_pcp_from_matlab')
+    sonet_log(SonetLogType.INFO, 'database.import_pcp_from_matlab')
 
     # Read data
     pcp_out = pd.read_csv(dir_path + '10kPCP_Earth2Mars.txt')
@@ -62,15 +61,15 @@ def import_pcp_from_matlab():
     pcp_out['ArrivDates'] = pcp_out.DepDates + pcp_out.tof
     pcp_inc['ArrivDates'] = pcp_inc.DepDates + pcp_inc.tof
     
-    # Convert DepDates from JD2000 to Gregorian calendar.
-    JD2000 = 2451545.0  # Julian Day 2000, extracted from AstroLib matlab codebase
+    # Convert DepDates from JD2000 to JD.
+    JD2000 = 2451545.0  # Julian Day 2000, extracted from AstroLib matlab codebase.
     # David de la Torre).
-    pcp_out['DepDates'] = (pcp_out.DepDates + JD2000).apply(QDate.fromJulianDay)
-    pcp_inc['DepDates'] = (pcp_inc.DepDates + JD2000).apply(QDate.fromJulianDay)
+    pcp_out['DepDates'] = (pcp_out.DepDates + JD2000)#.apply(QDate.fromJulianDay)
+    pcp_inc['DepDates'] = (pcp_inc.DepDates + JD2000)#.apply(QDate.fromJulianDay)
 
     # Also convert ArrivDates.
-    pcp_out['ArrivDates'] = (pcp_out.ArrivDates + JD2000).apply(QDate.fromJulianDay)
-    pcp_inc['ArrivDates'] = (pcp_inc.ArrivDates + JD2000).apply(QDate.fromJulianDay)
+    pcp_out['ArrivDates'] = (pcp_out.ArrivDates + JD2000)#.apply(QDate.fromJulianDay)
+    pcp_inc['ArrivDates'] = (pcp_inc.ArrivDates + JD2000)#.apply(QDate.fromJulianDay)
 
     # Convert theta from radians to sexagesimal degrees.
     pcp_out.theta = pcp_out.theta * 180 / pi

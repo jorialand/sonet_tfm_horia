@@ -2,7 +2,7 @@ import pandas as pd
 from overloading import overload
 
 from src.SonetTrajectoryFilter import SonetTrajectoryFilter
-from src.SonetUtils import SpacecraftType, TripType, SONET_DEBUG
+from src.SonetUtils import SpacecraftType, TripType, sonet_log, SonetLogType
 
 
 class SonetSpacecraft:
@@ -25,8 +25,8 @@ class SonetSpacecraft:
      -  Get a filtered porkchop plot table with SonetTrajectoryFilter's get_filtered_pcp method.
     """
     def __init__(self, a_spacecraft_type_crew=None, a_spacecraft_type_return=None):
-        if SONET_DEBUG:
-            print('SonetSpacecraft.__init__()')
+        sonet_log(SonetLogType.INFO, 'SonetSpacecraft.__init__')
+
         # Instance members
         self._spacecraft_type = None  # Enum
         self._has_return_trajectory = None
@@ -85,13 +85,11 @@ class SonetSpacecraft:
 
         # Type check.
         if not isinstance(self._has_return_trajectory, bool):
-            if SONET_DEBUG:
-                print('Error in SonetSpacecraft.get_filter: bad constructed spacecraft')
+            sonet_log(SonetLogType.ERROR, 'SonetSpacecraft.get_filter."Bad constructed S/C"')
             return False  # _has_return_trajectory should be bool, if not, there's some error.
 
         if not isinstance(a_trip_type, TripType):
-            if SONET_DEBUG:
-                print('Error in SonetSpacecraft.get_filter: wrong argument type')
+            sonet_log(SonetLogType.ERROR, 'SonetSpacecraft.get_filter."Wrong TripType"')
             return False
 
         if self._has_return_trajectory:
@@ -103,9 +101,7 @@ class SonetSpacecraft:
             if a_trip_type is TripType.OUTGOING:
                 return self._pcp_filter
             elif a_trip_type is TripType.INCOMING:
-                if SONET_DEBUG:
-                    print('Error in SonetSpacecraft.get_filter: Asked for incoming filter in a outgoing only '
-                          'spacecraft.')
+                sonet_log(SonetLogType.ERROR, 'SonetSpacecraft.get_filter."Asked for incoming filter to an one-way S/C"')
                 return False
 
     def get_filter_data(self, get_dataframe_copy=False):
@@ -122,8 +118,7 @@ class SonetSpacecraft:
         """
         # Type check.
         if not isinstance(self._has_return_trajectory, bool):
-            if SONET_DEBUG:
-                print('Error in SonetSpacecraft.get_filter_data: bad constructed spacecraft')
+            sonet_log(SonetLogType.ERROR, 'SonetSpacecraft.get_filter_data."Bad constructed S/C"')
             return False  # _has_return_trajectory should be bool, if not, there's some error.
 
         if self._has_return_trajectory:

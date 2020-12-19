@@ -10,7 +10,7 @@ from PySide2.QtWidgets import QDialog, QApplication, QDialogButtonBox, QMessageB
 # Sonet imports
 from src import database
 from src import sonet_pcp_filter_qt_ui
-from src.SonetUtils import SONET_DEBUG, FilterType, TripType, send_msg
+from src.SonetUtils import FilterType, TripType, SonetLogType, sonet_log, popup_msg
 
 
 class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
@@ -113,18 +113,16 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         """
         If no checkbox is checked, then disable the 'Add' push button, otherwise it should remain enabled.
         """
-        any_checked = self.is_any_cb_checked()
+        is_any_cb_checked = self.is_any_cb_checked()
 
-        if SONET_DEBUG:
-            if any_checked:
-                print('At least one checkbox is checked, "Add" button is enabled.')
-            else:
-                print('No checkbox is checked, "Add" button is disabled.')
-
-        if any_checked:
-            self.pb_add.setEnabled(True)
+        if is_any_cb_checked:
+            msg = 'At least one checkbox is checked, "Add" button is enabled'
+            self.pb_add.setEnabled(is_any_cb_checked)
         else:
-            self.pb_add.setEnabled(False)
+            msg = 'No checkbox is checked, "Add" button is disabled'
+            self.pb_add.setEnabled(is_any_cb_checked)
+
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.enable_pb_add."' + msg + '"')
 
     def enable_pb_delete(self, ar_enable):
         """
@@ -209,8 +207,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         Retrieves the departure and arrival dates group box data, to apply filters.
         :return: a dict, representing a pandas dataframe row.
         """
-        if SONET_DEBUG:
-            print('SonetPCPFilterQt.get_dep_arriv_dates_combos_selection.')
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.get_dep_arriv_dates_combos_selection')
 
         the_selection = [self.combo_dept_arriv.currentText(),
                          self.combo_planet.currentText(),
@@ -224,8 +221,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         Retrieves the energy combo boxes data, to apply filters.
         :return: a dict, representing a pandas dataframe row.
         """
-        if SONET_DEBUG:
-            print('SonetPCPFilterQt.get_energy_combos_selection.')
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.get_energy_combos_selection')
 
         the_selection = [self.combo_energy_parameter.currentText(),
                          self.combo_energy_operator.currentText(),
@@ -239,8 +235,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         Retrieves the time of flight combo boxes data, to apply filters.
         :return: a dict, representing a pandas dataframe row.
         """
-        if SONET_DEBUG:
-            print('SonetPCPFilterQt.get_time_of_flight_combos_selection.')
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.get_time_of_flight_combos_selection')
 
         the_selection = ['tof',
                          self.combo_time_of_flight_operator.currentText(),
@@ -260,8 +255,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         """
         Disables the departure/arrival dates filter checkbox and resets all the fields to their default value.
         """
-        if SONET_DEBUG:
-            print('reset_filter_departure_dates_step1()')
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.reset_filter_departure_dates_step1 (dep/arriv dates)')
 
         self.cb_dep_arriv_dates.setChecked(False)
         self.combo_dept_arriv.setCurrentIndex(0)
@@ -271,8 +265,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         """
         Disables the departure/arrival dates filter checkbox and resets all the fields to their default value.
         """
-        if SONET_DEBUG:
-            print('reset_filter_departure_dates_step2()')
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.reset_filter_departure_dates_step2 (dep/arriv dates)')
 
         self.cb_dates_1.setChecked(False)
         self.spin_number.setValue(0)
@@ -284,8 +277,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         """
         Disables the departure/arrival dates filter checkbox and resets all the fields to their default value.
         """
-        if SONET_DEBUG:
-            print('reset_filter_departure_dates_step3()')
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.reset_filter_departure_dates_step3 (dep/arriv dates)')
 
         self.cb_dates_2.setChecked(False)
         self.combo_when_2.setCurrentIndex(0)
@@ -295,8 +287,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         """
         Disables the energy filter checkbox and resets all the fields to their default value.
         """
-        if SONET_DEBUG:
-            print('reset_filter_energy()')
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.reset_filter_energy')
 
         self.cb_energy.setChecked(False)
         self.combo_energy_parameter.setCurrentIndex(0)
@@ -308,8 +299,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         """
         Disables the time of flight filter checkbox and resets all the fields to their default value.
         """
-        if SONET_DEBUG:
-            print('reset_filter_time_of_flight()')
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.reset_filter_time_of_flight')
 
         self.cb_time_of_flight.setChecked(False)
         self.combo_time_of_flight.setCurrentIndex(0)
@@ -339,16 +329,14 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         else:
             return False
 
-    def is_selection_valid(self):
+    def is_selection_complete(self):
         c1 = self.select_spacecraft.currentText() == 'Select SonetSpacecraft'
         c2 = self.select_trip.currentText() == 'Select trip'
         if not c1 and not c2:
-            if SONET_DEBUG:
-                print('Selection is valid.')
+            sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.is_selection_valid."Selection is complete"')
             return True
         else:
-            if SONET_DEBUG:
-                print("Selection isn't valid.")
+            sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.is_selection_valid."Selection is not complete"')
             return False
 
     def which_cb_checked(self):
@@ -357,8 +345,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         checkboxes. If no checkbox is checked, it returns and empty list.
         :return: list
         """
-        if SONET_DEBUG:
-            print('which_cb_checked() called.')
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.which_cb_checked')
 
         any_checked = self.is_any_cb_checked()
         the_list = []
@@ -375,8 +362,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
                 # if self.cb_dates_2.isChecked():
                 #     the_list.append('cb_dates_2')
 
-        if SONET_DEBUG:
-            print('Checked checkboxes' + str(the_list))
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.which_cb_checked."Checked checkboxes: "' + str(the_list) + '"')
 
         return the_list
 
@@ -458,7 +444,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         to work with a specific porkchop plot table (outgoing or incoming). Once the selection is valid,
         we'll enable the different filtering options combo boxes (i.e. by trajectory energy, by time of flight, etc.).
         """
-        selection_is_valid = self.is_selection_valid()
+        selection_is_valid = self.is_selection_complete()
 
         self.enable_combos(selection_is_valid)
         self.enable_pb_delete(selection_is_valid)
@@ -532,8 +518,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         Slot executed when clicked on 'Accept' button. It retrieves and stores all applied filters for all
         the spacecrafts.
         """
-        if SONET_DEBUG:
-            print('clicked_pb_accept()')
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.clicked_pb_accept')
 
         # Get all the spacecrafts.
         spacecrafts_list = database.get_spacecrafts_list()
@@ -544,22 +529,19 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
             the_spacecraft.set_filter(self._dict_filters_current.get(spc), dataframe=True)
 
     def clicked_pb_cancel(self):
-        if SONET_DEBUG:
-            print('clicked_pb_cancel()')
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.clicked_pb_cancel')
         pass
 
     def clicked_pb_add(self):
         """
         Travers the applied filters, gets their data, and add it to the spacecraft state.
         """
-        if SONET_DEBUG:
-            print('SonetPCPFilterQt.clicked_pb_add')
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.clicked_pb_add')
 
         list_checked_cb = self.which_cb_checked()
 
         if not list_checked_cb:
-            if SONET_DEBUG:
-                print('SonetPCPFilterQt.clicked_pb_add: no checkbox is enabled.')
+            sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.clicked_pb_add."No checkbox is enabled"')
             return False
         else:
             # The switcher implementation is an efficient alternative to multiple if statements, as it
@@ -578,11 +560,11 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
             c2 = self.cb_dates_1.isChecked()
             c3 = self.cb_dates_2.isChecked()
             if c1 and not (c2 or c3):
-                send_msg(window_title='Wrong filters selection',
-                         icon=QMessageBox.Information,
-                         text='Wrong filters selection!',
-                         info_text='If the departure/arrival dates filter is checked, then one of the two below'
-                                   ' options should be also selected. Please, do a valid filters selection.')
+                popup_msg(window_title='Wrong filters selection',
+                          icon=QMessageBox.Information,
+                          text='Wrong filters selection!',
+                          info_text='If the departure/arrival dates filter is checked, then one of the two below'
+                                    ' options should be also selected. Please, do a valid filters selection.')
                 return False
 
             # Get the spacecraft's filter.
@@ -627,8 +609,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
         :return: bool
         """
-        if SONET_DEBUG:
-            print('SonetPCPFilterQt.clicked_pb_delete')
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.clicked_pb_delete')
 
         # Get the current selected spacecraft and trip.
         spc, trip = self.get_current_selection()
@@ -654,10 +635,9 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
             return True
 
         except KeyError:
-            # Sometimes, when the user does a weird selection, KeyError is raised, in those cases, then just do nothing
+            # Sometimes (not deterministically), when the user does a weird selection, KeyError is raised, in those cases, then just do nothing
             # and return False, to show that sth went wrong.
-            if SONET_DEBUG:
-                print('SonetPCPFilterQt.clicked_pb_delete: Exception raised.')
+            sonet_log(SonetLogType.WARNING, 'SonetPCPFilterQt.clicked_pb_delete."KeyError exception raised"')
             return False
 
     def clicked_pb_delete_all(self):
@@ -666,8 +646,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         Slot executed when clicking over 'Delete all' QPushButton. It's main function is to delete all the filters
         (e.g. reset the filter) of a given spacecraft and trip.
         """
-        if SONET_DEBUG:
-            print('SonetPCPFilterQt.clicked_pb_delete_all')
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.clicked_pb_delete_all')
 
         # Get the current selected spacecraft and trip.
         spc, trip = self.get_current_selection()
@@ -691,8 +670,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         self.update_table_model()
 
     def clicked_pb_reset(self):
-        if SONET_DEBUG:
-            print('clicked_pb_reset()')
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.clicked_pb_reset')
 
         self.reset_filter_energy()
         self.reset_filter_time_of_flight()
@@ -776,8 +754,7 @@ class SonetAppliedFiltersTableModel(QAbstractTableModel):
         index == 1 -> Earth - Mars trip
         index == 2 -> Mars - Earth trip
         """
-        if SONET_DEBUG:
-            print('SonetAppliedFiltersTableModel.update_model called.')
+        sonet_log(SonetLogType.INFO, 'SonetAppliedFiltersTableModel.update_model')
 
         # If no valid selection, then we just reset the table model.
         if a_spc_selection not in list(a_dict_filters_current.keys()) or not TripType.is_valid(
@@ -798,8 +775,7 @@ class SonetAppliedFiltersTableModel(QAbstractTableModel):
             elif a_trip_selection == 'Mars - Earth':
                 the_filter_data = the_filter_data[1]
             else:
-                if SONET_DEBUG:
-                    print('Error in SonetAppliedFiltersTableModel.update_model.')
+                sonet_log(SonetLogType.ERROR, 'SonetAppliedFiltersTableModel.update_model')
                 return False
         else:
             # the_filter_data is a dataframe, representing the outgoing trip filter.
