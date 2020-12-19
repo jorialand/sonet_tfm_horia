@@ -3,7 +3,7 @@
 # Form implementation generated from reading ui file 'sonet_main_window.ui',
 # licensing of 'sonet_main_window.ui' applies.
 #
-# Created: Tue Dec  8 12:12:37 2020
+# Created: Sat Dec 19 18:46:49 2020
 #      by: pyside2-uic  running on PySide2 5.12.0
 #
 # WARNING! All changes made in this file will be lost!
@@ -41,6 +41,8 @@ class Ui_main_window(object):
         self.sonet_pcp_table_qtv_outgoing.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.sonet_pcp_table_qtv_outgoing.setLineWidth(1)
         self.sonet_pcp_table_qtv_outgoing.setMidLineWidth(1)
+        self.sonet_pcp_table_qtv_outgoing.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
+        self.sonet_pcp_table_qtv_outgoing.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.sonet_pcp_table_qtv_outgoing.setObjectName("sonet_pcp_table_qtv_outgoing")
         self.verticalLayout_4.addWidget(self.sonet_pcp_table_qtv_outgoing)
         self.sonet_pcp_tabs_qtw.addTab(self.sonet_pcp_table_transit_1, "")
@@ -57,6 +59,8 @@ class Ui_main_window(object):
         self.sonet_pcp_table_qtv_incoming.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.sonet_pcp_table_qtv_incoming.setLineWidth(1)
         self.sonet_pcp_table_qtv_incoming.setMidLineWidth(1)
+        self.sonet_pcp_table_qtv_incoming.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
+        self.sonet_pcp_table_qtv_incoming.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
         self.sonet_pcp_table_qtv_incoming.setObjectName("sonet_pcp_table_qtv_incoming")
         self.verticalLayout_3.addWidget(self.sonet_pcp_table_qtv_incoming)
         self.sonet_pcp_tabs_qtw.addTab(self.sonet_pcp_table_transit_2, "")
@@ -129,7 +133,7 @@ class Ui_main_window(object):
         self.statusbar.setObjectName("statusbar")
         main_window.setStatusBar(self.statusbar)
         self.menubar = QtWidgets.QMenuBar(main_window)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1350, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1350, 21))
         self.menubar.setObjectName("menubar")
         self.file = QtWidgets.QMenu(self.menubar)
         self.file.setObjectName("file")
