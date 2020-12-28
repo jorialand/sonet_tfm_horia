@@ -24,47 +24,17 @@ class SonetSpacecraft:
      - Modify the filter's internal dataframe using the SonetTrajectoryFilter's set_data method.
      -  Get a filtered porkchop plot table with SonetTrajectoryFilter's get_filtered_pcp method.
     """
-    def __init__(self, a_spacecraft_type_crew=None, a_spacecraft_type_return=None):
+    def __init__(self, a_spacecraft_name=None, a_spacecraft_type_crew=None, a_spacecraft_type_return=None):
         sonet_log(SonetLogType.INFO, 'SonetSpacecraft.__init__')
 
         # Instance members
-        self._spacecraft_type = None  # Enum
+        self._spacecraft_type = None
         self._has_return_trajectory = None
 
+        self.set_spacecraft_name(a_spacecraft_name)
         self.set_spacecraft_type(a_spacecraft_type_crew)
         self.set_has_return_trajectory(a_spacecraft_type_return)
         self.set_filters()
-        # dir_path = '/Users/Jorialand/code/tfm/sonet/sonet_tfm_horia/src/'
-        # _ = self.get_spacecraft_type()
-        #
-        # # Crewed spacecrafts travel to and from Mars. Cargo ones travel only once to Mars and remain there.
-        # if _ is SpacecraftType.CREWED:
-        #     # Earth - Mars (outgoing) and Mars - Earth (incoming) porkchop plots (pcp).
-        #     self._df_outgoing = database.pcp_outgoing#pd.read_csv(dir_path + '10kPCP_Earth2Mars.txt')
-        #     self._df_incoming = database.pcp_incoming#pd.read_csv(dir_path + '10kPCP_Mars2Earth.txt')
-        #     self._filter_outgoing = SonetTrajectoryFilter()
-        #     self._filter_incoming = SonetTrajectoryFilter()
-        #
-        #     # Draft [POSSIBLE COPY WARNING]
-        #     ini = random.randint(0, 10)
-        #     fin = random.randint(11, 22)
-        #     self._df_outgoing = self._df_outgoing.iloc[ini:fin]
-        #
-        #     ini = random.randint(0, 10)
-        #     fin = random.randint(11, 22)
-        #     self._df_incoming = self._df_incoming.iloc[ini:fin]
-        #
-        # elif _ is SpacecraftType.CARGO:
-        #     self._df_outgoing = pd.read_csv(dir_path + '10kPCP_Earth2Mars.txt')
-        #
-        #     # Draft [POSSIBLE COPY WARNING]
-        #     ini = random.randint(0, 10)
-        #     fin = random.randint(11, 22)
-        #     self._df_outgoing = self._df_outgoing.iloc[ini:fin]
-        #
-        # else:
-        #     print('Error in SonetSpacecraft constructor, wrong SpacecraftType.')
-        #     return False
 
     # Public methods
     def get_filter(self, a_trip_type=None):
@@ -214,12 +184,19 @@ class SonetSpacecraft:
         self._has_return_trajectory = a_has_return_trajectory
         return True
 
+    def set_spacecraft_name(self, a_spacecraft_name=None):
+        """
+        Method for constructing a SonetSpacecraft object.
+        :param a_spacecraft_name: a string.
+        :return: True if everything was ok, false otherwise.
+        """
+        pass
+
     def set_spacecraft_type(self, a_spacecraft_type=None):
         """
         Method for constructing a SonetSpacecraft object.
         :param a_spacecraft_type: Enum (SpacecraftType)
         :return: True if everything was ok, false otherwise.
-
         """
         # Convert string input to SpacecraftType enum.
         if isinstance(a_spacecraft_type, str):
@@ -236,6 +213,3 @@ class SonetSpacecraft:
         return True
 
     # Private methods
-
-# TODO: Convert DepDates column to readable date (e.g. YYYY-MM-DD)
-# TODO: Convert theta column to readable angle (e.g. degrees)

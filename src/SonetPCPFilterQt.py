@@ -151,7 +151,6 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
     def enable_departure_dates_step1_combos(self, ar_enable):
         self.combo_dept_arriv.setEnabled(ar_enable)
-        # self.combo_planet.setEnabled(ar_enable)
 
     def enable_energy_combos(self, ar_enable):
         self.combo_energy_parameter.setEnabled(ar_enable)
@@ -482,6 +481,13 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
     def changed_cb_departure_dates_step2(self):
         enable = self.cb_dates_1.isChecked()
 
+        self.spin_number.setEnabled(enable)
+        self.combo_when.setEnabled(enable)
+        self.radio_mission.setEnabled(enable)
+        self.radio_spacecraft.setEnabled(enable)
+        self.combo_select_spacecraft.setEnabled(enable)
+        self.combo_event.setEnabled(enable)
+
         # Only allow one checkbox checked at a time (cb_dates1 and cb_dates2)
         if self.cb_dep_arriv_dates.isChecked():
             self.cb_dates_2.setEnabled(not enable)
@@ -740,7 +746,7 @@ class SonetAppliedFiltersTableModel(QAbstractTableModel):
 
         return None
 
-    def headerData(self, section, orientation, role):
+    def headerData (self, section, orientation, role):
         if role == Qt.DisplayRole:
             if orientation == Qt.Horizontal:
                 return str(self._data.columns[section])

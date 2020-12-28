@@ -175,6 +175,9 @@ def sonet_log(a_log_type, a_log_msg):
      - NO_DEBUG, then no debug messages should be logged.
      - ONLY_ERRORS, only errors or warnings should be logged.
      - FULL_VERBOSE, any other message is logged. It also includes the ONLY_ERRORS level messages.
+
+     Example: sonet_log(SonetLogType.INFO, 'ClassName.method_name."the_msg"')
+
     """
 
     if SONET_DEBUG_LEVEL is SonetDebugLevel.NO_DEBUG:

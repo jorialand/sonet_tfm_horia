@@ -9,14 +9,17 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>770</width>
-    <height>707</height>
+    <width>527</width>
+    <height>552</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Apply filter to PCP table</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="0" colspan="2">
+    <widget class="QComboBox" name="select_trip"/>
+   </item>
    <item row="17" column="0" colspan="2">
     <widget class="QGroupBox" name="bottom_group_box">
      <property name="enabled">
@@ -78,87 +81,6 @@
       </item>
      </layout>
     </widget>
-   </item>
-   <item row="4" column="0">
-    <spacer name="verticalSpacer_5">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="10" column="0">
-    <spacer name="verticalSpacer_6">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="18" column="1">
-    <widget class="QDialogButtonBox" name="dialog_button_box">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="cursor">
-      <cursorShape>PointingHandCursor</cursorShape>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0" colspan="2">
-    <widget class="QComboBox" name="select_spacecraft">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <item>
-      <property name="text">
-       <string>Select spacecraft</string>
-      </property>
-     </item>
-    </widget>
-   </item>
-   <item row="8" column="0" rowspan="2" colspan="2">
-    <layout class="QHBoxLayout" name="horizontalLayout_9">
-     <item>
-      <widget class="QPushButton" name="pb_reset">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="text">
-        <string>Reset</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pb_add">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="text">
-        <string>Add</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
    </item>
    <item row="3" column="0" colspan="2">
     <layout class="QGridLayout" name="top_grid_layout">
@@ -599,6 +521,30 @@
                </widget>
               </item>
               <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_10">
+                <item>
+                 <widget class="QRadioButton" name="radio_mission">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Mission</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QRadioButton" name="radio_spacecraft">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>S/C</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
                <widget class="QComboBox" name="combo_select_spacecraft">
                 <property name="enabled">
                  <bool>false</bool>
@@ -609,9 +555,16 @@
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="combo_event">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
                 <item>
                  <property name="text">
-                  <string>Select spacecraft</string>
+                  <string>Select event</string>
                  </property>
                 </item>
                </widget>
@@ -731,8 +684,86 @@
      </item>
     </layout>
    </item>
-   <item row="1" column="0" colspan="2">
-    <widget class="QComboBox" name="select_trip"/>
+   <item row="10" column="0">
+    <spacer name="verticalSpacer_6">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="4" column="0">
+    <spacer name="verticalSpacer_5">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="0" column="0" colspan="2">
+    <widget class="QComboBox" name="select_spacecraft">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <item>
+      <property name="text">
+       <string>Select spacecraft</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="8" column="0" rowspan="2" colspan="2">
+    <layout class="QHBoxLayout" name="horizontalLayout_9">
+     <item>
+      <widget class="QPushButton" name="pb_reset">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>Reset</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pb_add">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Add</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="18" column="1">
+    <widget class="QDialogButtonBox" name="dialog_button_box">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="cursor">
+      <cursorShape>PointingHandCursor</cursorShape>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
