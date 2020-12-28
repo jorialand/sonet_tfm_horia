@@ -25,6 +25,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         # self.applied_filters_table_view.setModel(self._applied_filters_table_model)
         self.applied_filters_table_view.resizeColumnsToContents()
 
+
     def init(self, ar_list_spacecrafts=None, ar_current_index=-1):
         """
         Initializes the QDialog window. It also sets the signal/slot connections.
@@ -88,6 +89,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
             # populated with 'Select SonetSpacecraft...' item when the above addItems() is executed.
         else:
             self.select_spacecraft.setCurrentIndex(0)
+
 
     def init_filters(self, ar_list_spacecrafts=None):
         """
@@ -426,13 +428,22 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
             if has_return_trajectory == True:
                 items = ['Select trip', 'Earth - Mars', 'Mars - Earth']
+                self.select_trip.clear()
+                self.select_trip.addItems(items)
+
+                current_tab = self.parent().sonet_pcp_tabs_qtw.currentIndex()
+                self.select_trip.setCurrentIndex(current_tab + 1)
+
             elif has_return_trajectory == False:
                 items = ['Select trip', 'Earth - Mars']
+                self.select_trip.clear()
+                self.select_trip.addItems(items)
+
+                self.select_trip.setCurrentIndex(1)
+
             else:
                 return False
 
-            self.select_trip.clear()
-            self.select_trip.addItems(items)
             return True
 
     def changed_cmb_select_trip(self, index):
