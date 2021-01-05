@@ -29,9 +29,15 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
     def init(self, ar_list_spacecrafts=None, ar_current_index=-1):
         """
         Initializes the QDialog window. It also sets the signal/slot connections.
-        :param ar_list_spacecrafts:
-        :param ar_current_index:
-        :return:
+        :param ar_list_spacecrafts: The list of available s/c's.
+        :param ar_current_index: The current selected s/c.
+
+        - LESSON LEARNED [#35] The init_combo_select_spacecraft method triggers table model and filters updates, so
+        depends on them, i.e. at the time we call this method, those dependencies should have been constructed.
+        The proper way to init this window is calling
+        1) init_table_model,
+        2) init_filters,
+        3) init_combo_select_spacecraft.
         """
         # Connect signals and slots.
         self.btn_accept = self.dialog_button_box.button(QDialogButtonBox.Ok)
@@ -62,13 +68,13 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         self.cb_time_of_flight.stateChanged.connect(self.enable_pb_add)
         self.cb_time_of_flight.stateChanged.connect(self.changed_cb_time_of_flight)
 
-        # Fill select_spacecraft combo with the available spacecrafts and select the current one.
-        self.init_combo_select_spacecraft(ar_list_spacecrafts, ar_current_index)
-
-        # Retrieve the current filters.
-        self.init_filters(ar_list_spacecrafts)
+        # Next 3 statements should be called sequentially, see method's docstring.
         # Init table model and table view
         self.init_table_model()
+        # Retrieve the current filters.
+        self.init_filters(ar_list_spacecrafts)
+        # Fill select_spacecraft combo with the available spacecrafts and select the current one.
+        self.init_combo_select_spacecraft(ar_list_spacecrafts, ar_current_index)
 
         self.dateEdit.setDisplayFormat('dd-MM-yyyy')
         self.dateEdit.setCalendarPopup(True)
@@ -79,9 +85,8 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         And select the one selected by the user.
         If no selection (ar_current_index = -1, then 0 should be selected, which tells
         the user that it has to do a selection.
-        :param ar_list_spacecrafts:
-        :param ar_current_index:
-        :return:
+        :param ar_list_spacecrafts: The list of available s/c's.
+        :param ar_current_index: The current selected s/c.
         """
         self.select_spacecraft.addItems(ar_list_spacecrafts)
         if ar_current_index is not -1:
@@ -413,7 +418,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         :param index:
         :return:
         """
-        # print('Slot cmb_select_spacecraft_changed() called.')
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.changed_cmb_select_spacecraft')
 
         # Retrieve the selected SonetSpacecraft.
         selected_spacecraft = self.select_spacecraft.itemText(index)
@@ -426,10 +431,14 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         else:
             has_return_trajectory = database.db[selected_spacecraft].get_has_return_trajectory()
 
+            self.select_trip.blockSignals(True)
+
             if has_return_trajectory == True:
                 items = ['Select trip', 'Earth - Mars', 'Mars - Earth']
                 self.select_trip.clear()
                 self.select_trip.addItems(items)
+
+                self.select_trip.blockSignals(False)
 
                 current_tab = self.parent().sonet_pcp_tabs_qtw.currentIndex()
                 self.select_trip.setCurrentIndex(current_tab + 1)
@@ -439,9 +448,12 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
                 self.select_trip.clear()
                 self.select_trip.addItems(items)
 
+                self.select_trip.blockSignals(False)
+
                 self.select_trip.setCurrentIndex(1)
 
             else:
+                sonet_log(SonetLogType.ERROR, 'SonetPCPFilterQt.changed_cmb_select_spacecraft."S/C with a non bool member has_return_trajectory"')
                 return False
 
             return True
@@ -454,6 +466,8 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         to work with a specific porkchop plot table (outgoing or incoming). Once the selection is valid,
         we'll enable the different filtering options combo boxes (i.e. by trajectory energy, by time of flight, etc.).
         """
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.changed_cmb_select_trip')
+
         selection_is_valid = self.is_selection_complete()
 
         self.enable_combos(selection_is_valid)
@@ -470,6 +484,8 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         """
         Slot which enables or disables the departure/arrival dates group box top combos, depending on the checkbox state.
         """
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.changed_cb_departure_dates_step1')
+
         # The three combos share the same state.
         enable = self.cb_dep_arriv_dates.isChecked()
         self.enable_departure_dates_step1_combos(enable)
@@ -490,6 +506,8 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         # TODO - Arreglar esta mierda.
 
     def changed_cb_departure_dates_step2(self):
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.changed_cb_departure_dates_step2')
+
         enable = self.cb_dates_1.isChecked()
 
         self.spin_number.setEnabled(enable)
@@ -504,6 +522,8 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
             self.cb_dates_2.setEnabled(not enable)
 
     def changed_cb_departure_dates_step3(self):
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.changed_cb_departure_dates_step3')
+
         enable = self.cb_dates_2.isChecked()
 
         self.combo_when_2.setEnabled(enable)
@@ -517,6 +537,8 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         """
         Slot which enables or disables the energy group box combos, depending on the energy group box checkbox state.
         """
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.changed_cb_energy')
+
         cb = self.cb_energy
         if cb.isChecked():
             self.enable_energy_combos(True)
@@ -528,6 +550,8 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         Slot which enables or disables the time of flight group box combos, depending on the time of flight group box
         checkbox state.
         """
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.changed_cb_time_of_flight')
+
         self.enable_time_of_flight_combos(self.cb_time_of_flight.isChecked())
 
     def clicked_pb_accept(self):
