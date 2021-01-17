@@ -8,9 +8,9 @@ from PySide2.QtGui import QColor
 from PySide2.QtWidgets import QDialog, QApplication, QDialogButtonBox, QMessageBox
 
 # Sonet imports
-from src import database
-from src import sonet_pcp_filter_qt_ui
-from src.SonetUtils import FilterType, TripType, SonetLogType, sonet_log, popup_msg
+from workcopy.src import database
+from workcopy.src import sonet_pcp_filter_qt_ui
+from workcopy.src.SonetUtils import FilterType, TripType, SonetLogType, sonet_log, popup_msg
 
 
 class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):

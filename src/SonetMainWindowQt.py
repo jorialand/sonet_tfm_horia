@@ -11,18 +11,18 @@ import datetime
 import sys
 
 import pandas as pd
+from pandas import Series  # Needed to use the docstring :rtype: return type hint (i.e. :rtype: Series).
 # From module X import class Y.
 from PySide2.QtCore import QAbstractListModel, QAbstractTableModel, QModelIndex, Qt
 from PySide2.QtGui import QColor
-from PySide2.QtWidgets import QMainWindow, QApplication
+from PySide2.QtWidgets import QMainWindow, QApplication, QMessageBox
 from fbs_runtime.application_context.PySide2 import ApplicationContext
 
-from src import database
-from src import sonet_main_window_ui
-from src.SonetPCPFilterQt import SonetPCPFilterQt
-from src.SonetSpacecraft import SonetSpacecraft
-from src.SonetUtils import TripType, SonetLogType, sonet_log
-
+from workcopy.src import database
+from workcopy.src import sonet_main_window_ui
+from workcopy.src.SonetPCPFilterQt import SonetPCPFilterQt
+from workcopy.src.SonetSpacecraft import SonetSpacecraft
+from workcopy.src.SonetUtils import TripType, SonetLogType, sonet_log, popup_msg
 
 # QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)  # To avoid AA_ShareOpenGLContexts warning in QtCreator.
 
@@ -52,7 +52,7 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
 
         # Menu bar
         self.menubar.setNativeMenuBar(False)  # I'd problems with MacOSX native menubar, the menus didn't appear
-
+        self.sonet_pcp_tabs_qtw.setCurrentIndex(0)
         # TODO Añadir QActions (e.g. Exit, Save, etc.)
 
         # Objects database
@@ -72,6 +72,7 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         self.sonet_add_spacecraft_qpb.clicked.connect(self.clicked_new_spacecraft)
         self.sonet_remove_spacecraft_qpb.clicked.connect(self.clicked_remove_spacecraft)
         self.sonet_pcp_filter_qpb.clicked.connect(self.clicked_apply_filter)
+        self.sonet_select_trajectory_qpb.clicked.connect(self.clicked_select_trajectory)
 
         self.sonet_mission_tree_qlv.clicked.connect(self._list_model.list_clicked)
         self.sonet_pcp_tabs_qtw.currentChanged.connect(self.clicked_tab)
@@ -89,6 +90,41 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
 
     def get_list_model(self):
         return self._list_model
+
+    def get_selected_trajectory(self):
+        """
+        Getter method.
+        Returns the selected trajectory, as pandas Seriesin the current tab pcp table.
+        :rtype: Series
+        """
+        sonet_log(SonetLogType.INFO, 'SonetMainWindow.get_selected_trajectory')
+
+        tab_index = main_window.sonet_pcp_tabs_qtw.currentIndex()
+
+        if tab_index is 0:
+            the_row = self.sonet_pcp_table_qtv_outgoing.selectionModel().currentIndex().row()
+            the_df = self._table_model_outgoing._data
+        elif tab_index is 1:
+            the_row = self.sonet_pcp_table_qtv_incoming.selectionModel().currentIndex().row()
+            the_df = self._table_model_incoming._data
+
+        if the_row == -1:
+            sonet_log(SonetLogType.INFO, 'SonetMainWindow.get_selected_trajectory."No row selected"')
+            return None, None
+
+        if tab_index is 0:
+            is_incoming_trajectory = False
+        elif tab_index is 1:
+            is_incoming_trajectory = True
+        # The try-catch is because if the returned dataframe the_df is empty, and you try to access a
+        # position in it (i.e. the_df.iloc[2]), you get an IndexError exception.
+        try:
+            result = the_df.iloc[the_row]
+            return result, is_incoming_trajectory
+        except IndexError:
+            sonet_log(SonetLogType.INFO,
+                      'SonetMainWindow.get_selected_trajectory."Empty/Out-of-bonds dataframe accessed"')
+            return None, None
 
     def clicked_apply_filter(self):
         """
@@ -123,25 +159,36 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
     def clicked_new_spacecraft(self):
         """
         This method is called when clicking over 'Add SonetSpacecraft' QPushButton, it creates a new SonetSpacecraft.
-        :return: True if OK, False else.
+        :rtype: bool
         """
         sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_new_spacecraft')
 
-        ###
-        # self.sp = SonetSpacecraft()
-        # self.sp.set_spacecraft_type(SpacecraftType.CREWED)
-        # self.sp.set_has_return_trajectory(False)
-        # self.sp.set_filters()
-        # filter_ = self.sp.get_filter()
-        # filtered_pcp_table = filter_.get_filtered_pcp()
-        ###
+        db = database.db
 
-        # Create new SonetSpacecraft
-        self.n += 1
+        # Create new SonetSpacecraft.
+
+        # Get the widgets values.
         spacecraft_type_crew = self.sonet_spacecraft_type_qcmb.currentText()
         spacecraft_type_return = self.sonet_spacecraft_type_has_return_trajectory_qcmb.currentText()
-        spacecraft_name = 'Spacecraft ' + str(self.n)
-        database.db[spacecraft_name] = SonetSpacecraft(spacecraft_name, spacecraft_type_crew, spacecraft_type_return)
+        spacecraft_name = self.sonet_sc_name_le.text()
+
+        # If the input s/c name is empty, popup a msg and exit.
+        if spacecraft_name == '':
+            popup_msg(window_title='Empty s/c name',
+                      icon=QMessageBox.Information,
+                      text='Please, select a different s/c name.',
+                      info_text='')
+            return False
+
+        # If the input s/c name is already in the db, popup a msg and exit.
+        if spacecraft_name in db:
+            popup_msg(window_title='Duplicated s/c name',
+                      icon=QMessageBox.Information,
+                      text='Please, select a different s/c name.',
+                      info_text='')
+            return False
+
+        db[spacecraft_name] = SonetSpacecraft(spacecraft_name, spacecraft_type_crew, spacecraft_type_return)
 
         # Update list model
         lm = self.get_list_model()
@@ -161,7 +208,7 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         db = database.db
         if len(list(db.keys())) is 0:
             sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_remove_spacecraft."There are no S/C to remove"')
-            return 0
+            return True
 
         # If there is no selection, remove last SonetSpacecraft.
         if (selection is -1):
@@ -179,13 +226,37 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         lm = self.get_list_model()
         lm.update()
 
-        # Update main window labels/progress bars.
+        # Update main window widgets/labels/progress bars.
         force_table_view_update()
+        self.update_trajectory_label_and_progress_bar(a_reset_widgets=True)
 
         msg = key + ' removed'
         sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_remove_spacecraft."' + msg + '"')
 
         return True
+
+    def clicked_select_trajectory(self):
+        """
+        Gets the current selection for the current selected s/c and stores it inside the s/c, also it updates
+        the associated widgets.
+        """
+        sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_select_trajectory')
+
+        row = self.sonet_mission_tree_qlv.currentIndex().row()
+        the_spacecraft = self._list_model.get_spacecraft(a_row=row)
+
+        # Check
+        if the_spacecraft is None:
+            sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_select_trajectory."The returned s/c is None"')
+            return False
+
+        # Set the selected trajectory within the s/c.
+        the_selected_trajectory, is_incoming_trajectory = self.get_selected_trajectory()
+        the_spacecraft.set_trajectory(the_selected_trajectory, a_is_incoming_trajectory=is_incoming_trajectory)
+
+        # Update the trajectory label & progress bar.
+        status = the_spacecraft.get_trajectory_selection_status()
+        main_window.update_trajectory_label_and_progress_bar(status)
 
     def clicked_tab(self, index):
         """
@@ -216,6 +287,31 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         else:
             self.sonet_label_rows_filtered_visible.setText('')
 
+    def update_trajectory_label_and_progress_bar(self, a_status=0, a_reset_widgets=False):
+        """
+        Updates both label & progbar widgets.
+        :param a_status: 0, 0.5, 1
+        :return:
+        """
+        sonet_log(SonetLogType.INFO,
+                  'SonetMainWindow.update_trajectory_label_and_progress_bar')
+        if a_reset_widgets:
+            self.sonet_label_selected_trajectory.setText('')
+            self.sonet_trajectory_selection_qprogrbar.setValue(0)
+        else:
+            if a_status == 0:
+                self.sonet_label_selected_trajectory.setText('Pending to select trajectories.')
+                self.sonet_trajectory_selection_qprogrbar.setValue(0)
+            elif a_status == 0.5:
+                self.sonet_label_selected_trajectory.setText('Pending to select trajectories.')
+                self.sonet_trajectory_selection_qprogrbar.setValue(50)
+            elif a_status == 1:
+                self.sonet_label_selected_trajectory.setText('Trajectories selected.')
+                self.sonet_trajectory_selection_qprogrbar.setValue(100)
+            else:
+                sonet_log(SonetLogType.ERROR,
+                          'SonetMainWindow.update_trajectory_label_and_progress_bar."Wrong argument value"')
+
     def exit_app(self):
         sys.exit()
 
@@ -238,6 +334,7 @@ class ListModel(QAbstractListModel):
         It returns the SonetSpacecraft object from the database, based on the current
         selected item.
         Returns None object if no s/c selected or if encountered any problem.
+        :rtype: SonetSpacecraft
         """
         # Checks.
         if (a_index is None and a_row is None):
@@ -253,24 +350,24 @@ class ListModel(QAbstractListModel):
         else:
             row = None
 
+        # Check.
+        if row is -1:
+            # No s/c selected, return None object.
+            sonet_log(SonetLogType.INFO, 'ListModel.get_spacecraft."Selected row is -1"')
+            return None
+
         key = None
         try:
             # Get the clicked s/c name.
             key = list(self._data)[row]
             sonet_log(SonetLogType.INFO, 'ListModel.get_spacecraft."Spacecraft ' + key + '"')
-        except IndexError:
-            if row is -1:
-                # No s/c selected, possible when entered this method because
-                # of emmited signal, no problem in this cases.
-                sonet_log(SonetLogType.INFO, 'ListModel.get_spacecraft."Selected row is -1"')
-                return None
         except:
             sonet_log(SonetLogType.WARNING, 'SonetMainWindow.get_spacecraft."Exception raised"')
             return None
 
         return database.db[key]
 
-    def list_clicked(self, index):
+    def list_clicked(self, a_index):
         """
         Slot executed whenever an item from the ListModel is clicked. It sets both
         the outgoing and incoming table models, and updates both associated table views.
@@ -290,10 +387,14 @@ class ListModel(QAbstractListModel):
         """
         sonet_log(SonetLogType.INFO, 'SonetMainWindow.list_clicked')
 
+        if a_index.row() is -1:
+            sonet_log(SonetLogType.INFO, 'list_clicked."No s/c selected"')
+            return
 
         # Get the s/c, and its filter.
-        the_spacecraft = self.get_spacecraft(a_index=index)
+        the_spacecraft = self.get_spacecraft(a_index=a_index)
         if not isinstance(the_spacecraft, SonetSpacecraft):
+            sonet_log(SonetLogType.ERROR, 'list_clicked."Wrong s/c type"')
             return False
         the_filter = the_spacecraft.get_filter()
 
@@ -303,27 +404,31 @@ class ListModel(QAbstractListModel):
         # resetting the table model.
         try:
             # Case where spacecraft only has got only outgoing trajectory.
-            sonet_log(SonetLogType.INFO, 'list_clicked."This spacecraft is of one-way type"')
 
+            # Update the table models.
             the_filtered_dataframe = the_filter.get_filtered_pcp()
             main_window._table_model_outgoing.set_model_data(the_spacecraft, the_filtered_dataframe)
             the_filtered_dataframe = pd.DataFrame()
             main_window._table_model_incoming.set_model_data(the_spacecraft, the_filtered_dataframe)
-
         except AttributeError:
             # Case where spacecraft only has got both outgoing and incoming trajectories.
-            # Outgoing. (la magia ocurre aquí)
             sonet_log(SonetLogType.INFO, 'list_clicked."This spacecraft is of two-way type"')
 
+            # Update the table models.
+
+            # Outgoing. (la magia ocurre aquí)
             the_filtered_dataframe = the_filter[0].get_filtered_pcp()
             main_window._table_model_outgoing.set_model_data(the_spacecraft, the_filtered_dataframe)
             # Incoming.
             the_filtered_dataframe = the_filter[1].get_filtered_pcp()
             main_window._table_model_incoming.set_model_data(the_spacecraft, the_filtered_dataframe)
-
         except:
             sonet_log(SonetLogType.ERROR, 'list_clicked."Exception raised."')
             return False
+
+        # Update the trajectory label & progress bar.
+        status = the_spacecraft.get_trajectory_selection_status()
+        main_window.update_trajectory_label_and_progress_bar(status)
 
         force_table_view_update()
 

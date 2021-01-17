@@ -1,8 +1,8 @@
 import pandas as pd
-from overloading import overload
+# from overloading import overload
 
-from src.SonetTrajectoryFilter import SonetTrajectoryFilter
-from src.SonetUtils import SpacecraftType, TripType, sonet_log, SonetLogType
+from workcopy.src.SonetTrajectoryFilter import SonetTrajectoryFilter
+from workcopy.src.SonetUtils import SpacecraftType, TripType, sonet_log, SonetLogType
 
 
 class SonetSpacecraft:
@@ -97,7 +97,6 @@ class SonetSpacecraft:
                 return [self._pcp_filter1.get_data().copy(), self._pcp_filter2.get_data().copy()]
             else:
                 return [self._pcp_filter1.get_data(), self._pcp_filter2.get_data()]
-
         else:
             # In case the spacecraft has no return trajectory, we just get the filter dataframe of the outgoing one.
             if get_dataframe_copy:
@@ -120,6 +119,40 @@ class SonetSpacecraft:
         None, which is considered a boolean False.
         """
         return self._spacecraft_type
+
+    def get_trajectory_selection_status(self):
+        """
+        Getter method.
+        Returns the current trajectory selection status:
+        0 if no trajectory is selected.
+        0.5 if 1 out of 2 trajectories are selected.
+        1 if all the trajectories are selected.
+        :return: 0, 0.5, or 1.
+        """
+        if self._has_return_trajectory:
+            # Two-way s/c.
+            A = (self._trajectory1 is None) and (self._trajectory2 is None)
+            B = (self._trajectory1 is None) or (self._trajectory2 is None)
+            C = isinstance(self._trajectory1, pd.Series) and isinstance(self._trajectory2, pd.Series)
+            if A:
+                return 0
+            elif C:
+                return 1
+            elif B:
+                return 0.5
+            else:
+                sonet_log(SonetLogType.ERROR,
+                          'SonetSpacecraft.get_trajectory_selection_status."Wrong trajectory type"')
+
+        else:
+            # One-way s/c.
+            if self._trajectory is None:
+                return 0
+            elif isinstance(self._trajectory, pd.Series):
+                return 1
+            else:
+                sonet_log(SonetLogType.ERROR,
+                          'SonetSpacecraft.get_trajectory_selection_status."Wrong trajectory type"')
 
     def set_filter(self, a_the_filter, dataframe=False):
         """
@@ -158,9 +191,15 @@ class SonetSpacecraft:
             # Two way trip.
             self._pcp_filter1 = SonetTrajectoryFilter(TripType.OUTGOING)
             self._pcp_filter2 = SonetTrajectoryFilter(TripType.INCOMING)
+
+            self._trajectory1 = None
+            self._trajectory2 = None
         else:
             # One way trip.
             self._pcp_filter = SonetTrajectoryFilter(TripType.OUTGOING)
+
+            self._trajectory = None
+
         return True
 
     def set_has_return_trajectory(self, a_has_return_trajectory=None):
@@ -210,6 +249,34 @@ class SonetSpacecraft:
             return False
 
         self._spacecraft_type = a_spacecraft_type
+        return True
+
+    def set_trajectory(self, a_trajectory=None, a_is_incoming_trajectory=False):
+        """
+        Setter method.
+        Sets the trajectories fields for a given s/c, the a_outgoing_trajectory paramenter controls whether
+        we are setting the outgoing or incoming trajectory, in case the s/c has both. It's a bit weird but...
+        :param a_trajectory: Pandas Series representing a dataframe row
+        """
+        # Check.
+        if not (isinstance(a_trajectory, pd.Series) or isinstance(a_trajectory, list)):
+            if a_trajectory is None:
+                sonet_log(SonetLogType.INFO, 'SonetSpacecraft.set_trajectory."None trajectory"')
+                return
+            else:
+                sonet_log(SonetLogType.ERROR, 'SonetSpacecraft.set_trajectory."Wrong trajectory type"')
+                return False
+
+        if self._has_return_trajectory:
+            # Two-way s/c.
+            if a_is_incoming_trajectory:
+                self._trajectory2 = a_trajectory
+            else:
+                self._trajectory1 = a_trajectory
+        else:
+            # One-way s/c.
+            self._trajectory = a_trajectory
+
         return True
 
     # Private methods

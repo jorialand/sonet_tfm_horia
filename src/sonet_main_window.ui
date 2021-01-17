@@ -62,9 +62,15 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="sonet_add_spacecraft_qpb">
-         <property name="text">
-          <string>Add spacecraft</string>
+        <widget class="QLineEdit" name="sonet_sc_name_le">
+         <property name="toolTip">
+          <string>Enter new s/c name</string>
+         </property>
+         <property name="statusTip">
+          <string>s/c name</string>
+         </property>
+         <property name="placeholderText">
+          <string>Enter new s/c name</string>
          </property>
         </widget>
        </item>
@@ -94,6 +100,13 @@
            <string>Two way</string>
           </property>
          </item>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="sonet_add_spacecraft_qpb">
+         <property name="text">
+          <string>Add spacecraft</string>
+         </property>
         </widget>
        </item>
        <item>
@@ -134,7 +147,7 @@
        <item>
         <widget class="QPushButton" name="sonet_select_trajectory_qpb">
          <property name="text">
-          <string>Select trajectory (pending implementation)</string>
+          <string>Select trajectory</string>
          </property>
         </widget>
        </item>
@@ -153,7 +166,7 @@
        <item>
         <widget class="QTabWidget" name="sonet_pcp_tabs_qtw">
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="sonet_pcp_table_transit_1">
           <attribute name="title">

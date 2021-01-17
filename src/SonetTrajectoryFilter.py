@@ -2,8 +2,8 @@ import pandas as pd
 
 from PySide2.QtCore import QDate
 
-from src import database
-from src.SonetUtils import TripType, sonet_log, SonetLogType
+from workcopy.src import database
+from workcopy.src.SonetUtils import TripType, sonet_log, SonetLogType
 
 
 class SonetTrajectoryFilter:
