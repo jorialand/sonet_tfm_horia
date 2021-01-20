@@ -9,20 +9,21 @@ Project defense:
 """
 import datetime
 import sys
+import qrainbowstyle
 
 import pandas as pd
 from pandas import Series  # Needed to use the docstring :rtype: return type hint (i.e. :rtype: Series).
 # From module X import class Y.
 from PySide2.QtCore import QAbstractListModel, QAbstractTableModel, QModelIndex, Qt
 from PySide2.QtGui import QColor
-from PySide2.QtWidgets import QMainWindow, QApplication, QMessageBox
+from PySide2.QtWidgets import QMainWindow, QApplication, QMessageBox, QStyleFactory
 from fbs_runtime.application_context.PySide2 import ApplicationContext
 
-from workcopy.src import database
-from workcopy.src import sonet_main_window_ui
-from workcopy.src.SonetPCPFilterQt import SonetPCPFilterQt
-from workcopy.src.SonetSpacecraft import SonetSpacecraft
-from workcopy.src.SonetUtils import TripType, SonetLogType, sonet_log, popup_msg
+from src import database
+from src import sonet_main_window_ui
+from src.SonetPCPFilterQt import SonetPCPFilterQt
+from src.SonetSpacecraft import SonetSpacecraft
+from src.SonetUtils import TripType, SonetLogType, sonet_log, popup_msg
 
 # QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)  # To avoid AA_ShareOpenGLContexts warning in QtCreator.
 
@@ -556,9 +557,10 @@ class TableModel(QAbstractTableModel):
             return value
 
         if role == Qt.BackgroundRole:
+            pass
             # Pair rows will have different color, to visually distinguish them from the even ones.
-            if row % 2 is not 0:
-                return QColor(255, 230, 255)
+            # if row % 2 is not 0:
+            #     return QColor(255, 230, 255)
             # Very light blue 230, 242, 255
             # Very light purple 240, 240, 245
             # Very light pink 255, 230, 255
@@ -576,16 +578,26 @@ class TableModel(QAbstractTableModel):
         return None
 
 if __name__ == "__main__":
+    # Using no fbs module
+    # Add as parameter to the script to set an app style: -style Fusion|Windows|windowsvista
     app = QApplication(sys.argv)
-    # appctxt = ApplicationContext()       # 1. Instantiate ApplicationContext
+
+    # App style cyberpunk|darkblue|oceanic|lightorange|darkorange||.
+    stylesheet = qrainbowstyle.load_stylesheet_pyside2(style='darkorange')
+    app.setStyleSheet(stylesheet)
+
     main_window = SonetMainWindow()
     main_window.show()
-
     sys.exit(app.exec_())
+
+    # Using fbs module
+    # appctxt = ApplicationContext()       # 1. Instantiate ApplicationContext
+    # main_window = SonetMainWindow()
+    # main_window.show()
     # exit_code = appctxt.app.exec_()      # 2. Invoke appctxt.app.exec_()
     # sys.exit(exit_code)
 
-
+    # Example app.
     # appctxt = ApplicationContext()       # 1. Instantiate ApplicationContext
     # window = QMainWindow()
     # window.resize(250, 150)

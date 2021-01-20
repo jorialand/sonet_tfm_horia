@@ -7,7 +7,7 @@ when closing the program)-
 import pandas as pd
 from numpy import pi
 # from PySide2.QtCore import QDate
-from workcopy.src.SonetUtils import SONET_DEBUG_LEVEL, TripType, SonetLogType, sonet_log
+from src.SonetUtils import SONET_DEBUG_LEVEL, TripType, SonetLogType, sonet_log
 
 def get_pcp_table(a_trip_type):
     """
@@ -86,7 +86,7 @@ db = {}
 
 # dir_path = '/Users/Jorialand/code/tfm/sonet/sonet_tfm_horia/src/'
 # dir_path = 'C:/workcopy/data/'
-dir_path = 'C:/tfm_workcopy/workcopy/data/'
+dir_path = 'C:/workcopy_sonet/data/'
 
 # pcp_outgoing = pd.read_csv(dir_path + '10kPCP_Earth2Mars.txt')
 # pcp_incoming = pd.read_csv(dir_path + '10kPCP_Mars2Earth.txt')

@@ -1,8 +1,8 @@
 import pandas as pd
 # from overloading import overload
 
-from workcopy.src.SonetTrajectoryFilter import SonetTrajectoryFilter
-from workcopy.src.SonetUtils import SpacecraftType, TripType, sonet_log, SonetLogType
+from src.SonetTrajectoryFilter import SonetTrajectoryFilter
+from src.SonetUtils import SpacecraftType, TripType, sonet_log, SonetLogType
 
 
 class SonetSpacecraft:

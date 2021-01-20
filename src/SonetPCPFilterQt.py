@@ -8,9 +8,9 @@ from PySide2.QtGui import QColor
 from PySide2.QtWidgets import QDialog, QApplication, QDialogButtonBox, QMessageBox
 
 # Sonet imports
-from workcopy.src import database
-from workcopy.src import sonet_pcp_filter_qt_ui
-from workcopy.src.SonetUtils import FilterType, TripType, SonetLogType, sonet_log, popup_msg
+from src import database
+from src import sonet_pcp_filter_qt_ui
+from src.SonetUtils import FilterType, TripType, SonetLogType, sonet_log, popup_msg
 
 
 class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
@@ -772,9 +772,10 @@ class SonetAppliedFiltersTableModel(QAbstractTableModel):
             return value
 
         if role == Qt.BackgroundRole:
+            pass
             # Pair rows will have different color, to visually distinguish them from the even ones.
-            if row % 2 is not 0:
-                return QColor(255, 230, 255)
+            # if row % 2 is not 0:
+                # return QColor(255, 230, 255)
             # Very light blue 230, 242, 255
             # Very light purple 240, 240, 245
             # Very light pink 255, 230, 255
