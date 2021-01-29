@@ -23,7 +23,7 @@ from src import database
 from src import sonet_main_window_ui
 from src.SonetPCPFilterQt import SonetPCPFilterQt
 from src.SonetSpacecraft import SonetSpacecraft
-from src.SonetUtils import TripType, SonetLogType, sonet_log, popup_msg
+from src.SonetUtils import TripType, SonetLogType, sonet_log, popup_msg, SONET_MSG_TIMEOUT
 
 # QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)  # To avoid AA_ShareOpenGLContexts warning in QtCreator.
 
@@ -189,7 +189,9 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
                       info_text='')
             return False
 
-        db[spacecraft_name] = SonetSpacecraft(spacecraft_name, spacecraft_type_crew, spacecraft_type_return)
+        # Create the s/c. The ap_main_window parameter is to pass a pointer to the main window to the s/c, so she can access
+        # to main window's methods and properties.
+        db[spacecraft_name] = SonetSpacecraft(spacecraft_name, spacecraft_type_crew, spacecraft_type_return, ap_main_window=main_window)
 
         # Update list model
         lm = self.get_list_model()
@@ -208,7 +210,8 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         # If there's no SonetSpacecraft, then return.
         db = database.db
         if len(list(db.keys())) is 0:
-            sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_remove_spacecraft."There are no S/C to remove"')
+            sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_remove_spacecraft."No s/c to remove"')
+            self.statusbar.showMessage('No s/c to remove.', SONET_MSG_TIMEOUT)
             return True
 
         # If there is no selection, remove last SonetSpacecraft.
@@ -238,8 +241,9 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
 
     def clicked_select_trajectory(self):
         """
-        Gets the current selection for the current selected s/c and stores it inside the s/c, also it updates
-        the associated widgets.
+        Gets the current selection for the current selected s/c and stores it inside the s/c.
+        If no selection, displays a msg in the main window status bar.
+        It also updates the associated widgets.
         """
         sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_select_trajectory')
 
@@ -248,7 +252,8 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
 
         # Check
         if the_spacecraft is None:
-            sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_select_trajectory."The returned s/c is None"')
+            sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_select_trajectory."No s/c selected"')
+            self.statusbar.showMessage('No s/c selected.', SONET_MSG_TIMEOUT)
             return False
 
         # Set the selected trajectory within the s/c.
@@ -272,7 +277,7 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
                 # Outgoing trip selected.
                 n_filtered = main_window._table_model_outgoing._data.shape[0]
                 n = database.get_pcp_table(TripType.OUTGOING).shape[0]
-                self.sonet_label_rows_filtered_visible.setText(str(n_filtered) + ' rows visible out of ' + str(n))
+                self.sonet_label_rows_filtered_visible.setText(str(n_filtered) + ' rows filtered out of ' + str(n))
             elif index is 1:
                 # Incoming trip selected.
 
@@ -284,7 +289,7 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
                     return
                 n_filtered = main_window._table_model_incoming._data.shape[0]
                 n = database.get_pcp_table(TripType.OUTGOING).shape[0]
-                self.sonet_label_rows_filtered_visible.setText(str(n_filtered) + ' rows visible out of ' + str(n))
+                self.sonet_label_rows_filtered_visible.setText(str(n_filtered) + ' rows filtered out of ' + str(n))
         else:
             self.sonet_label_rows_filtered_visible.setText('')
 
@@ -583,7 +588,7 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
 
     # App style cyberpunk|darkblue|oceanic|lightorange|darkorange||.
-    stylesheet = qrainbowstyle.load_stylesheet_pyside2(style='darkorange')
+    stylesheet = qrainbowstyle.load_stylesheet_pyside2(style='oceanic')
     app.setStyleSheet(stylesheet)
 
     main_window = SonetMainWindow()

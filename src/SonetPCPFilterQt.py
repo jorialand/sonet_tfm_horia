@@ -1,23 +1,23 @@
 # General imports
 import sys
-
 import pandas as pd
-# Pyside2 imports
+
+# Qt imports
 from PySide2.QtCore import QCoreApplication, Qt, QAbstractTableModel, QModelIndex, QDate
-from PySide2.QtGui import QColor
-from PySide2.QtWidgets import QDialog, QApplication, QDialogButtonBox, QMessageBox
+from PySide2.QtWidgets import QDialog, QApplication, QDialogButtonBox, QMessageBox, QStatusBar
 
 # Sonet imports
 from src import database
 from src import sonet_pcp_filter_qt_ui
-from src.SonetUtils import FilterType, TripType, SonetLogType, sonet_log, popup_msg
+from src.SonetUtils import FilterType, TripType, SonetLogType, sonet_log, popup_msg, SONET_MSG_TIMEOUT
 
+
+# ==============================================================================================
 
 class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
     def __init__(self, *args, ar_list_spacecrafts=None, ar_current_index=-1):
         super(SonetPCPFilterQt, self).__init__(*args)  # , **kwargs)
         self.setupUi(self)
-        # TODO: Maybe I should move the init method from the constructor?
         self.init(ar_list_spacecrafts, ar_current_index)
 
         # Draft
@@ -25,10 +25,14 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         # self.applied_filters_table_view.setModel(self._applied_filters_table_model)
         self.applied_filters_table_view.resizeColumnsToContents()
 
+        # Status bar,for messages to the user.
+        self.status_bar = QStatusBar()
+        self.status_bar.setSizeGripEnabled(False)
+        self.status_bar_HLayout.addWidget(self.status_bar)
 
     def init(self, ar_list_spacecrafts=None, ar_current_index=-1):
         """
-        Initializes the QDialog window. It also sets the signal/slot connections.
+        Initializes the SonetPCPFilterQt window. It also sets the signal/slot connections.
         :param ar_list_spacecrafts: The list of available s/c's.
         :param ar_current_index: The current selected s/c.
 
@@ -56,6 +60,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         self.select_trip.currentIndexChanged.connect(self.changed_cmb_select_trip)
         self.combo_energy_parameter.currentIndexChanged.connect(self.changed_cmb_energy_parameter)
         self.combo_dept_arriv.currentIndexChanged.connect(self.changed_cmb_dept_arriv)
+        self.combo_select_spacecraft.currentIndexChanged.connect(self.changed_combo_select_spacecraft)
 
         self.cb_dep_arriv_dates.stateChanged.connect(self.enable_pb_add)
         self.cb_dep_arriv_dates.stateChanged.connect(self.changed_cb_departure_dates_step1)
@@ -68,6 +73,9 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         self.cb_time_of_flight.stateChanged.connect(self.enable_pb_add)
         self.cb_time_of_flight.stateChanged.connect(self.changed_cb_time_of_flight)
 
+        self.radio_mission.toggled.connect(self.clicked_radio_mission)
+        self.radio_spacecraft.toggled.connect(self.clicked_radio_spacecraft)
+
         # Next 3 statements should be called sequentially, see method's docstring.
         # Init table model and table view
         self.init_table_model()
@@ -78,6 +86,9 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
         self.dateEdit.setDisplayFormat('dd-MM-yyyy')
         self.dateEdit.setCalendarPopup(True)
+
+        # Computations
+        self.compute_spacecrafts_with_selected_trajectories(p_return_type='String')
 
     def init_combo_select_spacecraft(self, ar_list_spacecrafts=None, ar_current_index=-1):
         """
@@ -95,7 +106,6 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         else:
             self.select_spacecraft.setCurrentIndex(0)
 
-
     def init_filters(self, ar_list_spacecrafts=None):
         """
         Retrieves the filters for the spacecrafts in ar_list_spacecrafts, and stores them in a dict.
@@ -106,7 +116,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         self._dict_filters_current = {}
         for i in ar_list_spacecrafts:
             spacecraft = database.db[i]  # SonetSpacecraft object.
-            self._dict_filters_current[i] = spacecraft.get_filter_data(get_dataframe_copy=True)
+            self._dict_filters_current[i] = spacecraft.get_filter_data(p_get_dataframe_copy=True)
 
     def init_table_model(self):
         """
@@ -115,6 +125,84 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         """
         self._applied_filters_table_model = SonetAppliedFiltersTableModel()
         self.applied_filters_table_view.setModel(self._applied_filters_table_model)
+
+    def compute_spacecrafts_with_selected_trajectories(self, p_return_type='String'):
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.get_spacecrafts_with_selected_trajectories')
+
+        # List with available s/c for which the user has selected at least a trajectory.
+        self._spacecrafts_with_selected_trajectories = []
+
+        # Traverse all the spacecrafts and update their filters.
+        for sc_name in database.get_spacecrafts_list():
+            sc = database.get_spacecraft(sc_name)
+
+            # If the sc has at least one trajectory selected, then should be included in the list.
+            if sc.get_trajectory_selection_status() in [0.5, 1]:
+                if p_return_type == 'String':
+                    self._spacecrafts_with_selected_trajectories.append(sc.get_spacecraft_name())
+                elif p_return_type == 'Object':
+                    self._spacecrafts_with_selected_trajectories.append(sc)
+
+        # The current selected element (in select_spacecraft combo) shouldn't be included in the list.
+        current_selected_sc = self.select_spacecraft.currentText()
+        if p_return_type == 'Object':
+            current_selected_sc = database.get_spacecraft(current_selected_sc)
+
+        try:
+            index = self._spacecrafts_with_selected_trajectories.index(current_selected_sc)
+            self._spacecrafts_with_selected_trajectories.pop(index)
+        except ValueError:
+            # The current selected s/c isn't in the list, so nothing to do.
+            pass
+
+        sonet_log(SonetLogType.INFO,
+                  'SonetPCPFilterQt.get_spacecrafts_with_selected_trajectories.'
+                  '"Number of s/c with at least a trajectory selected: ' +
+                  str(len(self._spacecrafts_with_selected_trajectories)) + '"')
+
+    def dates_combos_check1(self):
+        """
+        docstring
+        """
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.dates_combos_check1')
+
+        list_checked_cb = self.which_cb_checked()
+
+        c1 = 'cb_dep_arriv_dates+0' in list_checked_cb
+        c2 = 'cb_dep_arriv_dates+1' in list_checked_cb
+        c3 = 'cb_dep_arriv_dates+2' in list_checked_cb
+        if c1 and not (c2 or c3):
+            popup_msg(window_title='Incomplete filters selection',
+                      icon=QMessageBox.Information,
+                      text='If the departure/arrival dates filter is checked, then one of the two below'
+                           ' options should be also selected.',
+                      info_text='Please, do a valid selection.')
+            return False
+        return True
+
+    def dates_combos_check2(self):
+        """
+        When the complex dates filter is activated, check that all the relevant widgets have a valid selection.
+        """
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.dates_combos_check2')
+
+        if self.radio_mission.isChecked():
+            self.status_bar.showMessage('Pending to implement mission radio button.',
+                                        SONET_MSG_TIMEOUT)
+            return False
+        elif self.radio_spacecraft.isChecked():
+            c1 = self.combo_select_spacecraft.currentText() != 'Selected s/c'
+            c2 = self.combo_select_trip.currentText() in ['Earth - Mars', 'Mars - Earth']
+            if c1 and c2:
+                return True
+            else:
+                self.status_bar.showMessage('Pending to select combos, please do a valid selection.',
+                                            SONET_MSG_TIMEOUT)
+                return False
+        else:
+            # No radio btn is toggled, return.
+            self.status_bar.showMessage('No radio button toggled, please select either Mission or S/C.', SONET_MSG_TIMEOUT)
+            return False
 
     def enable_pb_add(self):
         """
@@ -181,12 +269,6 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
             self.cb_dep_arriv_dates.setChecked(False)
         self.cb_dep_arriv_dates.setEnabled(ar_enable)
 
-    def enable_groupbox_departure_dates_step2(self, ar_enable):
-        pass
-
-    def enable_groupbox_departure_dates_step3(self, ar_enable):
-        pass
-
     def enable_groupbox_energy(self, ar_enable):
         self.energy_group_box.setEnabled(ar_enable)
         # If we are disabling the group box, then associated combo boxes should also be disabled.
@@ -211,16 +293,45 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
     def get_dep_arriv_dates_combos_selection(self):
         """
         Retrieves the departure and arrival dates group box data, to apply filters.
-        :return: a dict, representing a pandas dataframe row.
+        :rtype: dict
         """
         sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.get_dep_arriv_dates_combos_selection')
 
-        the_selection = [self.combo_dept_arriv.currentText(),
-                         self.combo_planet.currentText(),
-                         self.combo_when_2.currentText(),
-                         self.dateEdit.text()]
-        # return the_selection
-        return {'Status': 1, 'Type': 'Date', 'Filter': the_selection}
+        # cb_dates_1 is the more complex dates filter.
+        if self.cb_dates_1.isChecked():
+            # Common widgets to both radio buttons.
+            the_selection = [self.combo_dept_arriv.currentText(),
+                             self.combo_planet.currentText(),
+                             self.spin_number.text(),
+                             self.combo_time_scale.currentText(),
+                             self.combo_when.currentText()]
+
+            if self.radio_mission.isChecked():
+                # Widgets only relevant for the mission radio button.
+                self.status_bar.showMessage('Mission radio btn not implemented', SONET_MSG_TIMEOUT)
+                pass
+            elif self.radio_spacecraft.isChecked():
+                # Widgets only relevant for the spacecraft radio button.
+                the_selection.append(self.combo_select_spacecraft.currentText())
+                the_selection.append(self.combo_select_trip.currentText())
+                the_selection.append(self.combo_event.currentText())
+            else:
+                # No radio btn is toggled, return.
+                self.status_bar.showMessage('No radio button toggled, please select either Mission or S/C.',
+                                            SONET_MSG_TIMEOUT)
+            return {'Status': 1, 'Type': 'ComplexDate', 'Filter': the_selection}
+
+        # cb_dates_2 is the simpler dates filter.
+        elif self.cb_dates_2.isChecked():
+            the_selection = [self.combo_dept_arriv.currentText(),
+                             self.combo_planet.currentText(),
+                             self.combo_when_2.currentText(),
+                             self.dateEdit.text()]
+            return {'Status': 1, 'Type': 'SimpleDate', 'Filter': the_selection}
+
+        else:
+            sonet_log(SonetLogType.ERROR, 'SonetPCPFilterQt.get_dep_arriv_dates_combos_selection')
+            return {'Status': 1, 'Type': 'SimpleDate', 'Filter': pd.Series()}
 
     def get_energy_combos_selection(self):
         """
@@ -235,6 +346,25 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
                          self.combo_energy_units.currentText()]
         # return the_selection
         return {'Status': 1, 'Type': 'Energy', 'Filter': the_selection}
+
+    def get_spacecrafts_with_selected_trajectories(self, return_type='String'):
+        """
+        Getter method.
+
+        Returns the list of sc with at least one selected trajectory, in string or object format.
+        If the list isn't calculated, it computes it.
+        :rtype: list
+        """
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.get_spacecrafts_with_selected_trajectories')
+
+        # Return the list, or compute it if it wasn't defined.
+        if return_type == 'String':
+            try:
+                return self._spacecrafts_with_selected_trajectories
+            except NameError:
+                return self.compute_spacecrafts_with_selected_trajectories(p_return_type='String')
+        elif return_type == 'Object':
+            return self.compute_spacecrafts_with_selected_trajectories(p_return_type='Object')
 
     def get_time_of_flight_combos_selection(self):
         """
@@ -267,23 +397,33 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         self.combo_dept_arriv.setCurrentIndex(0)
         # self.combo_planet.setCurrentIndex(0)
 
-    def reset_filter_departure_dates_step2(self):
+    def reset_filter_departure_dates_left(self):
         """
         Disables the departure/arrival dates filter checkbox and resets all the fields to their default value.
         """
-        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.reset_filter_departure_dates_step2 (dep/arriv dates)')
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.reset_filter_departure_dates_step2 (left dep/arriv dates)')
 
         self.cb_dates_1.setChecked(False)
         self.spin_number.setValue(0)
         self.combo_time_scale.setCurrentIndex(0)
         self.combo_when.setCurrentIndex(0)
-        self.combo_select_spacecraft.setCurrentIndex(0)
+        self.combo_select_spacecraft.clear()
 
-    def reset_filter_departure_dates_step3(self):
+        # Weird way to uncheck all radio buttons.
+        self.radio_mission.setAutoExclusive(False)
+        self.radio_spacecraft.setAutoExclusive(False)
+
+        self.radio_mission.setChecked(False)
+        self.radio_spacecraft.setChecked(False)
+
+        self.radio_mission.setAutoExclusive(True)
+        self.radio_spacecraft.setAutoExclusive(True)
+
+    def reset_filter_departure_dates_right(self):
         """
         Disables the departure/arrival dates filter checkbox and resets all the fields to their default value.
         """
-        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.reset_filter_departure_dates_step3 (dep/arriv dates)')
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.reset_filter_departure_dates_step3 (right dep/arriv dates)')
 
         self.cb_dates_2.setChecked(False)
         self.combo_when_2.setCurrentIndex(0)
@@ -347,7 +487,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
     def which_cb_checked(self):
         """
-        Traverses the QDialog window to check which checkboxes are checked. It returns a list with the checked
+        Traverses the SonetPCPFilterQt window to check which checkboxes are checked. It returns a list with the checked
         checkboxes. If no checkbox is checked, it returns and empty list.
         :return: list
         """
@@ -362,21 +502,22 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
             if self.cb_time_of_flight.isChecked():
                 the_list.append('cb_time_of_flight')
             if self.cb_dep_arriv_dates.isChecked():
-                the_list.append('cb_dep_arriv_dates')
-                # if self.cb_dates_1.isChecked():
-                #     the_list.append('cb_dates_1')
-                # if self.cb_dates_2.isChecked():
-                #     the_list.append('cb_dates_2')
+                if self.cb_dates_1.isChecked():
+                    the_list.append('cb_dep_arriv_dates+1')
+                elif self.cb_dates_2.isChecked():
+                    the_list.append('cb_dep_arriv_dates+2')
+                else:
+                    the_list.append('cb_dep_arriv_dates+0')
+
 
         sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.which_cb_checked."Checked checkboxes: "' + str(the_list) + '"')
 
         return the_list
 
-    def changed_cmb_dept_arriv(self, index):
+    def changed_cmb_dept_arriv(self):
         """
         Slot executed when the combo_dept_arriv changes its state. Example, if the 'Departure' option is activated,
         then depending on the select_trip combo, the combo_planet will be setted to 'Earth' or 'Mars'.
-        :param index: int
         """
         trip = self.select_trip.currentText()
         combo = self.combo_dept_arriv.currentText()
@@ -391,49 +532,53 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         else:
             self.combo_planet.setCurrentIndex(1)
 
-    def changed_cmb_energy_parameter(self, index):
+    def changed_cmb_energy_parameter(self, ar_index):
         cmb_units = self.combo_energy_units
 
-        if index in [0, 1, 2]:
+        if ar_index in [0, 1, 2]:
             # km/s
             cmb_units.setCurrentIndex(0)
             return 0
-        elif index in [3, 4]:
+        elif ar_index in [3, 4]:
             # km2/s2
             cmb_units.setCurrentIndex(1)
             return 0
-        elif index in [5]:
+        elif ar_index in [5]:
             # º
             cmb_units.setCurrentIndex(2)
             return 0
         else:
-            print('Warning: cmb_energy_parameter_changed()')
+            sonet_log(SonetLogType.WARNING, 'SonetPCPFilterQt.changed_cmb_energy_parameter')
 
-    def changed_cmb_select_spacecraft(self, index):
+    def changed_cmb_select_spacecraft(self, ar_index):
         """
         Triggered when the select_spacecraft combo box index changes.
 
-        Updates the 'Select trip' combo box every time the 'Select SonetSpacecraft' changes.
-        Checks wether the SonetSpacecraft has only outgoing trip or both outgoing and incoming.
-        :param index:
-        :return:
+        Updates the 'Select trip' combo box every time the 'Select s/c' changes.
+        Checks whether the SonetSpacecraft has only outgoing trip or both outgoing and incoming.
         """
         sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.changed_cmb_select_spacecraft')
 
         # Retrieve the selected SonetSpacecraft.
-        selected_spacecraft = self.select_spacecraft.itemText(index)
+        selected_spacecraft = self.select_spacecraft.itemText(ar_index)
 
         # Get the SonetSpacecraft type.
-        if selected_spacecraft == 'Select spacecraft':
+        if selected_spacecraft == 'Select s/c':
             self.select_trip.clear()
             self.select_trip.addItems(['Select trip'])
             return True
         else:
             has_return_trajectory = database.db[selected_spacecraft].get_has_return_trajectory()
 
+            if not isinstance(has_return_trajectory, bool):
+                sonet_log(SonetLogType.ERROR,
+                          'SonetPCPFilterQt.changed_cmb_select_spacecraft.'
+                          '"S/C with a non bool member has_return_trajectory"')
+                return False
+
             self.select_trip.blockSignals(True)
 
-            if has_return_trajectory == True:
+            if has_return_trajectory is True:
                 items = ['Select trip', 'Earth - Mars', 'Mars - Earth']
                 self.select_trip.clear()
                 self.select_trip.addItems(items)
@@ -443,7 +588,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
                 current_tab = self.parent().sonet_pcp_tabs_qtw.currentIndex()
                 self.select_trip.setCurrentIndex(current_tab + 1)
 
-            elif has_return_trajectory == False:
+            else:
                 items = ['Select trip', 'Earth - Mars']
                 self.select_trip.clear()
                 self.select_trip.addItems(items)
@@ -452,13 +597,31 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
                 self.select_trip.setCurrentIndex(1)
 
-            else:
-                sonet_log(SonetLogType.ERROR, 'SonetPCPFilterQt.changed_cmb_select_spacecraft."S/C with a non bool member has_return_trajectory"')
-                return False
+            # Every time the selected s/c is changed, the  self._spacecrafts_with_selected_trajectories list should
+            # be updated, extracting the current selected s/c in case it is present in the list, as it makes no sense.
+            self.compute_spacecrafts_with_selected_trajectories(p_return_type='String')
 
             return True
 
-    def changed_cmb_select_trip(self, index):
+    def changed_combo_select_spacecraft(self):
+        """
+        Mehtod executed whenever the combo_select_spacecraft's index is changed.
+        """
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.changed_combo_select_spacecraft')
+
+        # Check which radio button is toggled (mission/spacecraft).
+        radio_btn_sel = self.which_radio_toggled()
+
+        if radio_btn_sel == 'Spacecraft':
+            selected_sc = self.combo_select_spacecraft.currentText()
+            self.fill_dates_combo_select_trip(selected_sc)
+        elif radio_btn_sel == 'Mission':
+            pass
+        else:
+            sonet_log(SonetLogType.INFO,
+                      'SonetPCPFilterQt.changed_combo_select_spacecraft."No s/c nor mission selected"')
+
+    def changed_cmb_select_trip(self):
         """
         Triggered when the select_trip combo box index changes.
 
@@ -482,7 +645,8 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
     def changed_cb_departure_dates_step1(self):
         """
-        Slot which enables or disables the departure/arrival dates group box top combos, depending on the checkbox state.
+        Slot which enables or disables the departure/arrival dates group box top combos,
+        depending on the checkbox state.
         """
         sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.changed_cb_departure_dates_step1')
 
@@ -503,10 +667,12 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         self.combo_dept_arriv.setCurrentIndex(0)
         self.combo_dept_arriv.setCurrentIndex(1)
         self.combo_dept_arriv.setCurrentIndex(0)
-        # TODO - Arreglar esta mierda.
 
     def changed_cb_departure_dates_step2(self):
-        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.changed_cb_departure_dates_step2')
+        """
+        Method executed whenever the check box cb_dates_1 is toggled.
+        """
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.changed_cb_departure_dates_step2 (left dep/arriv dates)')
 
         enable = self.cb_dates_1.isChecked()
 
@@ -515,6 +681,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         self.radio_mission.setEnabled(enable)
         self.radio_spacecraft.setEnabled(enable)
         self.combo_select_spacecraft.setEnabled(enable)
+        self.combo_select_trip.setEnabled(enable)
         self.combo_event.setEnabled(enable)
 
         # Only allow one checkbox checked at a time (cb_dates1 and cb_dates2)
@@ -522,7 +689,11 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
             self.cb_dates_2.setEnabled(not enable)
 
     def changed_cb_departure_dates_step3(self):
-        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.changed_cb_departure_dates_step3')
+        """
+        Method executed whenever the check box cb_dates_2 is toggled.
+        """
+
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.changed_cb_departure_dates_step3 (right dep/arriv dates)')
 
         enable = self.cb_dates_2.isChecked()
 
@@ -567,7 +738,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         # Traverse them and update their filters.
         for spc in spacecrafts_list:
             the_spacecraft = database.get_spacecraft(spc)
-            the_spacecraft.set_filter(self._dict_filters_current.get(spc), dataframe=True)
+            the_spacecraft.set_filter(self._dict_filters_current.get(spc), p_dataframe=True)
 
     def clicked_pb_cancel(self):
         sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.clicked_pb_cancel')
@@ -575,7 +746,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
     def clicked_pb_add(self):
         """
-        Travers the applied filters, gets their data, and add it to the spacecraft state.
+        Travers the applied filters, gets their data, and add it to the spacecraft private members.
         """
         sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.clicked_pb_add')
 
@@ -583,36 +754,34 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
         if not list_checked_cb:
             sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.clicked_pb_add."No checkbox is enabled"')
+            self.status_bar.showMessage('No check box enabled')
             return False
         else:
-            # The switcher implementation is an efficient alternative to multiple if statements, as it
-            # only checks one time each variable. E.g. it can be seen as a sort of switch-case clause, from c++.
-
+            # Python's switch-case.
             switcher = \
                 {
-                    'cb_energy': self.get_energy_combos_selection(),
-                    'cb_time_of_flight': self.get_time_of_flight_combos_selection(),
-                    'cb_dep_arriv_dates': self.get_dep_arriv_dates_combos_selection()
+                    'cb_energy': self.get_energy_combos_selection,
+                    'cb_time_of_flight': self.get_time_of_flight_combos_selection,
+                    'cb_dep_arriv_dates+0': 'Invalid selection',
+                    'cb_dep_arriv_dates+1': self.get_dep_arriv_dates_combos_selection,
+                    'cb_dep_arriv_dates+2': self.get_dep_arriv_dates_combos_selection
                 }
 
-            # Check: if the checkbox 'cb_dep_arriv_dates' is checked, then also 'cb_dates_1' or 'cb_dates_2' should be
-            # also checked, if not, the entire selection will be discarded, and asked the user to fix the selection.
-            c1 = 'cb_dep_arriv_dates' in list_checked_cb
-            c2 = self.cb_dates_1.isChecked()
-            c3 = self.cb_dates_2.isChecked()
-            if c1 and not (c2 or c3):
-                popup_msg(window_title='Wrong filters selection',
-                          icon=QMessageBox.Information,
-                          text='Wrong filters selection!',
-                          info_text='If the departure/arrival dates filter is checked, then one of the two below'
-                                    ' options should be also selected. Please, do a valid filters selection.')
+            # Check 1 - If the checkbox 'cb_dep_arriv_dates' is checked,
+            # then also 'cb_dates_1' or 'cb_dates_2' should be also checked.
+            if not self.dates_combos_check1():
                 return False
+
+            # Check 2 - If complex dates filter activated, depending on the radio btn selected,
+            # all relevant combos should have valid selection.
+            if 'cb_dep_arriv_dates+1' in list_checked_cb:
+                if not self.dates_combos_check2():
+                    return False
 
             # Get the spacecraft's filter.
             spc, trip = self.get_current_selection()
-            the_spacecraft = database.get_spacecraft(spc)
-            has_return_trajectory = the_spacecraft.get_has_return_trajectory()
-            the_filter_data = self._dict_filters_current.get(spc)
+            the_sc = database.get_spacecraft(spc)
+            has_return_trajectory = the_sc.get_has_return_trajectory()
 
             # the_filter_data can be a dataframe or a list of them.
             # If has_return_trajectory is true, then I should get the dataframe from a list (because a spacecraft with
@@ -621,11 +790,15 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
             for cb in list_checked_cb:
                 # Get the combos selection, to be added to the spacecraft's filter.
                 the_new_row = \
-                    switcher.get(cb, 'Error in SonetPCPFilterQt.clicked_pb_add: argument not present in switcher')
+                    switcher.get(cb, 'Not found')()
+
+                if the_new_row == 'Not found':
+                    sonet_log(SonetLogType.ERROR, 'SonetPCPFilterQt.clicked_pb_add."Argument not present in switcher"')
+                    return False
 
                 # Add it as a new row into the selected spacecraft and trip dataframe.
                 # Note: it's not efficient to use append every time you add a row to a dataframe, but it's not a problem
-                # as our filters dataframes are really small.
+                # for our particular case.
                 if has_return_trajectory:
                     self._dict_filters_current[spc][TripType.get_index(trip)] = \
                         self._dict_filters_current[spc][TripType.get_index(trip)].append(
@@ -676,8 +849,8 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
             return True
 
         except KeyError:
-            # Sometimes (not deterministically), when the user does a weird selection, KeyError is raised, in those cases, then just do nothing
-            # and return False, to show that sth went wrong.
+            # Sometimes (not deterministically), when the user does a weird selection, KeyError is raised.
+            # In those cases, then just do nothing and return False, to show that sth went wrong.
             sonet_log(SonetLogType.WARNING, 'SonetPCPFilterQt.clicked_pb_delete."KeyError exception raised"')
             return False
 
@@ -711,13 +884,107 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         self.update_table_model()
 
     def clicked_pb_reset(self):
+        """
+        Restores the widgets to their original values.
+        """
         sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.clicked_pb_reset')
 
         self.reset_filter_energy()
         self.reset_filter_time_of_flight()
         self.reset_filter_departure_dates_step1()
-        self.reset_filter_departure_dates_step2()
-        self.reset_filter_departure_dates_step3()
+        self.reset_filter_departure_dates_left()
+        self.reset_filter_departure_dates_right()
+
+    def clicked_radio_mission(self):
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.clicked_radio_mission')
+
+        # Fill combo_select_spacecraft.
+        self.fill_dates_combo_select_spacecraft(p_config_for='Missions')
+
+        # Fill combo_event.
+        self.fill_dates_combo_event(p_config_for='Missions')
+
+    def clicked_radio_spacecraft(self):
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.clicked_radio_spacecraft')
+
+        # Fill combo_select_spacecraft.
+        self.fill_dates_combo_select_spacecraft(p_config_for='Spacecrafts')
+
+        # Fill combo_event.
+        self.fill_dates_combo_event(p_config_for='Spacecrafts')
+
+    def fill_dates_combo_event(self, p_config_for='Spacecrafts'):
+        """
+        Fills the combo_event with the relevant items, depending on the passed p_config_for parameter.
+            p_config_for='[Spacecrafts'|'Missions'].
+        """
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.fill_dates_combo_event."(' + p_config_for + ')"')
+
+        self.combo_event.clear()
+
+        items = []
+        if p_config_for == 'Spacecrafts':
+            items = ['Launching', 'Landing']
+        if p_config_for == 'Missions':
+            pass
+
+        self.combo_event.addItems(items)
+
+    def fill_dates_combo_select_spacecraft(self, p_config_for='Spacecrafts'):
+        """
+        Fills the combo_select_spacecraft with the available missions or s/c's,
+        depending on the passed p_config_for parameter.
+            p_config_for='Spacecrafts' for filling the combo with s/c's.
+            p_config_for='Missions' for filling the combo with missions.
+        """
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.fill_dates_combo_select_spacecraft."(' + p_config_for + ')"')
+
+        self.combo_select_spacecraft.clear()
+        self.combo_select_trip.clear()
+
+        if p_config_for == 'Spacecrafts':
+            # Fill the combo with the available s/c with at least one trajectory selected in the main window.
+            items = ['Select s/c']
+            items.extend(self.get_spacecrafts_with_selected_trajectories(return_type='String'))
+            self.combo_select_spacecraft.addItems(items)
+
+        if p_config_for == 'Missions':
+            pass
+
+    def fill_dates_combo_select_trip(self, ar_the_sc: str):
+        """
+        Fills the combo_select_trip with the available trips (the ones with a trajectory selected)
+        for a given ar_the_sc spacecraft.
+        """
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.fill_dates_combo_select_trip')
+
+        if ar_the_sc in ['Select s/c', '']:
+            self.combo_select_trip.clear()
+            return
+
+        # Get the s/c.
+        sc = database.get_spacecraft(ar_the_sc)
+
+        # Get their available trips (the ones with a trajectory selected).
+        items = sc.get_trajectory_selected()
+
+        # Fill the combo.
+        self.combo_select_trip.clear()
+        self.combo_select_trip.addItems(items)
+
+    def which_radio_toggled(self):
+        """
+        Returns:
+            'Mission' if radio_mission is toggled.
+            'Spacecraft' if radio_spacecraft is toggled.
+            None object if none of them is toggled.
+        """
+        if self.radio_mission.isChecked():
+            return 'Mission'
+        elif self.radio_spacecraft.isChecked():
+            return 'Spacecraft'
+        else:
+            return None
 
 
 class SonetAppliedFiltersTableModel(QAbstractTableModel):
@@ -775,14 +1042,14 @@ class SonetAppliedFiltersTableModel(QAbstractTableModel):
             pass
             # Pair rows will have different color, to visually distinguish them from the even ones.
             # if row % 2 is not 0:
-                # return QColor(255, 230, 255)
+            # return QColor(255, 230, 255)
             # Very light blue 230, 242, 255
             # Very light purple 240, 240, 245
             # Very light pink 255, 230, 255
 
         return None
 
-    def headerData (self, section, orientation, role):
+    def headerData(self, section, orientation, role):
         if role == Qt.DisplayRole:
             if orientation == Qt.Horizontal:
                 return str(self._data.columns[section])
@@ -790,7 +1057,7 @@ class SonetAppliedFiltersTableModel(QAbstractTableModel):
                 return str(self._data.index[section])
         return None
 
-    def update_model(self, a_dict_filters_current, a_spc_selection, a_trip_selection):
+    def update_model(self, ar_dict_filters_current, ar_spc_selection, ar_trip_selection):
         """
         Reset the table model.
         index == 1 -> Earth - Mars trip
@@ -799,22 +1066,22 @@ class SonetAppliedFiltersTableModel(QAbstractTableModel):
         sonet_log(SonetLogType.INFO, 'SonetAppliedFiltersTableModel.update_model')
 
         # If no valid selection, then we just reset the table model.
-        if a_spc_selection not in list(a_dict_filters_current.keys()) or not TripType.is_valid(
-                TripType.convert_to_enum(a_trip_selection)):
+        if ar_spc_selection not in list(ar_dict_filters_current.keys()) or not TripType.is_valid(
+                TripType.convert_to_enum(ar_trip_selection)):
             self.beginResetModel()
             self._data = pd.DataFrame(columns=['Status', 'Type', 'Filter'])
             self.endResetModel()
             return False
 
         # Get the filter
-        the_filter_data = a_dict_filters_current[a_spc_selection]  # a dataframe or list of them.
-        has_return_trajectory = database.get_spacecraft(a_spc_selection).get_has_return_trajectory()
+        the_filter_data = ar_dict_filters_current[ar_spc_selection]  # a dataframe or list of them.
+        has_return_trajectory = database.get_spacecraft(ar_spc_selection).get_has_return_trajectory()
         if has_return_trajectory:
             # the_filter_data is not a dataframe, but a list of them, with both the outgoing and incoming
             # trip filter dataframe.
-            if a_trip_selection == 'Earth - Mars':
+            if ar_trip_selection == 'Earth - Mars':
                 the_filter_data = the_filter_data[0]
-            elif a_trip_selection == 'Mars - Earth':
+            elif ar_trip_selection == 'Mars - Earth':
                 the_filter_data = the_filter_data[1]
             else:
                 sonet_log(SonetLogType.ERROR, 'SonetAppliedFiltersTableModel.update_model')

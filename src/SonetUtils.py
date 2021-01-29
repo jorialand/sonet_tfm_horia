@@ -196,8 +196,10 @@ def sonet_log(a_log_type, a_log_msg):
 
 
 # Global debug verbose level for the application.
-SONET_DEBUG_LEVEL = SonetDebugLevel.ONLY_ERRORS
+SONET_DEBUG_LEVEL = SonetDebugLevel.FULL_VERBOSE
 
+# Global main window's status bar messages duration, in milliseconds.
+SONET_MSG_TIMEOUT = 2500
 
 if __name__ == "__main__":
     d = {'key1': 'value1', 'key2': 'value1'}

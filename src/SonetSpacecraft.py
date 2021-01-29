@@ -1,8 +1,9 @@
 import pandas as pd
+from pandas import DataFrame
 # from overloading import overload
 
 from src.SonetTrajectoryFilter import SonetTrajectoryFilter
-from src.SonetUtils import SpacecraftType, TripType, sonet_log, SonetLogType
+from src.SonetUtils import SpacecraftType, TripType, sonet_log, SonetLogType, SONET_MSG_TIMEOUT
 
 
 class SonetSpacecraft:
@@ -24,10 +25,11 @@ class SonetSpacecraft:
      - Modify the filter's internal dataframe using the SonetTrajectoryFilter's set_data method.
      -  Get a filtered porkchop plot table with SonetTrajectoryFilter's get_filtered_pcp method.
     """
-    def __init__(self, a_spacecraft_name=None, a_spacecraft_type_crew=None, a_spacecraft_type_return=None):
+    def __init__(self, a_spacecraft_name=None, a_spacecraft_type_crew=None, a_spacecraft_type_return=None, ap_main_window=None):
         sonet_log(SonetLogType.INFO, 'SonetSpacecraft.__init__')
 
         # Instance members
+        self._p_main_window = ap_main_window
         self._spacecraft_type = None
         self._has_return_trajectory = None
 
@@ -37,15 +39,15 @@ class SonetSpacecraft:
         self.set_filters()
 
     # Public methods
-    def get_filter(self, a_trip_type=None):
+    def get_filter(self, ar_trip_type=None):
         """
-        Getter method, overload with a more specific functionality. It returns a concrete SonetTrajectoryFilter, based
+        Getter method. It returns a concrete SonetTrajectoryFilter, based
         on the input a_trip_type.
-        :param a_trip_type: TripType enum.
-        :return: SonetTrajectoryFilter.
+        :param ar_trip_type: TripType enum.
+        :rtype: SonetTrajectoryFilter
         """
         # If no trip type specified, return all the filters.
-        if a_trip_type is None:
+        if ar_trip_type is None:
             try:
                 return self._pcp_filter
             except AttributeError:
@@ -58,23 +60,23 @@ class SonetSpacecraft:
             sonet_log(SonetLogType.ERROR, 'SonetSpacecraft.get_filter."Bad constructed S/C"')
             return False  # _has_return_trajectory should be bool, if not, there's some error.
 
-        if not isinstance(a_trip_type, TripType):
+        if not isinstance(ar_trip_type, TripType):
             sonet_log(SonetLogType.ERROR, 'SonetSpacecraft.get_filter."Wrong TripType"')
             return False
 
         if self._has_return_trajectory:
-            if a_trip_type is TripType.OUTGOING:
+            if ar_trip_type is TripType.OUTGOING:
                 return self._pcp_filter1
-            elif a_trip_type is TripType.INCOMING:
+            elif ar_trip_type is TripType.INCOMING:
                 return self._pcp_filter2
         else:
-            if a_trip_type is TripType.OUTGOING:
+            if ar_trip_type is TripType.OUTGOING:
                 return self._pcp_filter
-            elif a_trip_type is TripType.INCOMING:
+            elif ar_trip_type is TripType.INCOMING:
                 sonet_log(SonetLogType.ERROR, 'SonetSpacecraft.get_filter."Asked for incoming filter to an one-way S/C"')
                 return False
 
-    def get_filter_data(self, get_dataframe_copy=False):
+    def get_filter_data(self, p_get_dataframe_copy=False):
         """
         Getter method.
         It's not the same to return a dataframe and a dataframe.copy(). get_dataframe_copy controls if we are getting
@@ -83,8 +85,10 @@ class SonetSpacecraft:
          to affect to the original dataframe.
          - If I return a dataframe copy, I am returning a new dataframe, so all modifications are not going to affect to
          the original dataframe.
-         :param get_dataframe_copy: bool representing if we want original dataframes or copies.
+         :param p_get_dataframe_copy: bool representing if we want original dataframes or copies.
         :return: a pandas dataframe or a list of them.
+        :rtype: DataFrame
+        :rtype: list
         """
         # Type check.
         if not isinstance(self._has_return_trajectory, bool):
@@ -93,13 +97,13 @@ class SonetSpacecraft:
 
         if self._has_return_trajectory:
             # If there are both outgoing and incoming trajectories, we return a list with both filter's dataframes.
-            if get_dataframe_copy:
+            if p_get_dataframe_copy:
                 return [self._pcp_filter1.get_data().copy(), self._pcp_filter2.get_data().copy()]
             else:
                 return [self._pcp_filter1.get_data(), self._pcp_filter2.get_data()]
         else:
             # In case the spacecraft has no return trajectory, we just get the filter dataframe of the outgoing one.
-            if get_dataframe_copy:
+            if p_get_dataframe_copy:
                 return self._pcp_filter.get_data().copy()
             else:
                 return self._pcp_filter.get_data()
@@ -111,6 +115,14 @@ class SonetSpacecraft:
         None, which is considered a boolean False.
         """
         return self._has_return_trajectory
+
+    def get_spacecraft_name(self):
+        """
+        Getter method.
+
+        :rtype: str
+        """
+        return self._spacecraft_name
 
     def get_spacecraft_type(self):
         """
@@ -125,7 +137,7 @@ class SonetSpacecraft:
         Getter method.
         Returns the current trajectory selection status:
         0 if no trajectory is selected.
-        0.5 if 1 out of 2 trajectories are selected.
+        0.5 if 1 out of 2 trajectories are selected (for two-way spacecrafts).
         1 if all the trajectories are selected.
         :return: 0, 0.5, or 1.
         """
@@ -143,6 +155,7 @@ class SonetSpacecraft:
             else:
                 sonet_log(SonetLogType.ERROR,
                           'SonetSpacecraft.get_trajectory_selection_status."Wrong trajectory type"')
+                return
 
         else:
             # One-way s/c.
@@ -153,8 +166,31 @@ class SonetSpacecraft:
             else:
                 sonet_log(SonetLogType.ERROR,
                           'SonetSpacecraft.get_trajectory_selection_status."Wrong trajectory type"')
+                return
 
-    def set_filter(self, a_the_filter, dataframe=False):
+    def get_trajectory_selected(self):
+        """
+        Returns a list with the current selected trajectories.
+
+        :rtype: list
+        """
+        sonet_log(SonetLogType.INFO, 'SonetSpacecraft.get_trajectory_selected')
+
+        the_selected_trajectories = []
+
+        if self._has_return_trajectory:
+            # Two-way s/c.
+            if self._trajectory1 is not None:
+                the_selected_trajectories.append('Earth - Mars')
+            if self._trajectory2 is not None:
+                the_selected_trajectories.append('Mars - Earth')
+        else:
+            # One-way s/c.
+            if self._trajectory is not None:
+                the_selected_trajectories.append('Earth - Mars')
+
+        return the_selected_trajectories
+    def set_filter(self, a_the_filter, p_dataframe=False):
         """
         Setter method.
         Sets the argument filter as current SonetSpacecraft's filter. If the input is a list of filters, then the
@@ -162,7 +198,9 @@ class SonetSpacecraft:
         has only one filter.
         :return: bool true if everything was ok, false otherwise.
         """
-        if dataframe is True:
+        sonet_log(SonetLogType.INFO, 'SonetSpacecraft.set_filter')
+
+        if p_dataframe is True:
             if isinstance(a_the_filter, list):
                 self._pcp_filter1.set_data(a_the_filter[0].copy())
                 self._pcp_filter2.set_data(a_the_filter[1].copy())
@@ -181,6 +219,8 @@ class SonetSpacecraft:
         TODO: Bad practice - defining instance attributes outside the class constructor.
         :return: True if everything was ok, false otherwise.
         """
+        sonet_log(SonetLogType.INFO, 'SonetSpacecraft.set_filters')
+
         has_return_trajectory = self._has_return_trajectory
 
         # Type check.
@@ -229,7 +269,7 @@ class SonetSpacecraft:
         :param a_spacecraft_name: a string.
         :return: True if everything was ok, false otherwise.
         """
-        pass
+        self._spacecraft_name = a_spacecraft_name
 
     def set_spacecraft_type(self, a_spacecraft_type=None):
         """
@@ -261,10 +301,12 @@ class SonetSpacecraft:
         # Check.
         if not (isinstance(a_trajectory, pd.Series) or isinstance(a_trajectory, list)):
             if a_trajectory is None:
-                sonet_log(SonetLogType.INFO, 'SonetSpacecraft.set_trajectory."None trajectory"')
+                sonet_log(SonetLogType.INFO, 'SonetSpacecraft.set_trajectory."No trajectory selected"')
+                self._p_main_window.statusbar.showMessage('No trajectory selected.', SONET_MSG_TIMEOUT)
                 return
             else:
                 sonet_log(SonetLogType.ERROR, 'SonetSpacecraft.set_trajectory."Wrong trajectory type"')
+                self._p_main_window.statusbar.showMessage('UUups. Internal error, check debug log.')
                 return False
 
         if self._has_return_trajectory:

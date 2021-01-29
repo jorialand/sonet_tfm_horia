@@ -56,6 +56,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="sonet_add_mission_qpb">
+         <property name="toolTip">
+          <string>Create new mission</string>
+         </property>
          <property name="text">
           <string>Add mission (pending implementation)</string>
          </property>
@@ -67,7 +70,7 @@
           <string>Enter new s/c name</string>
          </property>
          <property name="statusTip">
-          <string>s/c name</string>
+          <string/>
          </property>
          <property name="placeholderText">
           <string>Enter new s/c name</string>
@@ -76,6 +79,9 @@
        </item>
        <item>
         <widget class="QComboBox" name="sonet_spacecraft_type_qcmb">
+         <property name="toolTip">
+          <string>Select payload</string>
+         </property>
          <item>
           <property name="text">
            <string>Crewed</string>
@@ -90,6 +96,9 @@
        </item>
        <item>
         <widget class="QComboBox" name="sonet_spacecraft_type_has_return_trajectory_qcmb">
+         <property name="toolTip">
+          <string>Select type of trip</string>
+         </property>
          <item>
           <property name="text">
            <string>One way</string>
@@ -104,8 +113,11 @@
        </item>
        <item>
         <widget class="QPushButton" name="sonet_add_spacecraft_qpb">
+         <property name="toolTip">
+          <string>Create new s/c</string>
+         </property>
          <property name="text">
-          <string>Add spacecraft</string>
+          <string>Add s/c</string>
          </property>
         </widget>
        </item>
@@ -118,6 +130,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="sonet_remove_mission_qpb">
+         <property name="toolTip">
+          <string>Remove mission</string>
+         </property>
          <property name="text">
           <string>Remove mission (pending implementation)</string>
          </property>
@@ -125,8 +140,11 @@
        </item>
        <item>
         <widget class="QPushButton" name="sonet_remove_spacecraft_qpb">
+         <property name="toolTip">
+          <string>Remove s/c</string>
+         </property>
          <property name="text">
-          <string>Remove spacecraft</string>
+          <string>Remove s/c</string>
          </property>
         </widget>
        </item>
@@ -139,6 +157,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="sonet_pcp_filter_qpb">
+         <property name="toolTip">
+          <string>Apply filter</string>
+         </property>
          <property name="text">
           <string>Apply filter</string>
          </property>
@@ -146,6 +167,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="sonet_select_trajectory_qpb">
+         <property name="toolTip">
+          <string>Select trajectory</string>
+         </property>
          <property name="text">
           <string>Select trajectory</string>
          </property>

@@ -7,6 +7,7 @@ when closing the program)-
 import pandas as pd
 from numpy import pi
 # from PySide2.QtCore import QDate
+from src.SonetSpacecraft import SonetSpacecraft
 from src.SonetUtils import SONET_DEBUG_LEVEL, TripType, SonetLogType, sonet_log
 
 def get_pcp_table(a_trip_type):
@@ -29,9 +30,9 @@ def get_pcp_table(a_trip_type):
 def get_spacecraft(a_spacecraft):
     """
     Getter function.
----
+
     :param a_spacecraft: string
-    :return: SonetSpacecraft.
+    :rtype: SonetSpacecraft
     """
     return db[a_spacecraft]
 
