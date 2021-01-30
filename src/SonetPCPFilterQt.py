@@ -727,8 +727,9 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
     def clicked_pb_accept(self):
         """
-        Slot executed when clicked on 'Accept' button. It retrieves and stores all applied filters for all
-        the spacecrafts.
+        When clicked the 'Accept' btn, we retrieve and store the filters for each s/c. Only the ones modified are
+        stored, so the s/c's with unmodified filters won't suffer any change.
+        Each time a filter is modified, the affected s/c resets its selected trajectory/ies.
         """
         sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.clicked_pb_accept')
 

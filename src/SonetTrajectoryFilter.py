@@ -3,12 +3,13 @@ import pandas as pd
 from PySide2.QtCore import QDate
 
 from src import database
+# from src.SonetSpacecraft import SonetSpacecraft
 from src.SonetUtils import TripType, sonet_log, SonetLogType
 
 
 class SonetTrajectoryFilter:
     """
-        This class purpose is to host the set of conditions (aka filter) to be applied to SonetSpacecraft's trajectories.
+        This class purpose is to host the set of conditions (aka filter) to be applied to SonetSpacecraft trajectories.
         Each SonetSpacecraft will have at least one SonetTrajectoryFilter object, which will implement the filtering
         functionality.
 
@@ -22,12 +23,17 @@ class SonetTrajectoryFilter:
         The type column, holds the type of the filter, indicating which porkchop plot variable is affecting.
         The filter column, holds the filter, as a Python list of strings.
     """
-    def __init__(self, a_trip_type=TripType.NA):
+    def __init__(self, a_parent, a_trip_type=TripType.NA):
+        """
+        :param a_parent: pointer to the parent, a s/c to which pertains this filter.
+        :param a_trip_type: the type of trip to which apply this filter, OUTGOING|INCOMING.
+        """
         self._data = pd.DataFrame(columns=['Status', 'Type', 'Filter'])
 
         if not TripType.is_valid(a_trip_type):
             sonet_log(SonetLogType.ERROR, 'SonetTrajectoryFilter.__init__."Wrong TripType passed as argument"')
 
+        self._p_the_spacecraft = a_parent
         self._trip_type = a_trip_type
 
     # Public methods
@@ -77,7 +83,8 @@ class SonetTrajectoryFilter:
 
         # Check, if empty query string, return the pcp DataFrame with no filter.
         if not query_string:
-            return self.convert_pcp_table_to_human_format(the_pcp_table.copy()) # hex(id(variable_here)) to see variable address.
+            return self.convert_pcp_table_to_human_format(the_pcp_table.copy())
+            # hex(id(variable_here)) to see variable address.
         else:
             try:
                 # Return the filtered porkchop plot.
@@ -94,21 +101,35 @@ class SonetTrajectoryFilter:
         """
         return self._trip_type
 
-    def set_data(self, a_data):
+    def set_data(self, a_data: pd.DataFrame) -> bool:
         """
         Setter method.
-        :param a_data: a dataframe
+
+        :param a_data: the filter to be applied.
         """
+
+        sonet_log(SonetLogType.INFO, 'SonetTrajectoryFilter.set_data')
+
         # Check that input is a pandas DataFrame.
         if not isinstance(a_data, pd.DataFrame):
+            sonet_log(SonetLogType.ERROR, 'SonetTrajectoryFilter.set_data."Wrong input type"')
             return False
 
         # Check columns.
         if not list(a_data.columns) == ['Status', 'Type', 'Filter']:
+            sonet_log(SonetLogType.ERROR, 'SonetTrajectoryFilter.set_data."Wrong filter columns"')
             return False
 
-        self._data = a_data.copy()
-        return True
+        # If the filter is the same, do not apply it.
+        if a_data.equals(self._data):
+            return True
+        else:
+            # If not, set the new filter
+            self._data = a_data.copy()
+
+            # And reset the current selected trajectories for the s/c.
+            self._p_the_spacecraft.reset_trajectory()
+            return True
 
     def set_trip_type(self, a_trip_type):
         """
@@ -165,7 +186,8 @@ class SonetTrajectoryFilter:
         """
         # TODO: Warning! if-else labyrinth following... Not efficient but not needed at this stage.
         action = a_filter[0]
-        planet = a_filter[1]  # No importa, the calling function knows if the spc is departing/arriving to/from Earth/Mars.
+        planet = a_filter[1]
+        # No importa, the calling function knows if the spc is departing/arriving to/from Earth/Mars.
         operator = a_filter[2]
         date = a_filter[3]
 
@@ -193,14 +215,8 @@ class SonetTrajectoryFilter:
 
     @staticmethod
     def convert_pcp_table_to_human_format(a_pcp_table):
-        # Check that input is a dataframe.
-        # Check that input has right format.
-        # TODO: Convert all the dataframe dates rows each time it is called will
-        #  slow down the code... performance issue :(.
-        #if isinstance(a_pcp_table.iloc[0].DepDates) == QDate:
-        #    stop = True
         # Convert DepDates & ArrivDates from JD to Gregorian calendar.
-        a_pcp_table['DepDates'] = (a_pcp_table.DepDates).apply(QDate.fromJulianDay)
-        a_pcp_table['ArrivDates'] = (a_pcp_table.ArrivDates).apply(QDate.fromJulianDay)
+        a_pcp_table['DepDates'] = a_pcp_table.DepDates.apply(QDate.fromJulianDay)
+        a_pcp_table['ArrivDates'] = a_pcp_table.ArrivDates.apply(QDate.fromJulianDay)
 
         return a_pcp_table

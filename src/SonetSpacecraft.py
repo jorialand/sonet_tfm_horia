@@ -190,13 +190,27 @@ class SonetSpacecraft:
                 the_selected_trajectories.append('Earth - Mars')
 
         return the_selected_trajectories
-    def set_filter(self, a_the_filter, p_dataframe=False):
+
+    def reset_trajectory(self):
+        """
+        Resets the current selected trajectories. Used when a s/c filter changes and the already selected trajectories
+        are no longer valid.
+        """
+        if self._has_return_trajectory:
+            self._trajectory1 = None
+            self._trajectory2 = None
+        else:
+            self._trajectory = None
+
+    def set_filter(self, a_the_filter: SonetTrajectoryFilter, p_dataframe=False):
         """
         Setter method.
-        Sets the argument filter as current SonetSpacecraft's filter. If the input is a list of filters, then the
-        spacecraft has outgoing and return trajectories and has two filters, otherwise only has outgoing trajectory and
-        has only one filter.
-        :return: bool true if everything was ok, false otherwise.
+        Sets the argument a_the_filter as current SonetSpacecraft's filter. If the passed a_the_filter is
+        a list of filters, then the spacecraft has outgoing and return trajectories and has two filters,
+        otherwise it only has outgoing trajectory and thus only one filter.
+
+        :param a_the_filter: the pcp filter
+        :param p_dataframe: flag indicating if the argument a_the_filter is a dataframe or a SonetTrajectoryFilter
         """
         sonet_log(SonetLogType.INFO, 'SonetSpacecraft.set_filter')
 
@@ -229,14 +243,14 @@ class SonetSpacecraft:
 
         if has_return_trajectory:
             # Two way trip.
-            self._pcp_filter1 = SonetTrajectoryFilter(TripType.OUTGOING)
-            self._pcp_filter2 = SonetTrajectoryFilter(TripType.INCOMING)
+            self._pcp_filter1 = SonetTrajectoryFilter(self, TripType.OUTGOING)
+            self._pcp_filter2 = SonetTrajectoryFilter(self, TripType.INCOMING)
 
             self._trajectory1 = None
             self._trajectory2 = None
         else:
             # One way trip.
-            self._pcp_filter = SonetTrajectoryFilter(TripType.OUTGOING)
+            self._pcp_filter = SonetTrajectoryFilter(self, TripType.OUTGOING)
 
             self._trajectory = None
 
@@ -294,9 +308,11 @@ class SonetSpacecraft:
     def set_trajectory(self, a_trajectory=None, a_is_incoming_trajectory=False):
         """
         Setter method.
-        Sets the trajectories fields for a given s/c, the a_outgoing_trajectory paramenter controls whether
+        Sets the trajectories fields for a given s/c, the a_is_incoming_trajectory paramenter controls whether
         we are setting the outgoing or incoming trajectory, in case the s/c has both. It's a bit weird but...
-        :param a_trajectory: Pandas Series representing a dataframe row
+
+        :param a_is_incoming_trajectory: flag to control which trajectory are we setting.
+        :param a_trajectory: Pandas Series representing a pcp row.
         """
         # Check.
         if not (isinstance(a_trajectory, pd.Series) or isinstance(a_trajectory, list)):

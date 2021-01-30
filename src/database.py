@@ -39,9 +39,10 @@ def get_spacecraft(a_spacecraft):
 def get_spacecrafts_list():
     """
     Getter function.
-    - Returns the list of spacecrafts within the database.
+    Returns the list of spacecrafts within the database.
 
     :return: list of spacecrafts.
+    :rtype: list
     """
     return list(db.keys())
 
