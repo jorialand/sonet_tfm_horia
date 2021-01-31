@@ -29,11 +29,13 @@ from src.SonetUtils import TripType, SonetLogType, sonet_log, popup_msg, SONET_M
 
 # TODO When user selects one item, all row should be selected instead.
 
+
 def get_main_window():
     """
     Getter method.
     """
     return main_window
+
 
 def force_table_view_update():
     """
@@ -42,9 +44,33 @@ def force_table_view_update():
     index = get_main_window().sonet_pcp_tabs_qtw.currentIndex()
     get_main_window().sonet_pcp_tabs_qtw.currentChanged.emit(index)
 
+
+def get_current_sc() -> SonetSpacecraft:
+    """
+    Get the current selected s/c in the main window's list. Returns None object if no selection
+    is made or if the list is empty.
+
+    @return:
+    """
+    # Get some stuff.
+    qlv_row = main_window.sonet_mission_tree_qlv.currentIndex().row()
+    the_sc_list = database.get_spacecrafts_list()
+
+    # If there is at least a s/c.
+    if the_sc_list:
+        # If a s/c is selected.
+        if qlv_row != -1:
+            the_sc = the_sc_list[qlv_row]
+            return database.get_spacecraft(the_sc)
+        else:
+            return None
+    else:
+        return None
+
+
 class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
     """
-    SonetMainWindow class, representing the main application window.
+    The main application window (QMainWindow).
     """
 
     def __init__(self, *args, **kwargs):
@@ -95,37 +121,43 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
     def get_selected_trajectory(self):
         """
         Getter method.
-        Returns the selected trajectory, as pandas Seriesin the current tab pcp table.
-        :rtype: Series
+        You get:
+            - The selected trajectory in the current tab pcp table, as a pandas Series.
+            - Its position in the pcp table (index).
+            - A flag indicating if it's a outgoing/incoming trajectory
+        @return: (Series, QModelIndex, bool)
         """
         sonet_log(SonetLogType.INFO, 'SonetMainWindow.get_selected_trajectory')
 
         tab_index = main_window.sonet_pcp_tabs_qtw.currentIndex()
 
         if tab_index is 0:
-            the_row = self.sonet_pcp_table_qtv_outgoing.selectionModel().currentIndex().row()
+            the_index = self.sonet_pcp_table_qtv_outgoing.selectionModel().currentIndex()
+            the_row = the_index.row()
             the_df = self._table_model_outgoing._data
+            is_incoming_trajectory = False
         elif tab_index is 1:
-            the_row = self.sonet_pcp_table_qtv_incoming.selectionModel().currentIndex().row()
+            the_index = self.sonet_pcp_table_qtv_incoming.selectionModel().currentIndex()
+            the_row = the_index.row()
             the_df = self._table_model_incoming._data
+            is_incoming_trajectory = True
+        else:
+            return None, None, None
 
         if the_row == -1:
             sonet_log(SonetLogType.INFO, 'SonetMainWindow.get_selected_trajectory."No row selected"')
-            return None, None
+            return None, None, None
 
-        if tab_index is 0:
-            is_incoming_trajectory = False
-        elif tab_index is 1:
-            is_incoming_trajectory = True
         # The try-catch is because if the returned dataframe the_df is empty, and you try to access a
-        # position in it (i.e. the_df.iloc[2]), you get an IndexError exception.
+        # position in it, you get an IndexError exception.
         try:
+            result: pd.Series
             result = the_df.iloc[the_row]
-            return result, is_incoming_trajectory
+            return result, the_index, is_incoming_trajectory
         except IndexError:
-            sonet_log(SonetLogType.INFO,
+            sonet_log(SonetLogType.WARNING,
                       'SonetMainWindow.get_selected_trajectory."Empty/Out-of-bonds dataframe accessed"')
-            return None, None
+            return None, None, None
 
     def clicked_apply_filter(self):
         """
@@ -247,8 +279,8 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         """
         sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_select_trajectory')
 
-        row = self.sonet_mission_tree_qlv.currentIndex().row()
-        the_spacecraft = self._list_model.get_spacecraft(a_row=row)
+        index = self.sonet_mission_tree_qlv.currentIndex().row()
+        the_spacecraft = self._list_model.get_spacecraft(a_row=index)
 
         # Check
         if the_spacecraft is None:
@@ -257,8 +289,9 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
             return False
 
         # Set the selected trajectory within the s/c.
-        the_selected_trajectory, is_incoming_trajectory = self.get_selected_trajectory()
-        the_spacecraft.set_trajectory(the_selected_trajectory, a_is_incoming_trajectory=is_incoming_trajectory)
+        the_selected_trajectory: pd.Series
+        the_selected_trajectory, index, is_incoming_trajectory = self.get_selected_trajectory()
+        the_spacecraft.set_trajectory(the_selected_trajectory, index, a_is_incoming_trajectory=is_incoming_trajectory)
 
         # Update the trajectory label & progress bar.
         status = the_spacecraft.get_trajectory_selection_status()
@@ -266,18 +299,22 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
 
     def clicked_tab(self, index):
         """
-        Slot executed whenever the Earth-Mars/Mars-Earth tab is changed. Sometimes, the signal is emmited to force an update.
-        It controls the state of the main window labels and progress bar, which communicate to the usr the current trajectory
-        selection state for a given s/c.
+        Slot executed whenever the Earth-Mars/Mars-Earth tab is changed. Sometimes, the signal is emitted to force
+        an update.
+        It controls the state of the main window labels and progress bar, which communicate to the usr the current
+        trajectory selection state for a given s/c.
         """
         sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_tab')
 
         if self.sonet_mission_tree_qlv.currentIndex().row() is not -1:
             if index is 0:
                 # Outgoing trip selected.
+
+                # Update the # rows filtered label.
                 n_filtered = main_window._table_model_outgoing._data.shape[0]
                 n = database.get_pcp_table(TripType.OUTGOING).shape[0]
                 self.sonet_label_rows_filtered_visible.setText(str(n_filtered) + ' rows filtered out of ' + str(n))
+
             elif index is 1:
                 # Incoming trip selected.
 
@@ -287,11 +324,60 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
                 if the_spacecraft.get_has_return_trajectory() is False:
                     self.sonet_label_rows_filtered_visible.setText('This s/c has no return trip.')
                     return
+
+                # Update the # rows filtered label.
                 n_filtered = main_window._table_model_incoming._data.shape[0]
                 n = database.get_pcp_table(TripType.OUTGOING).shape[0]
                 self.sonet_label_rows_filtered_visible.setText(str(n_filtered) + ' rows filtered out of ' + str(n))
         else:
             self.sonet_label_rows_filtered_visible.setText('')
+
+        # Update the trajectory selection, in case there is a trajectory selected for the current s/c.
+        the_sc = get_current_sc()
+        main_window.update_trajectory_selection_in_table_view(the_sc)
+
+    def update_trajectory_selection_in_table_view(self, a_the_sc: SonetSpacecraft):
+        """
+        Selects the current selected trajectory for the passed s/c, in the relevant table view.
+
+        @param a_the_sc: the s/c
+        """
+        sonet_log(SonetLogType.INFO, 'SonetMainWindow.update_trajectory_selection_in_table_view')
+
+        # Check.
+        if a_the_sc is None:
+            return
+
+        # Get widgets current selection.
+        qlv_index = main_window.sonet_mission_tree_qlv.currentIndex().row()
+        qtw_index = main_window.sonet_pcp_tabs_qtw.currentIndex()
+        # & other stuff.
+        sc_has_return_trajectory = a_the_sc.get_has_return_trajectory()
+
+        # Continue only if valid selection.
+        if -1 not in [qlv_index, qtw_index]:
+
+            if sc_has_return_trajectory:
+                # There are both out/inc trips, update both out/inc table views.
+                if qtw_index == 0:
+                    self.sonet_pcp_table_qtv_outgoing.setCurrentIndex(a_the_sc._trajectory1_index)
+                elif qtw_index == 1:
+                    self.sonet_pcp_table_qtv_incoming.setCurrentIndex(a_the_sc._trajectory2_index)
+
+                else:
+                    sonet_log(SonetLogType.WARNING,
+                              'SonetMainWindow.update_trajectory_selection_in_table_view."Not supposed to arrive here"')
+                    return
+            else:
+                # There is only out trip, so update only out table view.
+                if qtw_index == 0:
+                    self.sonet_pcp_table_qtv_outgoing.setCurrentIndex(a_the_sc._trajectory_index)
+                elif qtw_index == 1:
+                    pass
+                else:
+                    sonet_log(SonetLogType.WARNING,
+                              'SonetMainWindow.update_trajectory_selection_in_table_view."Not supposed to arrive here"')
+                    return
 
     def update_trajectory_label_and_progress_bar(self, a_status=0, a_reset_widgets=False):
         """
@@ -320,6 +406,7 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
 
     def exit_app(self):
         sys.exit()
+
 
 # TODO: Move TableModel and ListModel classes outside main_window.py file.
 class ListModel(QAbstractListModel):
@@ -389,8 +476,8 @@ class ListModel(QAbstractListModel):
             - You apply this filter to the pcp table (possible performance issue if pcp has millions
             of rows?)
             - The resultant pcp dataframe is set as the QTableView table model, to be displayed to the user.
-
         """
+
         sonet_log(SonetLogType.INFO, 'SonetMainWindow.list_clicked')
 
         if a_index.row() is -1:
@@ -435,7 +522,8 @@ class ListModel(QAbstractListModel):
         # Update the trajectory label & progress bar.
         status = the_spacecraft.get_trajectory_selection_status()
         main_window.update_trajectory_label_and_progress_bar(status)
-
+        # & select current trajectory in the table view.
+        main_window.update_trajectory_selection_in_table_view(the_spacecraft)
         force_table_view_update()
 
     def update(self):
@@ -453,6 +541,7 @@ class ListModel(QAbstractListModel):
 
     def flags(self, QModelIndex):
         return Qt.ItemIsEnabled | Qt.ItemIsSelectable
+
 
 class TableModel(QAbstractTableModel):
     """

@@ -2,6 +2,7 @@ import pandas as pd
 from pandas import DataFrame
 # from overloading import overload
 
+from PySide2.QtCore import QModelIndex
 from src.SonetTrajectoryFilter import SonetTrajectoryFilter
 from src.SonetUtils import SpacecraftType, TripType, sonet_log, SonetLogType, SONET_MSG_TIMEOUT
 
@@ -25,6 +26,8 @@ class SonetSpacecraft:
      - Modify the filter's internal dataframe using the SonetTrajectoryFilter's set_data method.
      -  Get a filtered porkchop plot table with SonetTrajectoryFilter's get_filtered_pcp method.
     """
+    _has_return_trajectory: bool
+
     def __init__(self, a_spacecraft_name=None, a_spacecraft_type_crew=None, a_spacecraft_type_return=None, ap_main_window=None):
         sonet_log(SonetLogType.INFO, 'SonetSpacecraft.__init__')
 
@@ -111,7 +114,7 @@ class SonetSpacecraft:
     def get_has_return_trajectory(self):
         """
         Getter method.
-        :return: bool. If the variable hasn't been setted, then it will return the default value,
+        @return: bool. If the variable hasn't been setted, then it will return the default value,
         None, which is considered a boolean False.
         """
         return self._has_return_trajectory
@@ -191,6 +194,12 @@ class SonetSpacecraft:
 
         return the_selected_trajectories
 
+    def get_trajectory_selected_row(self) -> (QModelIndex, QModelIndex):
+        if self._has_return_trajectory:
+            return self._trajectory1_index, self._trajectory2_index
+        else:
+            return self._trajectory_index
+
     def reset_trajectory(self):
         """
         Resets the current selected trajectories. Used when a s/c filter changes and the already selected trajectories
@@ -199,8 +208,11 @@ class SonetSpacecraft:
         if self._has_return_trajectory:
             self._trajectory1 = None
             self._trajectory2 = None
+            self._trajectory1_index = QModelIndex()
+            self._trajectory2_index = QModelIndex()
         else:
             self._trajectory = None
+            self._trajectory_index = QModelIndex()
 
     def set_filter(self, a_the_filter: SonetTrajectoryFilter, p_dataframe=False):
         """
@@ -248,11 +260,16 @@ class SonetSpacecraft:
 
             self._trajectory1 = None
             self._trajectory2 = None
+
+            self._trajectory1_index = QModelIndex()
+            self._trajectory2_index = QModelIndex()
+
         else:
             # One way trip.
             self._pcp_filter = SonetTrajectoryFilter(self, TripType.OUTGOING)
 
             self._trajectory = None
+            self._trajectory_index = QModelIndex()
 
         return True
 
@@ -305,17 +322,18 @@ class SonetSpacecraft:
         self._spacecraft_type = a_spacecraft_type
         return True
 
-    def set_trajectory(self, a_trajectory=None, a_is_incoming_trajectory=False):
+    def set_trajectory(self, a_trajectory=None, a_index=False, a_is_incoming_trajectory=False):
         """
         Setter method.
         Sets the trajectories fields for a given s/c, the a_is_incoming_trajectory paramenter controls whether
         we are setting the outgoing or incoming trajectory, in case the s/c has both. It's a bit weird but...
 
-        :param a_is_incoming_trajectory: flag to control which trajectory are we setting.
-        :param a_trajectory: Pandas Series representing a pcp row.
+        @param a_is_incoming_trajectory: flag to control which trajectory are we setting.
+        @param a_trajectory: Pandas Series representing a pcp row.
+        @param a_index: the position of the pcp row.
         """
         # Check.
-        if not (isinstance(a_trajectory, pd.Series) or isinstance(a_trajectory, list)):
+        if not (isinstance(a_trajectory, pd.Series) or isinstance(a_trajectory, list) or (a_index != None)):
             if a_trajectory is None:
                 sonet_log(SonetLogType.INFO, 'SonetSpacecraft.set_trajectory."No trajectory selected"')
                 self._p_main_window.statusbar.showMessage('No trajectory selected.', SONET_MSG_TIMEOUT)
@@ -329,11 +347,14 @@ class SonetSpacecraft:
             # Two-way s/c.
             if a_is_incoming_trajectory:
                 self._trajectory2 = a_trajectory
+                self._trajectory2_index = a_index
             else:
                 self._trajectory1 = a_trajectory
+                self._trajectory1_index = a_index
         else:
             # One-way s/c.
             self._trajectory = a_trajectory
+            self._trajectory_index = a_index
 
         return True
 

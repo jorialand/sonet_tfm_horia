@@ -15,6 +15,9 @@ from src.SonetUtils import FilterType, TripType, SonetLogType, sonet_log, popup_
 # ==============================================================================================
 
 class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
+    """
+    The filter window (QDialog).
+    """
     def __init__(self, *args, ar_list_spacecrafts=None, ar_current_index=-1):
         super(SonetPCPFilterQt, self).__init__(*args)  # , **kwargs)
         self.setupUi(self)
