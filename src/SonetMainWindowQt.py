@@ -425,7 +425,7 @@ class ListModel(QAbstractListModel):
         """
         Getter method.
         It returns the SonetSpacecraft object from the database, based on the current
-        selected item.
+        selected item. You can query by QModelIndex or by row.
         Returns None object if no s/c selected or if encountered any problem.
         :rtype: SonetSpacecraft
         """
@@ -480,19 +480,20 @@ class ListModel(QAbstractListModel):
 
         sonet_log(SonetLogType.INFO, 'SonetMainWindow.list_clicked')
 
+        # In case no s/c is selected.
         if a_index.row() is -1:
             sonet_log(SonetLogType.INFO, 'list_clicked."No s/c selected"')
             return
 
-        # Get the s/c, and its filter.
-        the_spacecraft = self.get_spacecraft(a_index=a_index)
-        if not isinstance(the_spacecraft, SonetSpacecraft):
+        # Otherwise, get the s/c, and its filter.
+        the_sc = self.get_spacecraft(a_index=a_index)
+        if not isinstance(the_sc, SonetSpacecraft):
             sonet_log(SonetLogType.ERROR, 'list_clicked."Wrong s/c type"')
             return False
-        the_filter = the_spacecraft.get_filter()
+        the_filter = the_sc.get_filter()
 
-        # The method get_filter returns a SonetTrajectoryFilter if the s/c has only
-        # one trip, and a list of them otherwise.
+        # the_filter is a SonetTrajectoryFilter if the s/c has only
+        # one trip, or a list of them otherwise.
         # Once we get the filtered porkchop dataframe, we display it by setting it as _data and
         # resetting the table model.
         try:
@@ -500,9 +501,9 @@ class ListModel(QAbstractListModel):
 
             # Update the table models.
             the_filtered_dataframe = the_filter.get_filtered_pcp()
-            main_window._table_model_outgoing.set_model_data(the_spacecraft, the_filtered_dataframe)
+            main_window._table_model_outgoing.set_model_data(the_sc, the_filtered_dataframe)
             the_filtered_dataframe = pd.DataFrame()
-            main_window._table_model_incoming.set_model_data(the_spacecraft, the_filtered_dataframe)
+            main_window._table_model_incoming.set_model_data(the_sc, the_filtered_dataframe)
         except AttributeError:
             # Case where spacecraft only has got both outgoing and incoming trajectories.
             sonet_log(SonetLogType.INFO, 'list_clicked."This spacecraft is of two-way type"')
@@ -511,19 +512,19 @@ class ListModel(QAbstractListModel):
 
             # Outgoing. (la magia ocurre aquí)
             the_filtered_dataframe = the_filter[0].get_filtered_pcp()
-            main_window._table_model_outgoing.set_model_data(the_spacecraft, the_filtered_dataframe)
+            main_window._table_model_outgoing.set_model_data(the_sc, the_filtered_dataframe)
             # Incoming.
             the_filtered_dataframe = the_filter[1].get_filtered_pcp()
-            main_window._table_model_incoming.set_model_data(the_spacecraft, the_filtered_dataframe)
+            main_window._table_model_incoming.set_model_data(the_sc, the_filtered_dataframe)
         except:
             sonet_log(SonetLogType.ERROR, 'list_clicked."Exception raised."')
             return False
 
         # Update the trajectory label & progress bar.
-        status = the_spacecraft.get_trajectory_selection_status()
+        status = the_sc.get_trajectory_selection_status()
         main_window.update_trajectory_label_and_progress_bar(status)
         # & select current trajectory in the table view.
-        main_window.update_trajectory_selection_in_table_view(the_spacecraft)
+        main_window.update_trajectory_selection_in_table_view(the_sc)
         force_table_view_update()
 
     def update(self):
@@ -677,7 +678,7 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
 
     # App style cyberpunk|darkblue|oceanic|lightorange|darkorange||.
-    stylesheet = qrainbowstyle.load_stylesheet_pyside2(style='oceanic')
+    stylesheet = qrainbowstyle.load_stylesheet_pyside2(style='lightorange')
     app.setStyleSheet(stylesheet)
 
     main_window = SonetMainWindow()

@@ -56,7 +56,7 @@ class SonetTrajectoryFilter:
         # Get activated filters as pandas DataFrame.
         the_filter_energy = self._get_activated_filters_of_a_given_type(self._data, True, 'Energy')
         the_filter_tof = self._get_activated_filters_of_a_given_type(self._data, True, 'Time of flight')
-        the_filter_dates = self._get_activated_filters_of_a_given_type(self._data, True, 'Date')
+        the_filter_dates = self._get_activated_filters_of_a_given_type(self._data, True, 'SimpleDate')
         the_filter_dates2 = self._get_activated_filters_of_a_given_type(self._data, True, '???')
 
         # Convert them to string.

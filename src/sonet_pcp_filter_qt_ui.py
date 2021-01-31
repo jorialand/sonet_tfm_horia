@@ -93,6 +93,7 @@ class Ui_sonet_pcp_filter(object):
         self.applied_filters_table_view.setSizePolicy(sizePolicy1)
         self.applied_filters_table_view.setMinimumSize(QSize(100, 0))
         self.applied_filters_table_view.setAlternatingRowColors(True)
+        self.applied_filters_table_view.setSelectionBehavior(QAbstractItemView.SelectRows)
 
         self.bottom_grid_layout.addWidget(self.applied_filters_table_view, 0, 0, 1, 1)
 
@@ -178,6 +179,7 @@ class Ui_sonet_pcp_filter(object):
         sizePolicy3.setVerticalStretch(0)
         sizePolicy3.setHeightForWidth(self.cb_time_of_flight.sizePolicy().hasHeightForWidth())
         self.cb_time_of_flight.setSizePolicy(sizePolicy3)
+        self.cb_time_of_flight.setCursor(QCursor(Qt.PointingHandCursor))
 
         self.gridLayout_5.addWidget(self.cb_time_of_flight, 0, 0, 1, 1)
 
@@ -197,6 +199,7 @@ class Ui_sonet_pcp_filter(object):
         sizePolicy4.setVerticalStretch(0)
         sizePolicy4.setHeightForWidth(self.cb_energy.sizePolicy().hasHeightForWidth())
         self.cb_energy.setSizePolicy(sizePolicy4)
+        self.cb_energy.setCursor(QCursor(Qt.PointingHandCursor))
 
         self.horizontalLayout_2.addWidget(self.cb_energy)
 
@@ -257,6 +260,7 @@ class Ui_sonet_pcp_filter(object):
         self.cb_dep_arriv_dates = QCheckBox(self.top_left_group_box)
         self.cb_dep_arriv_dates.setObjectName(u"cb_dep_arriv_dates")
         self.cb_dep_arriv_dates.setEnabled(False)
+        self.cb_dep_arriv_dates.setCursor(QCursor(Qt.PointingHandCursor))
 
         self.verticalLayout_11.addWidget(self.cb_dep_arriv_dates)
 
@@ -295,6 +299,7 @@ class Ui_sonet_pcp_filter(object):
         self.cb_dates_1 = QCheckBox(self.top_left_group_box)
         self.cb_dates_1.setObjectName(u"cb_dates_1")
         self.cb_dates_1.setEnabled(False)
+        self.cb_dates_1.setCursor(QCursor(Qt.PointingHandCursor))
 
         self.verticalLayout_3.addWidget(self.cb_dates_1)
 
@@ -336,12 +341,14 @@ class Ui_sonet_pcp_filter(object):
         self.radio_mission = QRadioButton(self.top_left_group_box)
         self.radio_mission.setObjectName(u"radio_mission")
         self.radio_mission.setEnabled(False)
+        self.radio_mission.setCursor(QCursor(Qt.PointingHandCursor))
 
         self.horizontalLayout_10.addWidget(self.radio_mission)
 
         self.radio_spacecraft = QRadioButton(self.top_left_group_box)
         self.radio_spacecraft.setObjectName(u"radio_spacecraft")
         self.radio_spacecraft.setEnabled(False)
+        self.radio_spacecraft.setCursor(QCursor(Qt.PointingHandCursor))
 
         self.horizontalLayout_10.addWidget(self.radio_spacecraft)
 
@@ -381,6 +388,7 @@ class Ui_sonet_pcp_filter(object):
         self.cb_dates_2 = QCheckBox(self.top_left_group_box)
         self.cb_dates_2.setObjectName(u"cb_dates_2")
         self.cb_dates_2.setEnabled(False)
+        self.cb_dates_2.setCursor(QCursor(Qt.PointingHandCursor))
 
         self.verticalLayout_7.addWidget(self.cb_dates_2)
 
