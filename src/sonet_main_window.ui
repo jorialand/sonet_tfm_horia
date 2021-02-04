@@ -52,7 +52,14 @@
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <widget class="QListView" name="sonet_mission_tree_qlv"/>
+        <widget class="QListView" name="sonet_mission_tree_qlv">
+         <property name="selectionMode">
+          <enum>QAbstractItemView::ExtendedSelection</enum>
+         </property>
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QPushButton" name="sonet_add_mission_qpb">

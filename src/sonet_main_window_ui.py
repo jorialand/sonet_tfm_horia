@@ -45,6 +45,8 @@ class Ui_main_window(object):
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.sonet_mission_tree_qlv = QListView(self.sonet_mission_tree_qgb)
         self.sonet_mission_tree_qlv.setObjectName(u"sonet_mission_tree_qlv")
+        self.sonet_mission_tree_qlv.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        self.sonet_mission_tree_qlv.setSelectionBehavior(QAbstractItemView.SelectRows)
 
         self.verticalLayout_2.addWidget(self.sonet_mission_tree_qlv)
 
