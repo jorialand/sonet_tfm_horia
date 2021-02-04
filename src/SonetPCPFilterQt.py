@@ -13,6 +13,14 @@ from src.SonetUtils import FilterType, TripType, SonetLogType, sonet_log, popup_
 
 
 # ==============================================================================================
+# ==============================================================================================
+#
+#
+#                                    CLASS SonetPCPFilterQt
+#                            (also class SonetAppliedFiltersTableModel)
+#
+# ==============================================================================================
+# ==============================================================================================
 
 class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
     """
@@ -64,6 +72,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         self.combo_energy_parameter.currentIndexChanged.connect(self.changed_cmb_energy_parameter)
         self.combo_dept_arriv.currentIndexChanged.connect(self.changed_cmb_dept_arriv)
         self.combo_select_spacecraft.currentIndexChanged.connect(self.changed_combo_select_spacecraft)
+        self.combo_at_least.currentIndexChanged.connect(self.changed_combo_at_least)
 
         self.cb_dep_arriv_dates.stateChanged.connect(self.enable_pb_add)
         self.cb_dep_arriv_dates.stateChanged.connect(self.changed_cb_departure_dates_step1)
@@ -295,20 +304,34 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
     def get_dep_arriv_dates_combos_selection(self):
         """
-        Retrieves the departure and arrival dates group box data, to apply filters.
-        :rtype: dict
+        Retrieves the SimpleDate & CompexDate widgets data, to apply filters.
+        @rtype: dict
         """
         sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.get_dep_arriv_dates_combos_selection')
 
         # cb_dates_1 is the more complex dates filter.
         if self.cb_dates_1.isChecked():
-            # Common widgets to both radio buttons.
-            the_selection = [self.combo_dept_arriv.currentText(),
-                             self.combo_planet.currentText(),
-                             self.spin_number.text(),
-                             self.combo_time_scale.currentText(),
-                             self.combo_when.currentText()]
 
+            # Step 1. Depending on the 'combo_at_least' selection, the initial list is filled differently.
+            current_selection = self.combo_at_least.currentText()
+
+            if current_selection in ['At least', 'At maximum']:
+                the_selection = [self.combo_dept_arriv.currentText(),
+                                 self.combo_planet.currentText(),
+                                 self.combo_at_least.currentText(),
+                                 self.spin_number.text(),
+                                 self.combo_time_scale.currentText(),
+                                 self.combo_when.currentText()]
+            # In other cases, disable irrelevant combos.
+            elif current_selection in ['At the same time']:
+                the_selection = [self.combo_dept_arriv.currentText(),
+                                 self.combo_planet.currentText(),
+                                 self.combo_at_least.currentText()]
+            # Uups.
+            else:
+                sonet_log(SonetLogType.WARNING, 'SonetPCPFilterQt.get_dep_arriv_dates_combos_selection."Not supposed to arrive here"')
+
+            # Step 2. Depending on which radio btn is checked, behave differently.
             if self.radio_mission.isChecked():
                 # Widgets only relevant for the mission radio button.
                 self.status_bar.showMessage('Mission radio btn not implemented', SONET_MSG_TIMEOUT)
@@ -646,6 +669,29 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         # In any case, reset the filters checkboxes, in case any was checked.
         self.clicked_pb_reset()
 
+    def changed_combo_at_least(self, ar_index):
+        """
+        When the 'combo_at_least' changes, some widgets should be locked (or not) depending on the combo selection.
+        @return:
+        """
+        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.changed_combo_at_least')
+
+        current_selection = self.combo_at_least.currentText()
+
+        # In some cases, enable associated combos.
+        if current_selection in ['At least', 'At maximum']:
+            self.spin_number.setEnabled(True)
+            # self.combo_time_scale.setEnabled(True)
+            self.combo_when.setEnabled(True)
+        # In other cases, disable irrelevant combos.
+        elif current_selection in ['At the same time']:
+            self.spin_number.setEnabled(False)
+            # self.combo_time_scale.setEnabled(False)
+            self.combo_when.setEnabled(False)
+        # Uups.
+        else:
+            sonet_log(SonetLogType.WARNING, 'SonetPCPFilterQt.changed_combo_at_least."Not supposed to arrive here"')
+
     def changed_cb_departure_dates_step1(self):
         """
         Slot which enables or disables the departure/arrival dates group box top combos,
@@ -679,6 +725,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
         enable = self.cb_dates_1.isChecked()
 
+        self.combo_at_least.setEnabled(enable)
         self.spin_number.setEnabled(enable)
         self.combo_when.setEnabled(enable)
         self.radio_mission.setEnabled(enable)
@@ -754,10 +801,11 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         """
         sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.clicked_pb_add')
 
+        # Get the checked filters.
         list_checked_cb = self.which_cb_checked()
 
+        # If no filter checked, return.
         if not list_checked_cb:
-            sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.clicked_pb_add."No checkbox is enabled"')
             self.status_bar.showMessage('No check box enabled')
             return False
         else:

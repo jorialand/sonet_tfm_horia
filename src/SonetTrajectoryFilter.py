@@ -6,6 +6,15 @@ from src import database
 # from src.SonetSpacecraft import SonetSpacecraft
 from src.SonetUtils import TripType, sonet_log, SonetLogType
 
+# ==============================================================================================
+# ==============================================================================================
+#
+#
+#                                    CLASS SonetTrajectoryFilter
+#
+#
+# ==============================================================================================
+# ==============================================================================================
 
 class SonetTrajectoryFilter:
     """
@@ -56,18 +65,18 @@ class SonetTrajectoryFilter:
         # Get activated filters as pandas DataFrame.
         the_filter_energy = self._get_activated_filters_of_a_given_type(self._data, True, 'Energy')
         the_filter_tof = self._get_activated_filters_of_a_given_type(self._data, True, 'Time of flight')
-        the_filter_dates = self._get_activated_filters_of_a_given_type(self._data, True, 'SimpleDate')
-        the_filter_dates2 = self._get_activated_filters_of_a_given_type(self._data, True, '???')
+        the_filter_simple_dates = self._get_activated_filters_of_a_given_type(self._data, True, 'SimpleDate')
+        the_filter_complex_dates = self._get_activated_filters_of_a_given_type(self._data, True, 'ComplexDate')
 
         # Convert them to string.
         query_energy = self._get_query_string(the_filter_energy, a_type='Energy')
         query_tof = self._get_query_string(the_filter_tof, a_type='Time of flight')
-        query_dates = self._get_query_string(the_filter_dates, a_type='Date')
-        query_dates2 = self._get_query_string(the_filter_dates2, a_type='???')
+        query_simple_dates = self._get_query_string(the_filter_simple_dates, a_type='SimpleDate')
+        query_complex_dates = self._get_query_string(the_filter_complex_dates, a_type='ComplexDate')
 
         # Some of them can be empty, so not include them in the resultant query string.
         query_list = []
-        for q in [query_energy, query_tof, query_dates, query_dates2]:
+        for q in [query_energy, query_tof, query_simple_dates, query_complex_dates]:
             if len(q) != 0:
                 query_list.append(q)
         # Resultant query string.
@@ -145,40 +154,46 @@ class SonetTrajectoryFilter:
     def _get_activated_filters_of_a_given_type(self, a_filter, a_activated, a_filter_type):
         return a_filter.loc[(a_filter['Status'] == a_activated) & (a_filter['Type'] == a_filter_type), 'Filter'].copy()
 
-    def _get_query_string(self, a_filter, a_type=''):
+    def _get_query_string(self, a_filter, a_type='') -> str:
         """
+        Convert a input filter to a queryable string.
         The user can add any number of Energy/TOF/Dates filters to a_filter, get
         them as a Python list and then concatenate them with 'AND', finally returning them as a query string.
 
         Example of input filters:
          - Energy: [dvt, ==, 6, km/s ]
          - Time of flight:
-         - Date: ['Departs','Earth','On', '01-05-2020']
+         - SimpleDate: ['Departs','Earth','On', '01-05-2020']
+         - ComplexDate: ['Departs', 'Earth', '30', 'Days', 'After', 'DAV', 'Earth - Mars', 'Launching']
         """
-        query_list = []
+        query_str = []
 
         if a_type == 'Energy' or a_type == 'Time of flight':
             for f in list(a_filter):
-               query_list.append(' '.join(f[0:2]) + ' ' + str(f[2]))
-        elif a_type == 'Date':
-            # ['Departs', 'Earth', 'On', '01-05-2020']
-            # ['Arrives', 'Earth', 'On', '01-05-2020']
+                query_str.append(' '.join(f[0:2]) + ' ' + str(f[2]))
 
-            # ['Departs', 'Mars', 'On', '01-05-2020']
-            # ['Arrives', 'Mars', 'On', '01-05-2020']
-
-            # [  ...    ,  ...  , 'On/Before/After', 'TAL']
-
+        elif a_type == 'SimpleDate':
             for f in list(a_filter):
-                aux = self.convert_filter_to_query_format(f)
-                query_list.append(aux[0] + ' ' + aux[2] + ' ' + str(aux[3]))
+                aux = self.convert_simple_dats_filter_to_query_format(f)
+                query_str.append(aux[0] + ' ' + aux[2] + ' ' + str(aux[3]))
+
+        elif a_type == 'ComplexDate':
+            # for f in list(a_filter):
+            #     print(f)
+            #     str_1 = self.get_complex_date_str_1(f)
+            #     str_2 = self.get_complex_date_str_2(f)
+            #     str_3 = self.get_complex_date_str_3(f)
+            #
+            #     query_str.append(str_1 + ' ' + str_2 + ' ' + str_3)
+                pass
+
 
 
         # Get the filters, as a unique string.
-        query = ' and '.join(query_list)
+        query = ' and '.join(query_str)
         return query
 
-    def convert_filter_to_query_format(self, a_filter):
+    def convert_simple_dats_filter_to_query_format(self, a_filter):
         """
         Convert a human readable filter to a machine friendly one.
 
@@ -213,6 +228,15 @@ class SonetTrajectoryFilter:
 
         return [action, planet, operator, date]
 
+    @staticmethod
+    def get_complex_date_str_1(a_filter):
+        pass
+    @staticmethod
+    def get_complex_date_str_2(a_filter):
+        pass
+    @staticmethod
+    def get_complex_date_str_3(a_filter):
+        pass
     @staticmethod
     def convert_pcp_table_to_human_format(a_pcp_table):
         # Convert DepDates & ArrivDates from JD to Gregorian calendar.

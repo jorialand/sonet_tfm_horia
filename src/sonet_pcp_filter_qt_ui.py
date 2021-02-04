@@ -303,6 +303,15 @@ class Ui_sonet_pcp_filter(object):
 
         self.verticalLayout_3.addWidget(self.cb_dates_1)
 
+        self.combo_at_least = QComboBox(self.top_left_group_box)
+        self.combo_at_least.addItem("")
+        self.combo_at_least.addItem("")
+        self.combo_at_least.addItem("")
+        self.combo_at_least.setObjectName(u"combo_at_least")
+        self.combo_at_least.setEnabled(False)
+
+        self.verticalLayout_3.addWidget(self.combo_at_least)
+
         self.spin_number = QSpinBox(self.top_left_group_box)
         self.spin_number.setObjectName(u"spin_number")
         self.spin_number.setEnabled(False)
@@ -490,6 +499,10 @@ class Ui_sonet_pcp_filter(object):
         self.combo_planet.setItemText(1, QCoreApplication.translate("sonet_pcp_filter", u"Mars", None))
 
         self.cb_dates_1.setText("")
+        self.combo_at_least.setItemText(0, QCoreApplication.translate("sonet_pcp_filter", u"At least", None))
+        self.combo_at_least.setItemText(1, QCoreApplication.translate("sonet_pcp_filter", u"At maximum", None))
+        self.combo_at_least.setItemText(2, QCoreApplication.translate("sonet_pcp_filter", u"At the same time", None))
+
         self.combo_time_scale.setItemText(0, QCoreApplication.translate("sonet_pcp_filter", u"Days", None))
         self.combo_time_scale.setItemText(1, QCoreApplication.translate("sonet_pcp_filter", u"Weeks", None))
         self.combo_time_scale.setItemText(2, QCoreApplication.translate("sonet_pcp_filter", u"Months", None))

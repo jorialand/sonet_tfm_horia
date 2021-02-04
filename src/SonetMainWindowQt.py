@@ -29,6 +29,15 @@ from src.SonetUtils import TripType, SonetLogType, sonet_log, popup_msg, SONET_M
 
 # TODO When user selects one item, all row should be selected instead.
 
+# ==============================================================================================
+# ==============================================================================================
+#
+#
+#                                    CLASS SonetMainWindowQt
+#                            (also classes ListModel & TableModel)
+#
+# ==============================================================================================
+# ==============================================================================================
 
 def get_main_window():
     """
@@ -492,28 +501,31 @@ class ListModel(QAbstractListModel):
             return False
         the_filter = the_sc.get_filter()
 
-        # the_filter is a SonetTrajectoryFilter if the s/c has only
-        # one trip, or a list of them otherwise.
-        # Once we get the filtered porkchop dataframe, we display it by setting it as _data and
+        # the_filter is a SonetTrajectoryFilter if the s/c has only one trip
+        # Or a list of them otherwise.
+        # , we display it by setting it as _data and
         # resetting the table model.
         try:
-            # Case where spacecraft only has got only outgoing trajectory.
+            # The sc has got only outgoing trajectory.
 
-            # Update the table models.
+            # Get the filtered pcp dataframe.
             the_filtered_dataframe = the_filter.get_filtered_pcp()
+            # Update the table models.
             main_window._table_model_outgoing.set_model_data(the_sc, the_filtered_dataframe)
+
+            # Again for the 2nd table view.
             the_filtered_dataframe = pd.DataFrame()
             main_window._table_model_incoming.set_model_data(the_sc, the_filtered_dataframe)
         except AttributeError:
-            # Case where spacecraft only has got both outgoing and incoming trajectories.
+            # The sc has got both outgoing and incoming trajectories.
             sonet_log(SonetLogType.INFO, 'list_clicked."This spacecraft is of two-way type"')
 
-            # Update the table models.
-
-            # Outgoing. (la magia ocurre aquí)
+            # Get the filtered pcp dataframe.
             the_filtered_dataframe = the_filter[0].get_filtered_pcp()
+            # Update the table models.
             main_window._table_model_outgoing.set_model_data(the_sc, the_filtered_dataframe)
-            # Incoming.
+
+            # Again for the 2nd table view.
             the_filtered_dataframe = the_filter[1].get_filtered_pcp()
             main_window._table_model_incoming.set_model_data(the_sc, the_filtered_dataframe)
         except:
@@ -678,7 +690,7 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
 
     # App style cyberpunk|darkblue|oceanic|lightorange|darkorange||.
-    stylesheet = qrainbowstyle.load_stylesheet_pyside2(style='lightorange')
+    stylesheet = qrainbowstyle.load_stylesheet_pyside2(style='oceanic')
     app.setStyleSheet(stylesheet)
 
     main_window = SonetMainWindow()

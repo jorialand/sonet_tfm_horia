@@ -546,6 +546,28 @@
                </widget>
               </item>
               <item>
+               <widget class="QComboBox" name="combo_at_least">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>At least</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>At maximum</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>At the same time</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item>
                <widget class="QSpinBox" name="spin_number">
                 <property name="enabled">
                  <bool>false</bool>
