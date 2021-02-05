@@ -226,7 +226,7 @@ class SonetSpacecraft:
             if p_trip_event == 'Launching':
                 the_date = QDate.toJulianDay(the_trajectory[0])
             elif p_trip_event == 'Landing':
-                the_date = QDate.toJulianDay(the_trajectory[0])
+                the_date = QDate.toJulianDay(the_trajectory[1])
 
             return the_date
 

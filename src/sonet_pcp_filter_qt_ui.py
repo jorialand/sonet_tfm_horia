@@ -18,7 +18,7 @@ class Ui_sonet_pcp_filter(object):
         if not sonet_pcp_filter.objectName():
             sonet_pcp_filter.setObjectName(u"sonet_pcp_filter")
         sonet_pcp_filter.setEnabled(True)
-        sonet_pcp_filter.resize(539, 700)
+        sonet_pcp_filter.resize(674, 760)
         sizePolicy = QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -27,30 +27,6 @@ class Ui_sonet_pcp_filter(object):
         sonet_pcp_filter.setMinimumSize(QSize(0, 700))
         self.gridLayout = QGridLayout(sonet_pcp_filter)
         self.gridLayout.setObjectName(u"gridLayout")
-        self.select_spacecraft = QComboBox(sonet_pcp_filter)
-        self.select_spacecraft.addItem("")
-        self.select_spacecraft.setObjectName(u"select_spacecraft")
-        self.select_spacecraft.setEnabled(True)
-
-        self.gridLayout.addWidget(self.select_spacecraft, 0, 0, 1, 2)
-
-        self.horizontalLayout_9 = QHBoxLayout()
-        self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
-        self.pb_reset = QPushButton(sonet_pcp_filter)
-        self.pb_reset.setObjectName(u"pb_reset")
-        self.pb_reset.setEnabled(True)
-
-        self.horizontalLayout_9.addWidget(self.pb_reset)
-
-        self.pb_add = QPushButton(sonet_pcp_filter)
-        self.pb_add.setObjectName(u"pb_add")
-        self.pb_add.setEnabled(False)
-
-        self.horizontalLayout_9.addWidget(self.pb_add)
-
-
-        self.gridLayout.addLayout(self.horizontalLayout_9, 8, 0, 2, 2)
-
         self.dialog_button_box = QDialogButtonBox(sonet_pcp_filter)
         self.dialog_button_box.setObjectName(u"dialog_button_box")
         self.dialog_button_box.setEnabled(True)
@@ -107,14 +83,31 @@ class Ui_sonet_pcp_filter(object):
 
         self.gridLayout.addItem(self.verticalSpacer_5, 4, 0, 1, 1)
 
+        self.status_bar_HLayout = QHBoxLayout()
+        self.status_bar_HLayout.setObjectName(u"status_bar_HLayout")
+
+        self.gridLayout.addLayout(self.status_bar_HLayout, 19, 0, 1, 2)
+
+        self.horizontalLayout_9 = QHBoxLayout()
+        self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
+        self.pb_reset = QPushButton(sonet_pcp_filter)
+        self.pb_reset.setObjectName(u"pb_reset")
+        self.pb_reset.setEnabled(True)
+
+        self.horizontalLayout_9.addWidget(self.pb_reset)
+
+        self.pb_add = QPushButton(sonet_pcp_filter)
+        self.pb_add.setObjectName(u"pb_add")
+        self.pb_add.setEnabled(False)
+
+        self.horizontalLayout_9.addWidget(self.pb_add)
+
+
+        self.gridLayout.addLayout(self.horizontalLayout_9, 8, 0, 2, 2)
+
         self.verticalSpacer_6 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
         self.gridLayout.addItem(self.verticalSpacer_6, 10, 0, 1, 1)
-
-        self.select_trip = QComboBox(sonet_pcp_filter)
-        self.select_trip.setObjectName(u"select_trip")
-
-        self.gridLayout.addWidget(self.select_trip, 1, 0, 1, 2)
 
         self.top_grid_layout = QGridLayout()
         self.top_grid_layout.setObjectName(u"top_grid_layout")
@@ -312,6 +305,9 @@ class Ui_sonet_pcp_filter(object):
 
         self.verticalLayout_3.addWidget(self.combo_at_least)
 
+        self.horizontalLayout_4 = QHBoxLayout()
+        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
+        self.horizontalLayout_4.setSizeConstraint(QLayout.SetDefaultConstraint)
         self.spin_number = QSpinBox(self.top_left_group_box)
         self.spin_number.setObjectName(u"spin_number")
         self.spin_number.setEnabled(False)
@@ -320,20 +316,16 @@ class Ui_sonet_pcp_filter(object):
         self.spin_number.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignTop)
         self.spin_number.setMaximum(999999)
 
-        self.verticalLayout_3.addWidget(self.spin_number)
+        self.horizontalLayout_4.addWidget(self.spin_number)
 
         self.combo_time_scale = QComboBox(self.top_left_group_box)
-        self.combo_time_scale.addItem("")
-        self.combo_time_scale.addItem("")
-        self.combo_time_scale.addItem("")
-        self.combo_time_scale.addItem("")
         self.combo_time_scale.addItem("")
         self.combo_time_scale.setObjectName(u"combo_time_scale")
         self.combo_time_scale.setEnabled(False)
         sizePolicy5.setHeightForWidth(self.combo_time_scale.sizePolicy().hasHeightForWidth())
         self.combo_time_scale.setSizePolicy(sizePolicy5)
 
-        self.verticalLayout_3.addWidget(self.combo_time_scale)
+        self.horizontalLayout_4.addWidget(self.combo_time_scale)
 
         self.combo_when = QComboBox(self.top_left_group_box)
         self.combo_when.addItem("")
@@ -343,7 +335,10 @@ class Ui_sonet_pcp_filter(object):
         sizePolicy5.setHeightForWidth(self.combo_when.sizePolicy().hasHeightForWidth())
         self.combo_when.setSizePolicy(sizePolicy5)
 
-        self.verticalLayout_3.addWidget(self.combo_when)
+        self.horizontalLayout_4.addWidget(self.combo_when)
+
+
+        self.verticalLayout_3.addLayout(self.horizontalLayout_4)
 
         self.horizontalLayout_10 = QHBoxLayout()
         self.horizontalLayout_10.setObjectName(u"horizontalLayout_10")
@@ -441,10 +436,17 @@ class Ui_sonet_pcp_filter(object):
 
         self.gridLayout.addLayout(self.top_grid_layout, 3, 0, 1, 2)
 
-        self.status_bar_HLayout = QHBoxLayout()
-        self.status_bar_HLayout.setObjectName(u"status_bar_HLayout")
+        self.select_spacecraft = QComboBox(sonet_pcp_filter)
+        self.select_spacecraft.addItem("")
+        self.select_spacecraft.setObjectName(u"select_spacecraft")
+        self.select_spacecraft.setEnabled(True)
 
-        self.gridLayout.addLayout(self.status_bar_HLayout, 19, 0, 1, 2)
+        self.gridLayout.addWidget(self.select_spacecraft, 0, 0, 1, 2)
+
+        self.select_trip = QComboBox(sonet_pcp_filter)
+        self.select_trip.setObjectName(u"select_trip")
+
+        self.gridLayout.addWidget(self.select_trip, 1, 0, 1, 2)
 
 
         self.retranslateUi(sonet_pcp_filter)
@@ -455,13 +457,11 @@ class Ui_sonet_pcp_filter(object):
 
     def retranslateUi(self, sonet_pcp_filter):
         sonet_pcp_filter.setWindowTitle(QCoreApplication.translate("sonet_pcp_filter", u"Apply filter to PCP table", None))
-        self.select_spacecraft.setItemText(0, QCoreApplication.translate("sonet_pcp_filter", u"Select s/c", None))
-
-        self.pb_reset.setText(QCoreApplication.translate("sonet_pcp_filter", u"Reset", None))
-        self.pb_add.setText(QCoreApplication.translate("sonet_pcp_filter", u"Add", None))
         self.bottom_group_box.setTitle(QCoreApplication.translate("sonet_pcp_filter", u"Applied filters", None))
         self.pb_delete.setText(QCoreApplication.translate("sonet_pcp_filter", u"Delete", None))
         self.pb_delete_all.setText(QCoreApplication.translate("sonet_pcp_filter", u"Delete all", None))
+        self.pb_reset.setText(QCoreApplication.translate("sonet_pcp_filter", u"Reset", None))
+        self.pb_add.setText(QCoreApplication.translate("sonet_pcp_filter", u"Add", None))
         self.time_of_flight_group_box.setTitle(QCoreApplication.translate("sonet_pcp_filter", u"Time of flight", None))
         self.combo_time_of_flight.setItemText(0, QCoreApplication.translate("sonet_pcp_filter", u"Time of flight", None))
 
@@ -504,10 +504,6 @@ class Ui_sonet_pcp_filter(object):
         self.combo_at_least.setItemText(2, QCoreApplication.translate("sonet_pcp_filter", u"At the same time", None))
 
         self.combo_time_scale.setItemText(0, QCoreApplication.translate("sonet_pcp_filter", u"Days", None))
-        self.combo_time_scale.setItemText(1, QCoreApplication.translate("sonet_pcp_filter", u"Weeks", None))
-        self.combo_time_scale.setItemText(2, QCoreApplication.translate("sonet_pcp_filter", u"Months", None))
-        self.combo_time_scale.setItemText(3, QCoreApplication.translate("sonet_pcp_filter", u"Years", None))
-        self.combo_time_scale.setItemText(4, QCoreApplication.translate("sonet_pcp_filter", u"Launch opportunities", None))
 
 #if QT_CONFIG(accessibility)
         self.combo_time_scale.setAccessibleName(QCoreApplication.translate("sonet_pcp_filter", u"accesible", None))
@@ -523,6 +519,8 @@ class Ui_sonet_pcp_filter(object):
         self.combo_when_2.setItemText(0, QCoreApplication.translate("sonet_pcp_filter", u"On", None))
         self.combo_when_2.setItemText(1, QCoreApplication.translate("sonet_pcp_filter", u"Before", None))
         self.combo_when_2.setItemText(2, QCoreApplication.translate("sonet_pcp_filter", u"After", None))
+
+        self.select_spacecraft.setItemText(0, QCoreApplication.translate("sonet_pcp_filter", u"Select s/c", None))
 
     # retranslateUi
 

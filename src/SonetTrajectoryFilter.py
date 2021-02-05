@@ -197,7 +197,7 @@ class SonetTrajectoryFilter:
                 elif part_2 == 'At the same time':
                     str_2 = '=='
 
-                # Part 3 - number.
+                # Part 3 - the date.
                 if part_2 in ['At least', 'At maximum']:
                     # Get the offset.
                     the_offset = int(f[3])
@@ -213,8 +213,20 @@ class SonetTrajectoryFilter:
                     str_3 = str(the_date)
 
                 elif part_2 in ['At the same time']:
-                    pass
-                query_str.append(str_1 + ' ' + str_2 + ' ' + str_3)
+
+                    # Get the s/c.
+                    the_sc = database.get_spacecraft(f[3])
+                    the_date = the_sc.get_departure_arrival_date(p_trip=f[4], p_trip_event=f[5])
+                    str_3 = str(the_date)
+
+                # Part 4 - query string build.
+                if part_2 in ['At least', 'At maximum']:
+                    query_str.append(str_1 + ' ' + str_2 + ' ' + str_3)
+                elif part_2 in ['At the same time']:
+                    the_date_one_day_after = str(the_date + 1)
+                    the_date_one_day_before = str(the_date - 1)
+                    query_str.append(str_1 + ' >= ' + the_date_one_day_before + ' and ' + str_1 + ' <= ' + the_date_one_day_after)
+
 
         # Get the filters, as a unique string.
         query = ' and '.join(query_str)
