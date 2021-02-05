@@ -178,16 +178,43 @@ class SonetTrajectoryFilter:
                 query_str.append(aux[0] + ' ' + aux[2] + ' ' + str(aux[3]))
 
         elif a_type == 'ComplexDate':
-            # for f in list(a_filter):
-            #     print(f)
-            #     str_1 = self.get_complex_date_str_1(f)
-            #     str_2 = self.get_complex_date_str_2(f)
-            #     str_3 = self.get_complex_date_str_3(f)
-            #
-            #     query_str.append(str_1 + ' ' + str_2 + ' ' + str_3)
-                pass
+            for f in list(a_filter):
+                str_1 = str_2 = str_3 = ''
+                part_1 = f[0]
+                part_2 = f[2]
 
+                # Part 1 - departure or arrival.
+                if part_1 == 'Departs':
+                    str_1 = 'DepDates'
+                elif part_1 == 'Arrives':
+                    str_1 = 'ArrivDates'
 
+                # Part 2 - operator.
+                if part_2 == 'At least':
+                    str_2 = '>='
+                elif part_2 == 'At maximum':
+                    str_2 = '<='
+                elif part_2 == 'At the same time':
+                    str_2 = '=='
+
+                # Part 3 - number.
+                if part_2 in ['At least', 'At maximum']:
+                    # Get the offset.
+                    the_offset = int(f[3])
+                    if f[5] == 'After':
+                        the_offset = +1 * the_offset
+                    elif f[5] == 'Before':
+                        the_offset = -1 * the_offset
+
+                    # Get the s/c.
+                    the_sc = database.get_spacecraft(f[6])
+                    the_date = the_sc.get_departure_arrival_date(p_trip=f[7], p_trip_event=f[8])
+                    the_date = the_date + the_offset
+                    str_3 = str(the_date)
+
+                elif part_2 in ['At the same time']:
+                    pass
+                query_str.append(str_1 + ' ' + str_2 + ' ' + str_3)
 
         # Get the filters, as a unique string.
         query = ' and '.join(query_str)

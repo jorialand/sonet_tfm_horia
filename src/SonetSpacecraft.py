@@ -2,7 +2,7 @@ import pandas as pd
 from pandas import DataFrame
 # from overloading import overload
 
-from PySide2.QtCore import QModelIndex
+from PySide2.QtCore import QModelIndex, QDate
 from src.SonetTrajectoryFilter import SonetTrajectoryFilter
 from src.SonetUtils import SpacecraftType, TripType, sonet_log, SonetLogType, SONET_MSG_TIMEOUT
 
@@ -175,6 +175,7 @@ class SonetSpacecraft:
         """
         Returns a list with the current selected trajectories.
 
+        @return: ['Earth - Mars'] or ['Earth - Mars', 'Mars - Earth']
         :rtype: list
         """
         sonet_log(SonetLogType.INFO, 'SonetSpacecraft.get_trajectory_selected')
@@ -193,6 +194,41 @@ class SonetSpacecraft:
                 the_selected_trajectories.append('Earth - Mars')
 
         return the_selected_trajectories
+
+    def get_departure_arrival_date(self, p_trip='', p_trip_event='') -> int:
+        """
+        Getter method.
+        Returns the s/c's departure or arrival date, for the selected p_trip,
+        and for the passed p_trip_event.
+        Example:
+         - p_trip = 'Earth - Mars'
+        - p_trip_event = 'Launching'
+
+        @param p_trip: 'Earth - Mars' or 'Mars - Earth'
+        @param p_trip_event: 'Launching' or 'Landing'
+        @return: the date
+        """
+        # Are there selected trajectories for this s/c? There should be.
+        if self.get_trajectory_selection_status() != 0:
+            # Get the trajectory/ies.
+            the_trajectory = []
+            if self.get_has_return_trajectory():
+                if p_trip == 'Earth - Mars':
+                    the_trajectory = list(self._trajectory1)
+                elif p_trip == 'Mars - Earth':
+                    the_trajectory = list(self._trajectory2)
+            else:
+                if p_trip == 'Earth - Mars':
+                    the_trajectory = list(self._trajectory)
+
+            # Get the departure/arrival date.
+            the_date = 0
+            if p_trip_event == 'Launching':
+                the_date = QDate.toJulianDay(the_trajectory[0])
+            elif p_trip_event == 'Landing':
+                the_date = QDate.toJulianDay(the_trajectory[0])
+
+            return the_date
 
     def get_trajectory_selected_row(self) -> (QModelIndex, QModelIndex):
         if self._has_return_trajectory:
