@@ -4,6 +4,17 @@ from enum import Enum, unique
 import pandas as pd
 from PySide2.QtWidgets import QMessageBox
 
+# ==============================================================================================
+# ==============================================================================================
+#
+#
+#                                    CLASS SonetUtils
+#
+#
+# ==============================================================================================
+# ==============================================================================================
+
+
 def PrintDict(ar_dict):
     """
     Convenience function for printing a dictionary to console.
@@ -196,7 +207,7 @@ def sonet_log(a_log_type, a_log_msg):
 
 
 # Global debug verbose level for the application.
-SONET_DEBUG_LEVEL = SonetDebugLevel.FULL_VERBOSE
+SONET_DEBUG_LEVEL = SonetDebugLevel.ONLY_ERRORS
 
 # Global main window's status bar messages duration, in milliseconds.
 SONET_MSG_TIMEOUT = 2500

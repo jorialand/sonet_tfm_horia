@@ -9,6 +9,7 @@ from PySide2.QtWidgets import QDialog, QApplication, QDialogButtonBox, QMessageB
 # Sonet imports
 from src import database
 from src import sonet_pcp_filter_qt_ui
+from src.SonetSpacecraft import SonetSpacecraft
 from src.SonetUtils import FilterType, TripType, SonetLogType, sonet_log, popup_msg, SONET_MSG_TIMEOUT
 
 
@@ -126,9 +127,9 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         """
         # Retrieve the filters dataframes into a dict.
         self._dict_filters_current = {}
-        for i in ar_list_spacecrafts:
-            spacecraft = database.db[i]  # SonetSpacecraft object.
-            self._dict_filters_current[i] = spacecraft.get_filter_data(p_get_dataframe_copy=True)
+        for sc_name in ar_list_spacecrafts:
+            sc: SonetSpacecraft = database.db[sc_name]
+            self._dict_filters_current[sc_name] = sc.get_filter_data(p_get_dataframe_copy=True)
 
     def init_table_model(self):
         """
@@ -783,13 +784,17 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         """
         sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.clicked_pb_accept')
 
-        # Get all the spacecrafts.
-        spacecrafts_list = database.get_spacecrafts_list()
+        # Traverse all the s/c and update their filters.
+        sc: SonetSpacecraft
+        for sc in database.get_spacecrafts_list(p_return_objects=True):
+            # Set the current filter.
+            the_dataframe = self._dict_filters_current.get(sc.get_spacecraft_name())
+            sc.set_filter(the_dataframe, p_dataframe=True)
 
-        # Traverse them and update their filters.
-        for spc in spacecrafts_list:
-            the_spacecraft = database.get_spacecraft(spc)
-            the_spacecraft.set_filter(self._dict_filters_current.get(spc), p_dataframe=True)
+            # Add dependencies, if the current filter generates them.
+            dependencies_list = sc.get_filter_dependencies(the_dataframe)
+            for sc_name in dependencies_list:
+                sc.add_dependency(sc_name)
 
     def clicked_pb_cancel(self):
         sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.clicked_pb_cancel')

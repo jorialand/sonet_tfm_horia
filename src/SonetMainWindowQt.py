@@ -27,8 +27,6 @@ from src.SonetUtils import TripType, SonetLogType, sonet_log, popup_msg, SONET_M
 
 # QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)  # To avoid AA_ShareOpenGLContexts warning in QtCreator.
 
-# TODO When user selects one item, all row should be selected instead.
-
 # ==============================================================================================
 # ==============================================================================================
 #
@@ -39,12 +37,6 @@ from src.SonetUtils import TripType, SonetLogType, sonet_log, popup_msg, SONET_M
 # ==============================================================================================
 # ==============================================================================================
 
-def get_main_window():
-    """
-    Getter method.
-    """
-    return main_window
-
 
 def force_table_view_update():
     """
@@ -54,6 +46,20 @@ def force_table_view_update():
     get_main_window().sonet_pcp_tabs_qtw.currentChanged.emit(index)
 
 
+def update_dependent_sc(a_the_sc: str):
+    """
+    Traverses all the s/c and asks them if they depend on 'a_the_sc'.
+    If so, update the s/cs, as 'a_the_sc' maybe doesn't exist anymore or it has changed its state.
+    @param a_the_sc: a s/c name.
+    """
+
+    # Traverse all the s/c, and update them, if necessary.
+    the_sc_list = database.get_spacecrafts_list(p_return_objects=True)
+
+    sc: SonetSpacecraft
+    for sc in the_sc_list:
+        sc.update(a_the_sc)
+    
 def get_current_sc() -> SonetSpacecraft:
     """
     Get the current selected s/c in the main window's list. Returns None object if no selection
@@ -75,6 +81,13 @@ def get_current_sc() -> SonetSpacecraft:
             return None
     else:
         return None
+
+
+def get_main_window():
+    """
+    Getter method.
+    """
+    return main_window
 
 
 class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
@@ -196,7 +209,6 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         # Force Qt repaint to update the table views.
         index = get_main_window().sonet_mission_tree_qlv.currentIndex()
         self.sonet_mission_tree_qlv.clicked.emit(index)  # The filters are applied here inside.
-        # TODO Awkward update, to improve.
 
     def clicked_new_spacecraft(self):
         """
@@ -253,15 +265,14 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         if len(list(db.keys())) is 0:
             sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_remove_spacecraft."No s/c to remove"')
             self.statusbar.showMessage('No s/c to remove.', SONET_MSG_TIMEOUT)
-            return True
 
         # If there is no selection, remove last SonetSpacecraft.
         if (selection is -1):
             selection = len(list(db.keys())) - 1
 
         # Remove it from the database.
-        key = list(db.keys())[selection] # The selected object (e.g. SonetSpacecraft).
-        del db[key]
+        the_sc_str = list(db.keys())[selection]  # The selected object (e.g. SonetSpacecraft).
+        del db[the_sc_str]
 
         # Update table models.
         self.get_table_model(TripType.OUTGOING).reset_model()
@@ -275,10 +286,12 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         force_table_view_update()
         self.update_trajectory_label_and_progress_bar(a_reset_widgets=True)
 
-        msg = key + ' removed'
+        msg = the_sc_str + ' removed'
         sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_remove_spacecraft."' + msg + '"')
 
-        return True
+        # Dependencies update.
+        # If the removed s/c has dependencies, update them.
+        update_dependent_sc(the_sc_str)
 
     def clicked_select_trajectory(self):
         """
@@ -417,10 +430,8 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         sys.exit()
 
 
-# TODO: Move TableModel and ListModel classes outside main_window.py file.
 class ListModel(QAbstractListModel):
     """
-    TODO docstring ListModel()
     """
 
     def __init__(self, data=None, parent=None):
@@ -558,7 +569,6 @@ class ListModel(QAbstractListModel):
 
 class TableModel(QAbstractTableModel):
     """
-    TODO docstring TableModel()
     """
 
     def __init__(self, a_spacecraft=None, a_trip_type=None, parent=None):

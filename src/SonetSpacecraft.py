@@ -1,30 +1,27 @@
+# External packages
 import pandas as pd
 from pandas import DataFrame
-# from overloading import overload
 
+# Qt/Pyside2
 from PySide2.QtCore import QModelIndex, QDate
+
+# Sonet
 from src.SonetTrajectoryFilter import SonetTrajectoryFilter
 from src.SonetUtils import SpacecraftType, TripType, sonet_log, SonetLogType, SONET_MSG_TIMEOUT
+from src import database
 
 
 class SonetSpacecraft:
     """
-    Sonet spacecraft class.
     The spacecrafts can be:
      - Cargo/crewed.
      - One way/two way.
 
-    A correct form to build a SonetSpacecraft object would be to declare an empty SonetSpacecraft() and then call to
-    the constructing methods:
-     - set_spacecraft_type()
-     - set_has_return_trajectory()
-     - set_filters()
+    It's always considered that s/c depart from Earth.
 
-    A correct form to work with the spacecraft filter would be:
-     - Get a filter, with get_filter() or directly modifying the desired filter (e.g. _pcp_filter1, _pcp_filter1, or
-     _pcp_filter).
-     - Modify the filter's internal dataframe using the SonetTrajectoryFilter's set_data method.
-     -  Get a filtered porkchop plot table with SonetTrajectoryFilter's get_filtered_pcp method.
+     - _scs_on_which_depends is a list for managing the dependencies between s/c. It is filled with all the s/c's to
+     which this s/c points to, so when one of the s/c in the list updates its filter or trajectory, this s/c
+     should update consequently.
     """
     _has_return_trajectory: bool
 
@@ -33,15 +30,57 @@ class SonetSpacecraft:
 
         # Instance members
         self._p_main_window = ap_main_window
+        self._spacecraft_name = None
         self._spacecraft_type = None
         self._has_return_trajectory = None
+        self._scs_on_which_depends = set()
 
         self.set_spacecraft_name(a_spacecraft_name)
         self.set_spacecraft_type(a_spacecraft_type_crew)
         self.set_has_return_trajectory(a_spacecraft_type_return)
-        self.set_filters()
+        self.init_filters()
 
-    # Public methods
+    def add_dependency(self, a_sc_name):
+        self._scs_on_which_depends.add(a_sc_name)
+
+    def remove_dependency(self, a_sc_name):
+        self._scs_on_which_depends.remove(a_sc_name)
+
+    def get_departure_arrival_date(self, p_trip='', p_trip_event='') -> int:
+        """
+        Getter method.
+        Returns the s/c's departure or arrival date, for the selected p_trip,
+        and for the passed p_trip_event.
+        Example:
+         - p_trip = 'Earth - Mars'
+        - p_trip_event = 'Launching'
+
+        @param p_trip: 'Earth - Mars' or 'Mars - Earth'
+        @param p_trip_event: 'Launching' or 'Landing'
+        @return: the date
+        """
+        # Are there selected trajectories for this s/c? There should be.
+        if self.get_trajectory_selection_status() != 0:
+            # Get the trajectory/ies.
+            the_trajectory = []
+            if self.get_has_return_trajectory():
+                if p_trip == 'Earth - Mars':
+                    the_trajectory = list(self._trajectory1)
+                elif p_trip == 'Mars - Earth':
+                    the_trajectory = list(self._trajectory2)
+            else:
+                if p_trip == 'Earth - Mars':
+                    the_trajectory = list(self._trajectory)
+
+            # Get the departure/arrival date.
+            the_date = 0
+            if p_trip_event == 'Launching':
+                the_date = QDate.toJulianDay(the_trajectory[0])
+            elif p_trip_event == 'Landing':
+                the_date = QDate.toJulianDay(the_trajectory[1])
+
+            return the_date
+
     def get_filter(self, ar_trip_type=None):
         """
         Getter method. It returns a concrete SonetTrajectoryFilter, based
@@ -110,6 +149,16 @@ class SonetSpacecraft:
                 return self._pcp_filter.get_data().copy()
             else:
                 return self._pcp_filter.get_data()
+
+    @staticmethod
+    def get_filter_dependencies(a_the_filter: DataFrame) -> list:
+        """
+        Traverses the filter, and returns a list of unique s/c names on which this filter depends.
+        """
+        # Get all the rows wich are of type ComplexDate.
+        # TODO: PENDING IMPLEMENTATION
+        # Get all the s/c on which depends (make the list unique).
+        pass
 
     def get_has_return_trajectory(self):
         """
@@ -195,41 +244,6 @@ class SonetSpacecraft:
 
         return the_selected_trajectories
 
-    def get_departure_arrival_date(self, p_trip='', p_trip_event='') -> int:
-        """
-        Getter method.
-        Returns the s/c's departure or arrival date, for the selected p_trip,
-        and for the passed p_trip_event.
-        Example:
-         - p_trip = 'Earth - Mars'
-        - p_trip_event = 'Launching'
-
-        @param p_trip: 'Earth - Mars' or 'Mars - Earth'
-        @param p_trip_event: 'Launching' or 'Landing'
-        @return: the date
-        """
-        # Are there selected trajectories for this s/c? There should be.
-        if self.get_trajectory_selection_status() != 0:
-            # Get the trajectory/ies.
-            the_trajectory = []
-            if self.get_has_return_trajectory():
-                if p_trip == 'Earth - Mars':
-                    the_trajectory = list(self._trajectory1)
-                elif p_trip == 'Mars - Earth':
-                    the_trajectory = list(self._trajectory2)
-            else:
-                if p_trip == 'Earth - Mars':
-                    the_trajectory = list(self._trajectory)
-
-            # Get the departure/arrival date.
-            the_date = 0
-            if p_trip_event == 'Launching':
-                the_date = QDate.toJulianDay(the_trajectory[0])
-            elif p_trip_event == 'Landing':
-                the_date = QDate.toJulianDay(the_trajectory[1])
-
-            return the_date
-
     def get_trajectory_selected_row(self) -> (QModelIndex, QModelIndex):
         if self._has_return_trajectory:
             return self._trajectory1_index, self._trajectory2_index
@@ -238,8 +252,11 @@ class SonetSpacecraft:
 
     def reset_trajectory(self):
         """
-        Resets the current selected trajectories. Used when a s/c filter changes and the already selected trajectories
-        are no longer valid.
+        Resets the current selected trajectories.
+
+        Use cases:
+            - When a s/c filter changes and the already selected trajectories are no longer valid.
+            - When a updating a s/c dependencies.
         """
         if self._has_return_trajectory:
             self._trajectory1 = None
@@ -250,7 +267,7 @@ class SonetSpacecraft:
             self._trajectory = None
             self._trajectory_index = QModelIndex()
 
-    def set_filter(self, a_the_filter: SonetTrajectoryFilter, p_dataframe=False):
+    def set_filter(self, a_the_filter, p_dataframe=False):
         """
         Setter method.
         Sets the argument a_the_filter as current SonetSpacecraft's filter. If the passed a_the_filter is
@@ -275,11 +292,9 @@ class SonetSpacecraft:
             elif isinstance(a_the_filter, SonetTrajectoryFilter):
                 self._pcp_filter.set_data(a_the_filter.get_data().copy())
 
-    def set_filters(self):
+    def init_filters(self):
         """
-        Method for constructing a SonetSpacecraft object. The spacecraft has one filter per trajectory.
-        TODO: Bad practice - defining instance attributes outside the class constructor.
-        :return: True if everything was ok, false otherwise.
+        Initialize the s/c filters and trajectories.
         """
         sonet_log(SonetLogType.INFO, 'SonetSpacecraft.set_filters')
 
@@ -287,7 +302,8 @@ class SonetSpacecraft:
 
         # Type check.
         if not isinstance(has_return_trajectory, bool):
-            return False
+            sonet_log(SonetLogType.WARNING, 'SonetSpacecraft.init_filters."Wrong type"')
+            return
 
         if has_return_trajectory:
             # Two way trip.
@@ -306,8 +322,6 @@ class SonetSpacecraft:
 
             self._trajectory = None
             self._trajectory_index = QModelIndex()
-
-        return True
 
     def set_has_return_trajectory(self, a_has_return_trajectory=None):
         """
@@ -394,4 +408,16 @@ class SonetSpacecraft:
 
         return True
 
-    # Private methods
+    def update(self, a_sc_name: str):
+        """
+        Checks if this s/c depends on the passed a_sc s/c and update it in case it is.
+        @param a_sc_name: a s/c to verify if this s/c is dependent on.
+        """
+
+        if a_sc_name in self._scs_on_which_depends:
+            # Reset its filters and trajectories.
+            self.init_filters()
+
+            # If a_sc has been removed, remove it also from the dependencies list.
+            if a_sc_name not in database.get_spacecrafts_list():
+                self._scs_on_which_depends.remove(a_sc_name)
