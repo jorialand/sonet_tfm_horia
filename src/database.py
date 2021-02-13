@@ -10,7 +10,6 @@ from numpy import pi
 from src.SonetSpacecraft import SonetSpacecraft
 from src.SonetUtils import SONET_DEBUG_LEVEL, TripType, SonetLogType, sonet_log
 
-
 def get_pcp_table(a_trip_type):
     """
     Getter function.
@@ -28,7 +27,6 @@ def get_pcp_table(a_trip_type):
     else:
         return False
 
-
 def get_spacecraft(a_spacecraft):
     """
     Getter function.
@@ -38,21 +36,15 @@ def get_spacecraft(a_spacecraft):
     """
     return db[a_spacecraft]
 
-
-def get_spacecrafts_list(p_return_objects=False):
+def get_spacecrafts_list():
     """
     Getter function.
     Returns the list of spacecrafts within the database.
-    If p_return_objects is True, return a list of s/c objects.
-    Otherwise, return a list of the s/c names.
 
-    @return: list of spacecrafts.
-    @rtype: list
+    :return: list of spacecrafts.
+    :rtype: list
     """
-    if p_return_objects:
-        return list(db.values())
-    else:
-        return list(db.keys())
+    return list(db.keys())
 
 def import_pcp_from_matlab():
     """

@@ -179,7 +179,54 @@ class SonetTrajectoryFilter:
 
         elif a_type == 'ComplexDate':
             for f in list(a_filter):
-                query_str.append(self.convert_complex_date_filter_to_query_format(f))
+                str_1 = str_2 = str_3 = ''
+                part_1 = f[0]
+                part_2 = f[2]
+
+                # Part 1 - departure or arrival.
+                if part_1 == 'Departs':
+                    str_1 = 'DepDates'
+                elif part_1 == 'Arrives':
+                    str_1 = 'ArrivDates'
+
+                # Part 2 - operator.
+                if part_2 == 'At least':
+                    str_2 = '>='
+                elif part_2 == 'At maximum':
+                    str_2 = '<='
+                elif part_2 == 'At the same time':
+                    str_2 = '=='
+
+                # Part 3 - the date.
+                if part_2 in ['At least', 'At maximum']:
+                    # Get the offset.
+                    the_offset = int(f[3])
+                    if f[5] == 'After':
+                        the_offset = +1 * the_offset
+                    elif f[5] == 'Before':
+                        the_offset = -1 * the_offset
+
+                    # Get the s/c.
+                    the_sc = database.get_spacecraft(f[6])
+                    the_date = the_sc.get_departure_arrival_date(p_trip=f[7], p_trip_event=f[8])
+                    the_date = the_date + the_offset
+                    str_3 = str(the_date)
+
+                elif part_2 in ['At the same time']:
+
+                    # Get the s/c.
+                    the_sc = database.get_spacecraft(f[3])
+                    the_date = the_sc.get_departure_arrival_date(p_trip=f[4], p_trip_event=f[5])
+                    str_3 = str(the_date)
+
+                # Part 4 - query string build.
+                if part_2 in ['At least', 'At maximum']:
+                    query_str.append(str_1 + ' ' + str_2 + ' ' + str_3)
+                elif part_2 in ['At the same time']:
+                    the_date_one_day_after = str(the_date + 1)
+                    the_date_one_day_before = str(the_date - 1)
+                    query_str.append(str_1 + ' >= ' + the_date_one_day_before + ' and ' + str_1 + ' <= ' + the_date_one_day_after)
+
 
         # Get the filters, as a unique string.
         query = ' and '.join(query_str)
@@ -191,7 +238,7 @@ class SonetTrajectoryFilter:
 
         Example of input filter: ['Departs', 'Earth', 'On', '01-05-2020']
         """
-        # TODO: REFACTOR
+        # TODO: Warning! if-else labyrinth following... Not efficient but not needed at this stage.
         action = a_filter[0]
         planet = a_filter[1]
         # No importa, the calling function knows if the spc is departing/arriving to/from Earth/Mars.
@@ -219,62 +266,6 @@ class SonetTrajectoryFilter:
         date = QDate.toJulianDay(QDate.fromString(date, 'dd-MM-yyyy'))
 
         return [action, planet, operator, date]
-
-    def convert_complex_date_filter_to_query_format(self, a_filter):
-        str_1 = str_2 = str_3 = ''
-        part_1 = a_filter[0]
-        part_2 = a_filter[2]
-
-        # Part 1 - departure or arrival.
-        if part_1 == 'Departs':
-            str_1 = 'DepDates'
-        elif part_1 == 'Arrives':
-            str_1 = 'ArrivDates'
-
-        # Part 2 - operator.
-        if part_2 == 'At least':
-            str_2 = '>='
-        elif part_2 == 'At maximum':
-            str_2 = '<='
-        else:
-            sonet_log(SonetLogType.WARNING,
-                      'SonetTrajectoryFilter.convert_complex_date_filter_to_query_format."Not supposed to arrive here"')
-
-        # Part 3 - the date.
-        if part_2 in ['At least', 'At maximum']:
-            # Get the offset.
-            the_offset = int(a_filter[3])
-            if a_filter[5] == 'After':
-                the_offset = +1 * the_offset
-            elif a_filter[5] == 'Before':
-                the_offset = -1 * the_offset
-
-            # Get the s/c.
-            the_sc = database.get_spacecraft(a_filter[6])
-            the_date = the_sc.get_departure_arrival_date(p_trip=a_filter[7], p_trip_event=a_filter[8])
-            the_date = the_date + the_offset
-            str_3 = str(the_date)
-
-        elif part_2 in ['At the same time']:
-            # Get the s/c.
-            the_sc = database.get_spacecraft(a_filter[3])
-            the_date = the_sc.get_departure_arrival_date(p_trip=a_filter[4], p_trip_event=a_filter[5])
-            str_3 = str(the_date)
-        else:
-            sonet_log(SonetLogType.WARNING,
-                      'SonetTrajectoryFilter.convert_complex_date_filter_to_query_format."Not supposed to arrive here"')
-
-        # Part 4 - query string build.
-        the_query_str = ''
-        if part_2 in ['At least', 'At maximum']:
-            the_query_str = str_1 + ' ' + str_2 + ' ' + str_3
-        elif part_2 in ['At the same time']:
-            # When exact time is set, better to extend the date +-1day.
-            the_date_one_day_after = str(the_date + 1)
-            the_date_one_day_before = str(the_date - 1)
-            the_query_str = str_1 + ' >= ' + the_date_one_day_before + ' and ' + \
-                            str_1 + ' <= ' + the_date_one_day_after
-        return the_query_str
 
     @staticmethod
     def get_complex_date_str_1(a_filter):
