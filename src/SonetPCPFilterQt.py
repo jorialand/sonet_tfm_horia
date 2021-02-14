@@ -1038,7 +1038,6 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         else:
             return None
 
-
 class SonetAppliedFiltersTableModel(QAbstractTableModel):
     """
     Table model for the applied filters QTableView. Only two columns:
@@ -1146,7 +1145,6 @@ class SonetAppliedFiltersTableModel(QAbstractTableModel):
         self._data = the_filter_data
         self.endResetModel()
         return True
-
 
 if __name__ == "__main__":
     QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)  # To avoid AA_ShareOpenGLContexts Qt warning.

@@ -23,6 +23,7 @@ from src import database
 from src import sonet_main_window_ui
 from src.SonetPCPFilterQt import SonetPCPFilterQt
 from src.SonetSpacecraft import SonetSpacecraft
+from src.SonetTrajectoryFilter import SonetTrajectoryFilter
 from src.SonetUtils import TripType, SonetLogType, sonet_log, popup_msg, SONET_MSG_TIMEOUT
 
 # QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)  # To avoid AA_ShareOpenGLContexts warning in QtCreator.
@@ -39,11 +40,16 @@ from src.SonetUtils import TripType, SonetLogType, sonet_log, popup_msg, SONET_M
 # ==============================================================================================
 # ==============================================================================================
 
+
 def get_main_window():
     """
     Getter method.
     """
     return main_window
+
+
+def get_pcp_filter_window():
+    return get_main_window()._p_pcp_filter_window
 
 
 def force_table_view_update():
@@ -85,6 +91,9 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
     def __init__(self, *args, **kwargs):
         super(SonetMainWindow, self).__init__(*args, **kwargs)
         self.setupUi(self)
+
+        # Access to SonetPCPFilterQt window.
+        self._p_pcp_filter_window = None
 
         # Menu bar
         self.menubar.setNativeMenuBar(False)  # I'd problems with MacOSX native menubar, the menus didn't appear
@@ -185,6 +194,9 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
 
         # SonetPCPFilterQt.
         filter_dialog_qt = SonetPCPFilterQt(self, ar_list_spacecrafts=arg1, ar_current_index=arg2)
+
+        # Update pointer to the dialog, e.g. for accessing to its status bar.
+        self._p_pcp_filter_window = filter_dialog_qt
 
         # SonetPCPFilterQt - Settings.
         filter_dialog_qt.setModal(True)
@@ -499,38 +511,33 @@ class ListModel(QAbstractListModel):
         if not isinstance(the_sc, SonetSpacecraft):
             sonet_log(SonetLogType.ERROR, 'list_clicked."Wrong s/c type"')
             return False
+
+        SonetTrajectoryFilter.update_filters_dependencies(the_sc.get_filter())
         the_filter = the_sc.get_filter()
 
-        # the_filter is a SonetTrajectoryFilter if the s/c has only one trip
-        # Or a list of them otherwise.
-        # , we display it by setting it as _data and
-        # resetting the table model.
-        try:
+        if not the_sc.get_has_return_trajectory():
             # The sc has got only outgoing trajectory.
 
             # Get the filtered pcp dataframe.
             the_filtered_dataframe = the_filter.get_filtered_pcp()
-            # Update the table models.
+            # Update the table model.
             main_window._table_model_outgoing.set_model_data(the_sc, the_filtered_dataframe)
 
             # Again for the 2nd table view.
             the_filtered_dataframe = pd.DataFrame()
             main_window._table_model_incoming.set_model_data(the_sc, the_filtered_dataframe)
-        except AttributeError:
+        else:
             # The sc has got both outgoing and incoming trajectories.
             sonet_log(SonetLogType.INFO, 'list_clicked."This spacecraft is of two-way type"')
 
             # Get the filtered pcp dataframe.
             the_filtered_dataframe = the_filter[0].get_filtered_pcp()
-            # Update the table models.
+            # Update the table model.
             main_window._table_model_outgoing.set_model_data(the_sc, the_filtered_dataframe)
 
             # Again for the 2nd table view.
             the_filtered_dataframe = the_filter[1].get_filtered_pcp()
             main_window._table_model_incoming.set_model_data(the_sc, the_filtered_dataframe)
-        except:
-            sonet_log(SonetLogType.ERROR, 'list_clicked."Exception raised."')
-            return False
 
         # Update the trajectory label & progress bar.
         status = the_sc.get_trajectory_selection_status()
