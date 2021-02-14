@@ -4,16 +4,6 @@ from enum import Enum, unique
 import pandas as pd
 from PySide2.QtWidgets import QMessageBox
 
-def PrintDict(ar_dict):
-    """
-    Convenience function for printing a dictionary to console.
-    Useful for debugging.
-    :param ar_dict:
-    """
-    print("Keys> ", [x for x in ar_dict.keys()])
-    print("Values> ", [x for x in ar_dict.values()])
-
-
 @unique
 class SpacecraftType(Enum):
     """
@@ -63,13 +53,19 @@ class TripType(Enum):
     OUTGOING = 1
     INCOMING = 2
 
-
     @staticmethod
     def convert_to_enum(a_trip_type):
         if a_trip_type == 'Earth - Mars':
             return TripType.OUTGOING
         elif a_trip_type == 'Mars - Earth':
             return TripType.INCOMING
+
+    @staticmethod
+    def convert_to_str(a_trip_type):
+        if a_trip_type == TripType.OUTGOING:
+            return 'Earth - Mars'
+        elif a_trip_type == TripType.INCOMING:
+            return 'Mars - Earth'
 
     @staticmethod
     def get_index(a_trip_type):
@@ -196,11 +192,10 @@ def sonet_log(a_log_type, a_log_msg):
 
 
 # Global debug verbose level for the application.
-SONET_DEBUG_LEVEL = SonetDebugLevel.FULL_VERBOSE
+SONET_DEBUG_LEVEL = SonetDebugLevel.ONLY_ERRORS
 
 # Global main window's status bar messages duration, in milliseconds.
 SONET_MSG_TIMEOUT = 2500
 
 if __name__ == "__main__":
-    d = {'key1': 'value1', 'key2': 'value1'}
-    PrintDict(d)
+    pass

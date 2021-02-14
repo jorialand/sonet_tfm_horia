@@ -27,7 +27,7 @@ def get_pcp_table(a_trip_type):
     else:
         return False
 
-def get_spacecraft(a_spacecraft):
+def get_spacecraft(a_spacecraft: str):
     """
     Getter function.
 

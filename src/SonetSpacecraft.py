@@ -41,7 +41,6 @@ class SonetSpacecraft:
         self.set_has_return_trajectory(a_spacecraft_type_return)
         self.set_filters()
 
-    # Public methods
     def get_filter(self, ar_trip_type=None):
         """
         Getter method. It returns a concrete SonetTrajectoryFilter, based
@@ -250,6 +249,28 @@ class SonetSpacecraft:
             self._trajectory = None
             self._trajectory_index = QModelIndex()
 
+    def reset_filter_and_trajectory(self, a_trip: TripType):
+        if a_trip == TripType.OUTGOING:
+            # Outgoing trip.
+            if self._has_return_trajectory:
+                self._pcp_filter1 = SonetTrajectoryFilter(self, TripType.OUTGOING)
+                self._trajectory1 = None
+                self._trajectory1_index = QModelIndex()
+            else:
+                self._pcp_filter = SonetTrajectoryFilter(self, TripType.OUTGOING)
+                self._trajectory = None
+                self._trajectory_index = QModelIndex()
+        else:
+            # Incoming trip.
+            self._pcp_filter2 = SonetTrajectoryFilter(self, TripType.INCOMING)
+            self._trajectory2 = None
+            self._trajectory2_index = QModelIndex()
+
+        # Inform to the user.
+        status_bar = self._p_main_window.statusbar
+        status_bar.showMessage('Dependencies update. Filter and trajectory reset  for s/c ' + self._spacecraft_name +
+                               ' (' + TripType.convert_to_str(a_trip) + ')', SONET_MSG_TIMEOUT * 3)
+
     def set_filter(self, a_the_filter: SonetTrajectoryFilter, p_dataframe=False):
         """
         Setter method.
@@ -393,5 +414,3 @@ class SonetSpacecraft:
             self._trajectory_index = a_index
 
         return True
-
-    # Private methods
