@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'sonet_main_window.ui'
 ##
-## Created by: Qt User Interface Compiler version 5.15.2
+## Created by: Qt User Interface Compiler version 5.15.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -50,34 +50,20 @@ class Ui_main_window(object):
 
         self.verticalLayout_2.addWidget(self.sonet_mission_tree_qlv)
 
+        self.sonet_add_rm_mission_qhbox = QHBoxLayout()
+        self.sonet_add_rm_mission_qhbox.setObjectName(u"sonet_add_rm_mission_qhbox")
         self.sonet_add_mission_qpb = QPushButton(self.sonet_mission_tree_qgb)
         self.sonet_add_mission_qpb.setObjectName(u"sonet_add_mission_qpb")
 
-        self.verticalLayout_2.addWidget(self.sonet_add_mission_qpb)
+        self.sonet_add_rm_mission_qhbox.addWidget(self.sonet_add_mission_qpb)
 
-        self.sonet_sc_name_le = QLineEdit(self.sonet_mission_tree_qgb)
-        self.sonet_sc_name_le.setObjectName(u"sonet_sc_name_le")
+        self.sonet_remove_mission_qpb = QPushButton(self.sonet_mission_tree_qgb)
+        self.sonet_remove_mission_qpb.setObjectName(u"sonet_remove_mission_qpb")
 
-        self.verticalLayout_2.addWidget(self.sonet_sc_name_le)
+        self.sonet_add_rm_mission_qhbox.addWidget(self.sonet_remove_mission_qpb)
 
-        self.sonet_spacecraft_type_qcmb = QComboBox(self.sonet_mission_tree_qgb)
-        self.sonet_spacecraft_type_qcmb.addItem("")
-        self.sonet_spacecraft_type_qcmb.addItem("")
-        self.sonet_spacecraft_type_qcmb.setObjectName(u"sonet_spacecraft_type_qcmb")
 
-        self.verticalLayout_2.addWidget(self.sonet_spacecraft_type_qcmb)
-
-        self.sonet_spacecraft_type_has_return_trajectory_qcmb = QComboBox(self.sonet_mission_tree_qgb)
-        self.sonet_spacecraft_type_has_return_trajectory_qcmb.addItem("")
-        self.sonet_spacecraft_type_has_return_trajectory_qcmb.addItem("")
-        self.sonet_spacecraft_type_has_return_trajectory_qcmb.setObjectName(u"sonet_spacecraft_type_has_return_trajectory_qcmb")
-
-        self.verticalLayout_2.addWidget(self.sonet_spacecraft_type_has_return_trajectory_qcmb)
-
-        self.sonet_add_spacecraft_qpb = QPushButton(self.sonet_mission_tree_qgb)
-        self.sonet_add_spacecraft_qpb.setObjectName(u"sonet_add_spacecraft_qpb")
-
-        self.verticalLayout_2.addWidget(self.sonet_add_spacecraft_qpb)
+        self.verticalLayout_2.addLayout(self.sonet_add_rm_mission_qhbox)
 
         self.line = QFrame(self.sonet_mission_tree_qgb)
         self.line.setObjectName(u"line")
@@ -86,15 +72,44 @@ class Ui_main_window(object):
 
         self.verticalLayout_2.addWidget(self.line)
 
-        self.sonet_remove_mission_qpb = QPushButton(self.sonet_mission_tree_qgb)
-        self.sonet_remove_mission_qpb.setObjectName(u"sonet_remove_mission_qpb")
+        self.sonet_sc_name_le = QLineEdit(self.sonet_mission_tree_qgb)
+        self.sonet_sc_name_le.setObjectName(u"sonet_sc_name_le")
 
-        self.verticalLayout_2.addWidget(self.sonet_remove_mission_qpb)
+        self.verticalLayout_2.addWidget(self.sonet_sc_name_le)
+
+        self.sonet_spacecraft_type_qhbox = QHBoxLayout()
+        self.sonet_spacecraft_type_qhbox.setObjectName(u"sonet_spacecraft_type_qhbox")
+        self.sonet_spacecraft_type_qcmb = QComboBox(self.sonet_mission_tree_qgb)
+        self.sonet_spacecraft_type_qcmb.addItem("")
+        self.sonet_spacecraft_type_qcmb.addItem("")
+        self.sonet_spacecraft_type_qcmb.setObjectName(u"sonet_spacecraft_type_qcmb")
+
+        self.sonet_spacecraft_type_qhbox.addWidget(self.sonet_spacecraft_type_qcmb)
+
+        self.sonet_spacecraft_type_has_return_trajectory_qcmb = QComboBox(self.sonet_mission_tree_qgb)
+        self.sonet_spacecraft_type_has_return_trajectory_qcmb.addItem("")
+        self.sonet_spacecraft_type_has_return_trajectory_qcmb.addItem("")
+        self.sonet_spacecraft_type_has_return_trajectory_qcmb.setObjectName(u"sonet_spacecraft_type_has_return_trajectory_qcmb")
+
+        self.sonet_spacecraft_type_qhbox.addWidget(self.sonet_spacecraft_type_has_return_trajectory_qcmb)
+
+
+        self.verticalLayout_2.addLayout(self.sonet_spacecraft_type_qhbox)
+
+        self.sonet_add_rm_sc_qhbox = QHBoxLayout()
+        self.sonet_add_rm_sc_qhbox.setObjectName(u"sonet_add_rm_sc_qhbox")
+        self.sonet_add_spacecraft_qpb = QPushButton(self.sonet_mission_tree_qgb)
+        self.sonet_add_spacecraft_qpb.setObjectName(u"sonet_add_spacecraft_qpb")
+
+        self.sonet_add_rm_sc_qhbox.addWidget(self.sonet_add_spacecraft_qpb)
 
         self.sonet_remove_spacecraft_qpb = QPushButton(self.sonet_mission_tree_qgb)
         self.sonet_remove_spacecraft_qpb.setObjectName(u"sonet_remove_spacecraft_qpb")
 
-        self.verticalLayout_2.addWidget(self.sonet_remove_spacecraft_qpb)
+        self.sonet_add_rm_sc_qhbox.addWidget(self.sonet_remove_spacecraft_qpb)
+
+
+        self.verticalLayout_2.addLayout(self.sonet_add_rm_sc_qhbox)
 
         self.line_3 = QFrame(self.sonet_mission_tree_qgb)
         self.line_3.setObjectName(u"line_3")
@@ -115,11 +130,6 @@ class Ui_main_window(object):
 
 
         self.gridLayout.addWidget(self.sonet_mission_tree_qgb, 0, 1, 1, 1)
-
-        self.verticalLayout_7 = QVBoxLayout()
-        self.verticalLayout_7.setObjectName(u"verticalLayout_7")
-
-        self.gridLayout.addLayout(self.verticalLayout_7, 0, 2, 1, 1)
 
         self.sonet_pcp_table_qgb = QGroupBox(self.centralwidget)
         self.sonet_pcp_table_qgb.setObjectName(u"sonet_pcp_table_qgb")
@@ -213,7 +223,7 @@ class Ui_main_window(object):
 
         self.retranslateUi(main_window)
 
-        self.sonet_pcp_tabs_qtw.setCurrentIndex(0)
+        self.sonet_pcp_tabs_qtw.setCurrentIndex(1)
 
 
         QMetaObject.connectSlotsByName(main_window)
@@ -228,7 +238,11 @@ class Ui_main_window(object):
 #if QT_CONFIG(tooltip)
         self.sonet_add_mission_qpb.setToolTip(QCoreApplication.translate("main_window", u"Create new mission", None))
 #endif // QT_CONFIG(tooltip)
-        self.sonet_add_mission_qpb.setText(QCoreApplication.translate("main_window", u"Add mission (pending implementation)", None))
+        self.sonet_add_mission_qpb.setText(QCoreApplication.translate("main_window", u"Add mission", None))
+#if QT_CONFIG(tooltip)
+        self.sonet_remove_mission_qpb.setToolTip(QCoreApplication.translate("main_window", u"Remove mission", None))
+#endif // QT_CONFIG(tooltip)
+        self.sonet_remove_mission_qpb.setText(QCoreApplication.translate("main_window", u"Remove mission", None))
 #if QT_CONFIG(tooltip)
         self.sonet_sc_name_le.setToolTip(QCoreApplication.translate("main_window", u"Enter new s/c name", None))
 #endif // QT_CONFIG(tooltip)
@@ -253,17 +267,13 @@ class Ui_main_window(object):
 #endif // QT_CONFIG(tooltip)
         self.sonet_add_spacecraft_qpb.setText(QCoreApplication.translate("main_window", u"Add s/c", None))
 #if QT_CONFIG(tooltip)
-        self.sonet_remove_mission_qpb.setToolTip(QCoreApplication.translate("main_window", u"Remove mission", None))
-#endif // QT_CONFIG(tooltip)
-        self.sonet_remove_mission_qpb.setText(QCoreApplication.translate("main_window", u"Remove mission (pending implementation)", None))
-#if QT_CONFIG(tooltip)
         self.sonet_remove_spacecraft_qpb.setToolTip(QCoreApplication.translate("main_window", u"Remove s/c", None))
 #endif // QT_CONFIG(tooltip)
         self.sonet_remove_spacecraft_qpb.setText(QCoreApplication.translate("main_window", u"Remove s/c", None))
 #if QT_CONFIG(tooltip)
         self.sonet_pcp_filter_qpb.setToolTip(QCoreApplication.translate("main_window", u"Apply filter", None))
 #endif // QT_CONFIG(tooltip)
-        self.sonet_pcp_filter_qpb.setText(QCoreApplication.translate("main_window", u"Apply filter", None))
+        self.sonet_pcp_filter_qpb.setText(QCoreApplication.translate("main_window", u"Open filter", None))
 #if QT_CONFIG(tooltip)
         self.sonet_select_trajectory_qpb.setToolTip(QCoreApplication.translate("main_window", u"Select trajectory", None))
 #endif // QT_CONFIG(tooltip)
