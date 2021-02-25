@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'sonet_main_window.ui'
 ##
-## Created by: Qt User Interface Compiler version 5.15.1
+## Created by: Qt User Interface Compiler version 5.15.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -127,6 +127,16 @@ class Ui_main_window(object):
         self.sonet_select_trajectory_qpb.setObjectName(u"sonet_select_trajectory_qpb")
 
         self.verticalLayout_2.addWidget(self.sonet_select_trajectory_qpb)
+
+        self.sonet_draw_qpb = QPushButton(self.sonet_mission_tree_qgb)
+        self.sonet_draw_qpb.setObjectName(u"sonet_draw_qpb")
+
+        self.verticalLayout_2.addWidget(self.sonet_draw_qpb)
+
+        self.sonet_style_picker_qhlayout = QHBoxLayout()
+        self.sonet_style_picker_qhlayout.setObjectName(u"sonet_style_picker_qhlayout")
+
+        self.verticalLayout_2.addLayout(self.sonet_style_picker_qhlayout)
 
 
         self.gridLayout.addWidget(self.sonet_mission_tree_qgb, 0, 1, 1, 1)
@@ -278,6 +288,7 @@ class Ui_main_window(object):
         self.sonet_select_trajectory_qpb.setToolTip(QCoreApplication.translate("main_window", u"Select trajectory", None))
 #endif // QT_CONFIG(tooltip)
         self.sonet_select_trajectory_qpb.setText(QCoreApplication.translate("main_window", u"Select trajectory", None))
+        self.sonet_draw_qpb.setText(QCoreApplication.translate("main_window", u"Draw Mars Mission Timeline", None))
         self.sonet_pcp_table_qgb.setTitle(QCoreApplication.translate("main_window", u"PCP table", None))
         self.sonet_pcp_tabs_qtw.setTabText(self.sonet_pcp_tabs_qtw.indexOf(self.sonet_pcp_table_transit_1), QCoreApplication.translate("main_window", u"Earth - Mars", None))
         self.sonet_pcp_tabs_qtw.setTabText(self.sonet_pcp_tabs_qtw.indexOf(self.sonet_pcp_table_transit_2), QCoreApplication.translate("main_window", u"Mars - Earth ", None))

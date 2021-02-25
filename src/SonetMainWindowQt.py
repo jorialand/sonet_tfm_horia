@@ -9,19 +9,22 @@ Project defense:
 """
 import datetime
 import sys
-import qrainbowstyle
 
+
+import qrainbowstyle
 import pandas as pd
 from pandas import Series  # Needed to use the docstring :rtype: return type hint (i.e. :rtype: Series).
 # From module X import class Y.
 from PySide2.QtCore import QAbstractListModel, QAbstractTableModel, QModelIndex, Qt
 from PySide2.QtGui import QColor
-from PySide2.QtWidgets import QMainWindow, QApplication, QMessageBox, QStyleFactory
+from PySide2.QtWidgets import QMainWindow, QApplication, QMessageBox, QStyleFactory, QWidget, QVBoxLayout
+
 from fbs_runtime.application_context.PySide2 import ApplicationContext
 
 from src import database
 from src import sonet_main_window_ui
 from src.SonetPCPFilterQt import SonetPCPFilterQt
+from src.SonetCanvasQt import SonetCanvasQt
 from src.SonetSpacecraft import SonetSpacecraft
 from src.SonetTrajectoryFilter import SonetTrajectoryFilter
 from src.SonetUtils import TripType, SonetLogType, sonet_log, popup_msg, SONET_MSG_TIMEOUT
@@ -118,9 +121,11 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         self.sonet_remove_spacecraft_qpb.clicked.connect(self.clicked_remove_spacecraft)
         self.sonet_pcp_filter_qpb.clicked.connect(self.clicked_apply_filter)
         self.sonet_select_trajectory_qpb.clicked.connect(self.clicked_select_trajectory)
+        self.sonet_draw_qpb.clicked.connect(self.clicked_draw)
 
         self.sonet_mission_tree_qlv.clicked.connect(self._list_model.list_clicked)
         self.sonet_pcp_tabs_qtw.currentChanged.connect(self.clicked_tab)
+
 
     # Signals should be defined only within classes inheriting from QObject!
     # +info:https://wiki.qt.io/Qt_for_Python_Signals_and_Slots
@@ -356,6 +361,13 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         # Update the trajectory selection, in case there is a trajectory selected for the current s/c.
         the_sc = get_current_sc()
         main_window.update_trajectory_selection_in_table_view(the_sc)
+
+    def clicked_draw(self):
+        sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_draw')
+
+        self.statusbar.showMessage('Drawing the mission...', 1000)
+        self.canvas_window = SonetCanvasQt()
+
 
     def update_trajectory_selection_in_table_view(self, a_the_sc: SonetSpacecraft):
         """
@@ -696,12 +708,13 @@ if __name__ == "__main__":
     # Add as parameter to the script to set an app style: -style Fusion|Windows|windowsvista
     app = QApplication(sys.argv)
 
-    # App style cyberpunk|darkblue|oceanic|lightorange|darkorange||.
-    stylesheet = qrainbowstyle.load_stylesheet_pyside2(style='oceanic')
+    # App style cyberpunk|darkblue|oceanic|lightorange|darkorange|qdarkstyle|qdarkstyle3.
+    stylesheet = qrainbowstyle.load_stylesheet_pyside2(style='qdarkstyle')
     app.setStyleSheet(stylesheet)
 
     main_window = SonetMainWindow()
     main_window.show()
+
     sys.exit(app.exec_())
 
     # Using fbs module
