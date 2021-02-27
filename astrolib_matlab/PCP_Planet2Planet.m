@@ -11,22 +11,29 @@
 close all; clear; clc;
 
 % Ask for inputs
-prompts = {'Departure Planet:','Arrival Planet:',...
-    'Manoeuvre: (n/a) BPM BPMA BPM2D','Departure year:',...
-    'Synodic periods:','TOF years:','Multi-revs:','Long-Period:'};
-defaultans = {'Earth','Mars','','2020','1','2','0','0'};
+prompts = {'Departure Planet:', ...
+           'Arrival Planet:', ...
+           'Departure year:', ...
+           'Synodic periods:', ...
+           'TOF years:', ...
+           'Manoeuvre: (n/a) BPM BPMA BPM2D', ...
+           'Multi-revs:', ...
+           'Long-Period:'};
+       
+defaultans = {'Earth','Mars','2020','1','2','','0','0'};
 answer = inputdlg(prompts,'PCP',1,defaultans);
 if isempty(answer), return; end
 
 % Parse inputs
 departure_planet = answer{1};
 arrival_planet = answer{2};
-opts.mano = answer{3};
-Y0 = str2double(answer{4});
-PsN = str2double(answer{5});
-tofY = str2double(answer{6});
+Y0 = str2double(answer{3});
+PsN = str2double(answer{4});
+tofY = str2double(answer{5});
+opts.mano = answer{6};
 mr = str2double(answer{7});
 lp = str2double(answer{8});
+clearvars answer;
 
 % Compute synodic period between the planets
 mu = GetBodyProps('Sun');
