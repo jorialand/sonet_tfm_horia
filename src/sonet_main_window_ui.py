@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'sonet_main_window.ui'
 ##
-## Created by: Qt User Interface Compiler version 5.15.1
+## Created by: Qt User Interface Compiler version 5.15.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -36,6 +36,75 @@ class Ui_main_window(object):
         self.centralwidget.setObjectName(u"centralwidget")
         self.gridLayout = QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName(u"gridLayout")
+        self.sonet_pcp_table_qgb = QGroupBox(self.centralwidget)
+        self.sonet_pcp_table_qgb.setObjectName(u"sonet_pcp_table_qgb")
+        self.verticalLayout = QVBoxLayout(self.sonet_pcp_table_qgb)
+        self.verticalLayout.setObjectName(u"verticalLayout")
+        self.sonet_pcp_tabs_qtw = QTabWidget(self.sonet_pcp_table_qgb)
+        self.sonet_pcp_tabs_qtw.setObjectName(u"sonet_pcp_tabs_qtw")
+        self.sonet_pcp_table_transit_1 = QWidget()
+        self.sonet_pcp_table_transit_1.setObjectName(u"sonet_pcp_table_transit_1")
+        self.verticalLayout_4 = QVBoxLayout(self.sonet_pcp_table_transit_1)
+        self.verticalLayout_4.setObjectName(u"verticalLayout_4")
+        self.sonet_pcp_table_qtv_outgoing = QTableView(self.sonet_pcp_table_transit_1)
+        self.sonet_pcp_table_qtv_outgoing.setObjectName(u"sonet_pcp_table_qtv_outgoing")
+        self.sonet_pcp_table_qtv_outgoing.setFrameShadow(QFrame.Sunken)
+        self.sonet_pcp_table_qtv_outgoing.setLineWidth(1)
+        self.sonet_pcp_table_qtv_outgoing.setMidLineWidth(1)
+        self.sonet_pcp_table_qtv_outgoing.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.sonet_pcp_table_qtv_outgoing.setSelectionBehavior(QAbstractItemView.SelectRows)
+
+        self.verticalLayout_4.addWidget(self.sonet_pcp_table_qtv_outgoing)
+
+        self.sonet_pcp_tabs_qtw.addTab(self.sonet_pcp_table_transit_1, "")
+        self.sonet_pcp_table_transit_2 = QWidget()
+        self.sonet_pcp_table_transit_2.setObjectName(u"sonet_pcp_table_transit_2")
+        self.verticalLayout_3 = QVBoxLayout(self.sonet_pcp_table_transit_2)
+        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+        self.sonet_pcp_table_qtv_incoming = QTableView(self.sonet_pcp_table_transit_2)
+        self.sonet_pcp_table_qtv_incoming.setObjectName(u"sonet_pcp_table_qtv_incoming")
+        sizePolicy1 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
+        sizePolicy1.setHeightForWidth(self.sonet_pcp_table_qtv_incoming.sizePolicy().hasHeightForWidth())
+        self.sonet_pcp_table_qtv_incoming.setSizePolicy(sizePolicy1)
+        self.sonet_pcp_table_qtv_incoming.setFrameShadow(QFrame.Sunken)
+        self.sonet_pcp_table_qtv_incoming.setLineWidth(1)
+        self.sonet_pcp_table_qtv_incoming.setMidLineWidth(1)
+        self.sonet_pcp_table_qtv_incoming.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.sonet_pcp_table_qtv_incoming.setSelectionBehavior(QAbstractItemView.SelectRows)
+
+        self.verticalLayout_3.addWidget(self.sonet_pcp_table_qtv_incoming)
+
+        self.sonet_pcp_tabs_qtw.addTab(self.sonet_pcp_table_transit_2, "")
+
+        self.verticalLayout.addWidget(self.sonet_pcp_tabs_qtw)
+
+        self.sonet_label_rows_filtered_visible = QLabel(self.sonet_pcp_table_qgb)
+        self.sonet_label_rows_filtered_visible.setObjectName(u"sonet_label_rows_filtered_visible")
+        sizePolicy2 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
+        sizePolicy2.setHorizontalStretch(0)
+        sizePolicy2.setVerticalStretch(0)
+        sizePolicy2.setHeightForWidth(self.sonet_label_rows_filtered_visible.sizePolicy().hasHeightForWidth())
+        self.sonet_label_rows_filtered_visible.setSizePolicy(sizePolicy2)
+
+        self.verticalLayout.addWidget(self.sonet_label_rows_filtered_visible)
+
+        self.sonet_label_selected_trajectory = QLabel(self.sonet_pcp_table_qgb)
+        self.sonet_label_selected_trajectory.setObjectName(u"sonet_label_selected_trajectory")
+
+        self.verticalLayout.addWidget(self.sonet_label_selected_trajectory)
+
+        self.sonet_trajectory_selection_qprogrbar = QProgressBar(self.sonet_pcp_table_qgb)
+        self.sonet_trajectory_selection_qprogrbar.setObjectName(u"sonet_trajectory_selection_qprogrbar")
+        self.sonet_trajectory_selection_qprogrbar.setValue(0)
+        self.sonet_trajectory_selection_qprogrbar.setTextVisible(False)
+
+        self.verticalLayout.addWidget(self.sonet_trajectory_selection_qprogrbar)
+
+
+        self.gridLayout.addWidget(self.sonet_pcp_table_qgb, 0, 0, 1, 1)
+
         self.sonet_mission_tree_qgb = QGroupBox(self.centralwidget)
         self.sonet_mission_tree_qgb.setObjectName(u"sonet_mission_tree_qgb")
         sizePolicy.setHeightForWidth(self.sonet_mission_tree_qgb.sizePolicy().hasHeightForWidth())
@@ -127,77 +196,45 @@ class Ui_main_window(object):
 
         self.verticalLayout_2.addWidget(self.sonet_select_trajectory_qpb)
 
+        self.sonet_draw_qpb = QPushButton(self.sonet_mission_tree_qgb)
+        self.sonet_draw_qpb.setObjectName(u"sonet_draw_qpb")
+
+        self.verticalLayout_2.addWidget(self.sonet_draw_qpb)
+
+        self.line_7 = QFrame(self.sonet_mission_tree_qgb)
+        self.line_7.setObjectName(u"line_7")
+        self.line_7.setFrameShape(QFrame.HLine)
+        self.line_7.setFrameShadow(QFrame.Sunken)
+
+        self.verticalLayout_2.addWidget(self.line_7)
+
+        self.sonet_matlab_btn_qhbox = QHBoxLayout()
+        self.sonet_matlab_btn_qhbox.setObjectName(u"sonet_matlab_btn_qhbox")
+        self.sonet_open_matlab_pcp_viewer = QPushButton(self.sonet_mission_tree_qgb)
+        self.sonet_open_matlab_pcp_viewer.setObjectName(u"sonet_open_matlab_pcp_viewer")
+
+        self.sonet_matlab_btn_qhbox.addWidget(self.sonet_open_matlab_pcp_viewer)
+
+        self.sonet_open_matlab_gen_pcp = QPushButton(self.sonet_mission_tree_qgb)
+        self.sonet_open_matlab_gen_pcp.setObjectName(u"sonet_open_matlab_gen_pcp")
+
+        self.sonet_matlab_btn_qhbox.addWidget(self.sonet_open_matlab_gen_pcp)
+
+
+        self.verticalLayout_2.addLayout(self.sonet_matlab_btn_qhbox)
+
+        self.sonet_pcp_generator_qhbox_4 = QHBoxLayout()
+        self.sonet_pcp_generator_qhbox_4.setObjectName(u"sonet_pcp_generator_qhbox_4")
+        self.sonet_pcp_generator_qpb = QPushButton(self.sonet_mission_tree_qgb)
+        self.sonet_pcp_generator_qpb.setObjectName(u"sonet_pcp_generator_qpb")
+
+        self.sonet_pcp_generator_qhbox_4.addWidget(self.sonet_pcp_generator_qpb)
+
+
+        self.verticalLayout_2.addLayout(self.sonet_pcp_generator_qhbox_4)
+
 
         self.gridLayout.addWidget(self.sonet_mission_tree_qgb, 0, 1, 1, 1)
-
-        self.sonet_pcp_table_qgb = QGroupBox(self.centralwidget)
-        self.sonet_pcp_table_qgb.setObjectName(u"sonet_pcp_table_qgb")
-        self.verticalLayout = QVBoxLayout(self.sonet_pcp_table_qgb)
-        self.verticalLayout.setObjectName(u"verticalLayout")
-        self.sonet_pcp_tabs_qtw = QTabWidget(self.sonet_pcp_table_qgb)
-        self.sonet_pcp_tabs_qtw.setObjectName(u"sonet_pcp_tabs_qtw")
-        self.sonet_pcp_table_transit_1 = QWidget()
-        self.sonet_pcp_table_transit_1.setObjectName(u"sonet_pcp_table_transit_1")
-        self.verticalLayout_4 = QVBoxLayout(self.sonet_pcp_table_transit_1)
-        self.verticalLayout_4.setObjectName(u"verticalLayout_4")
-        self.sonet_pcp_table_qtv_outgoing = QTableView(self.sonet_pcp_table_transit_1)
-        self.sonet_pcp_table_qtv_outgoing.setObjectName(u"sonet_pcp_table_qtv_outgoing")
-        self.sonet_pcp_table_qtv_outgoing.setFrameShadow(QFrame.Sunken)
-        self.sonet_pcp_table_qtv_outgoing.setLineWidth(1)
-        self.sonet_pcp_table_qtv_outgoing.setMidLineWidth(1)
-        self.sonet_pcp_table_qtv_outgoing.setSelectionMode(QAbstractItemView.SingleSelection)
-        self.sonet_pcp_table_qtv_outgoing.setSelectionBehavior(QAbstractItemView.SelectRows)
-
-        self.verticalLayout_4.addWidget(self.sonet_pcp_table_qtv_outgoing)
-
-        self.sonet_pcp_tabs_qtw.addTab(self.sonet_pcp_table_transit_1, "")
-        self.sonet_pcp_table_transit_2 = QWidget()
-        self.sonet_pcp_table_transit_2.setObjectName(u"sonet_pcp_table_transit_2")
-        self.verticalLayout_3 = QVBoxLayout(self.sonet_pcp_table_transit_2)
-        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
-        self.sonet_pcp_table_qtv_incoming = QTableView(self.sonet_pcp_table_transit_2)
-        self.sonet_pcp_table_qtv_incoming.setObjectName(u"sonet_pcp_table_qtv_incoming")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-        sizePolicy1.setHorizontalStretch(0)
-        sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.sonet_pcp_table_qtv_incoming.sizePolicy().hasHeightForWidth())
-        self.sonet_pcp_table_qtv_incoming.setSizePolicy(sizePolicy1)
-        self.sonet_pcp_table_qtv_incoming.setFrameShadow(QFrame.Sunken)
-        self.sonet_pcp_table_qtv_incoming.setLineWidth(1)
-        self.sonet_pcp_table_qtv_incoming.setMidLineWidth(1)
-        self.sonet_pcp_table_qtv_incoming.setSelectionMode(QAbstractItemView.SingleSelection)
-        self.sonet_pcp_table_qtv_incoming.setSelectionBehavior(QAbstractItemView.SelectRows)
-
-        self.verticalLayout_3.addWidget(self.sonet_pcp_table_qtv_incoming)
-
-        self.sonet_pcp_tabs_qtw.addTab(self.sonet_pcp_table_transit_2, "")
-
-        self.verticalLayout.addWidget(self.sonet_pcp_tabs_qtw)
-
-        self.sonet_label_rows_filtered_visible = QLabel(self.sonet_pcp_table_qgb)
-        self.sonet_label_rows_filtered_visible.setObjectName(u"sonet_label_rows_filtered_visible")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
-        sizePolicy2.setHorizontalStretch(0)
-        sizePolicy2.setVerticalStretch(0)
-        sizePolicy2.setHeightForWidth(self.sonet_label_rows_filtered_visible.sizePolicy().hasHeightForWidth())
-        self.sonet_label_rows_filtered_visible.setSizePolicy(sizePolicy2)
-
-        self.verticalLayout.addWidget(self.sonet_label_rows_filtered_visible)
-
-        self.sonet_label_selected_trajectory = QLabel(self.sonet_pcp_table_qgb)
-        self.sonet_label_selected_trajectory.setObjectName(u"sonet_label_selected_trajectory")
-
-        self.verticalLayout.addWidget(self.sonet_label_selected_trajectory)
-
-        self.sonet_trajectory_selection_qprogrbar = QProgressBar(self.sonet_pcp_table_qgb)
-        self.sonet_trajectory_selection_qprogrbar.setObjectName(u"sonet_trajectory_selection_qprogrbar")
-        self.sonet_trajectory_selection_qprogrbar.setValue(0)
-        self.sonet_trajectory_selection_qprogrbar.setTextVisible(False)
-
-        self.verticalLayout.addWidget(self.sonet_trajectory_selection_qprogrbar)
-
-
-        self.gridLayout.addWidget(self.sonet_pcp_table_qgb, 0, 0, 1, 1)
 
         main_window.setCentralWidget(self.centralwidget)
         self.statusbar = QStatusBar(main_window)
@@ -205,7 +242,7 @@ class Ui_main_window(object):
         main_window.setStatusBar(self.statusbar)
         self.menubar = QMenuBar(main_window)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 1350, 21))
+        self.menubar.setGeometry(QRect(0, 0, 1350, 22))
         self.file = QMenu(self.menubar)
         self.file.setObjectName(u"file")
         self.menuEdit = QMenu(self.menubar)
@@ -233,6 +270,11 @@ class Ui_main_window(object):
         self.exit.setText(QCoreApplication.translate("main_window", u"&Exit", None))
         self.open_pcp_filter.setText(QCoreApplication.translate("main_window", u"Apply filter to PCP table", None))
         self.actionHelp.setText(QCoreApplication.translate("main_window", u"Help", None))
+        self.sonet_pcp_table_qgb.setTitle(QCoreApplication.translate("main_window", u"PCP table", None))
+        self.sonet_pcp_tabs_qtw.setTabText(self.sonet_pcp_tabs_qtw.indexOf(self.sonet_pcp_table_transit_1), QCoreApplication.translate("main_window", u"Earth - Mars", None))
+        self.sonet_pcp_tabs_qtw.setTabText(self.sonet_pcp_tabs_qtw.indexOf(self.sonet_pcp_table_transit_2), QCoreApplication.translate("main_window", u"Mars - Earth ", None))
+        self.sonet_label_rows_filtered_visible.setText("")
+        self.sonet_label_selected_trajectory.setText("")
         self.sonet_mission_tree_qgb.setTitle(QCoreApplication.translate("main_window", u"Mission tree", None))
 #if QT_CONFIG(tooltip)
         self.sonet_add_mission_qpb.setToolTip(QCoreApplication.translate("main_window", u"Create new mission", None))
@@ -277,11 +319,19 @@ class Ui_main_window(object):
         self.sonet_select_trajectory_qpb.setToolTip(QCoreApplication.translate("main_window", u"Select trajectory", None))
 #endif // QT_CONFIG(tooltip)
         self.sonet_select_trajectory_qpb.setText(QCoreApplication.translate("main_window", u"Select trajectory", None))
-        self.sonet_pcp_table_qgb.setTitle(QCoreApplication.translate("main_window", u"PCP table", None))
-        self.sonet_pcp_tabs_qtw.setTabText(self.sonet_pcp_tabs_qtw.indexOf(self.sonet_pcp_table_transit_1), QCoreApplication.translate("main_window", u"Earth - Mars", None))
-        self.sonet_pcp_tabs_qtw.setTabText(self.sonet_pcp_tabs_qtw.indexOf(self.sonet_pcp_table_transit_2), QCoreApplication.translate("main_window", u"Mars - Earth ", None))
-        self.sonet_label_rows_filtered_visible.setText("")
-        self.sonet_label_selected_trajectory.setText("")
+        self.sonet_draw_qpb.setText(QCoreApplication.translate("main_window", u"Draw Mars Mission Timeline", None))
+#if QT_CONFIG(tooltip)
+        self.sonet_open_matlab_pcp_viewer.setToolTip(QCoreApplication.translate("main_window", u"Create new s/c", None))
+#endif // QT_CONFIG(tooltip)
+        self.sonet_open_matlab_pcp_viewer.setText(QCoreApplication.translate("main_window", u"PCP_Viewer", None))
+#if QT_CONFIG(tooltip)
+        self.sonet_open_matlab_gen_pcp.setToolTip(QCoreApplication.translate("main_window", u"Remove s/c", None))
+#endif // QT_CONFIG(tooltip)
+        self.sonet_open_matlab_gen_pcp.setText(QCoreApplication.translate("main_window", u"Generate PCP", None))
+#if QT_CONFIG(tooltip)
+        self.sonet_pcp_generator_qpb.setToolTip(QCoreApplication.translate("main_window", u"Remove s/c", None))
+#endif // QT_CONFIG(tooltip)
+        self.sonet_pcp_generator_qpb.setText(QCoreApplication.translate("main_window", u"PCP manager", None))
         self.file.setTitle(QCoreApplication.translate("main_window", u"&File", None))
         self.menuEdit.setTitle(QCoreApplication.translate("main_window", u"Edit", None))
         self.menuHelp.setTitle(QCoreApplication.translate("main_window", u"Help", None))

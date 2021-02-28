@@ -22,7 +22,8 @@ prompts = {'Departure Planet:', ...
        
 defaultans = {'Earth','Mars','2020','1','2','','0','0'};
 answer = inputdlg(prompts,'PCP',1,defaultans);
-if isempty(answer), return; end
+if isempty(answer) 
+    disp('Canceled input window'); return; end
 
 % Parse inputs
 departure_planet = answer{1};
@@ -44,15 +45,17 @@ Ps = Ps / 86400; % Synodic period [days]
 
 % Dates
 cal0 = {Y0,1,1,0,0,0}; % Y-M-D h-m-s
-departure_dates = linspace(0,PsN*Ps,1E3); % Departure date array [days]
-tofs = linspace(10,tofY*365,1E3); % Times of Flight array [days]
+n_days = 250%PsN*Ps;
+departure_dates = 1:n_days % Departure date array [days]
+tofs = linspace(10,tofY*365,n_days); % Times of Flight array [days]
 
 % Display info
 fprintf('----- Lambert Problem | PCP%s %s 2 %s @ %.0f -----\n',...
     opts.mano,departure_planet,arrival_planet,cal0{1}); % Title
 
 % Simulation options
-opts.odir = fullfile('C:','workcopy_tfm_outputs','PCP',...
+opts.odir = fullfile('/Users','jorialand', 'code', 'tfm', 'sonet', ...
+    'sonet_tfm_horia' , 'data', 'PCP', ...
     sprintf('PCP_%s2%s_%d_%s_P%d_Y%d_mr%d_lp%d',...
     departure_planet,arrival_planet,cal0{1},...
     opts.mano,PsN,tofY,mr,lp)); % Output dir

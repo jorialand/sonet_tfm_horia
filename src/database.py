@@ -1,3 +1,13 @@
+# ==============================================================================================
+# ==============================================================================================
+#
+#
+#                                    FILE database
+#
+#
+# ==============================================================================================
+# ==============================================================================================
+
 """
 Database.
 Here are going to be stored all spacecrafts, created during runtime
@@ -6,9 +16,11 @@ when closing the program)-
 """
 import pandas as pd
 from numpy import pi
+
 # from PySide2.QtCore import QDate
 from src.SonetSpacecraft import SonetSpacecraft
-from src.SonetUtils import SONET_DEBUG_LEVEL, TripType, SonetLogType, sonet_log
+from src.SonetUtils import TripType, SonetLogType, sonet_log
+
 
 def get_pcp_table(a_trip_type):
     """
@@ -86,11 +98,11 @@ def import_pcp_from_matlab():
 # The spacecrafts database in runtime.
 db = {}
 
-# dir_path = '/Users/Jorialand/code/tfm/sonet/sonet_tfm_horia/src/'
+dir_path = '/Users/Jorialand/code/tfm/sonet/sonet_tfm_horia/data/'
 # dir_path = 'C:/workcopy/data/'
-dir_path = 'C:/workcopy_sonet/data/'
+# dir_path = 'C:/workcopy_sonet/data/'
 
-# pcp_outgoing = pd.read_csv(dir_path + '10kPCP_Earth2Mars.txt')
-# pcp_incoming = pd.read_csv(dir_path + '10kPCP_Mars2Earth.txt')
+pcp_outgoing = pd.read_csv(dir_path + '10kPCP_Earth2Mars.txt')
+pcp_incoming = pd.read_csv(dir_path + '10kPCP_Mars2Earth.txt')
 
 pcp_outgoing, pcp_incoming = import_pcp_from_matlab()
