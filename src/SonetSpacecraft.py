@@ -1,10 +1,21 @@
 import pandas as pd
-from pandas import DataFrame
-# from overloading import overload
-
 from PySide2.QtCore import QModelIndex, QDate
+
 from src.SonetTrajectoryFilter import SonetTrajectoryFilter
 from src.SonetUtils import SpacecraftType, TripType, sonet_log, SonetLogType, SONET_MSG_TIMEOUT
+
+
+# from overloading import overload
+
+# ==============================================================================================
+# ==============================================================================================
+#
+#
+#                                    CLASS SonetSpacecraft
+#
+#
+# ==============================================================================================
+# ==============================================================================================
 
 
 class SonetSpacecraft:

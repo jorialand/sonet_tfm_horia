@@ -4,6 +4,17 @@ from enum import Enum, unique
 import pandas as pd
 from PySide2.QtWidgets import QMessageBox
 
+
+# ==============================================================================================
+# ==============================================================================================
+#
+#
+#                                    File SonetUtils
+#
+#
+# ==============================================================================================
+# ==============================================================================================
+
 @unique
 class SpacecraftType(Enum):
     """
@@ -113,16 +124,6 @@ class SonetLogType(Enum):
     WARNING = 1
     ERROR = 2
 
-def popup_msg(text='text', icon=QMessageBox.Information, info_text='info_text', window_title='window_title'):
-    msg = QMessageBox()
-    msg.setIcon(icon)
-    msg.setText(text)
-    msg.setInformativeText(info_text)
-    # msg.setDetailedText("The details are as follows:")
-    msg.setWindowTitle(window_title)
-    msg.setStandardButtons(QMessageBox.Ok)
-    msg.exec_()
-
 def build_mock_DataFrame(num_rows=5, num_columns=8, min=0, max=10):
     """
 
@@ -163,6 +164,16 @@ def build_mock_filter():
 
     return _data
 
+def popup_msg(text='text', icon=QMessageBox.Information, info_text='info_text', window_title='window_title'):
+    msg = QMessageBox()
+    msg.setIcon(icon)
+    msg.setText(text)
+    msg.setInformativeText(info_text)
+    # msg.setDetailedText("The details are as follows:")
+    msg.setWindowTitle(window_title)
+    msg.setStandardButtons(QMessageBox.Ok)
+    msg.exec_()
+
 def sonet_log(a_log_type, a_log_msg):
     """
     Log to console the status of the sonet application.
@@ -190,12 +201,13 @@ def sonet_log(a_log_type, a_log_msg):
             if SONET_DEBUG_LEVEL is SonetDebugLevel.FULL_VERBOSE:
                 print('Info: ' + a_log_msg)
 
-
 # Global debug verbose level for the application.
 SONET_DEBUG_LEVEL = SonetDebugLevel.ONLY_ERRORS
 
 # Global main window's status bar messages duration, in milliseconds.
 SONET_MSG_TIMEOUT = 2500
 
+# Global paths.
+SONET_PCP_DATA_DIR = '/Users/jorialand/code/tfm/sonet/sonet_tfm_horia/data/PCP/'
 if __name__ == "__main__":
     pass

@@ -1,5 +1,5 @@
 """
-This is the SonetMainWindow class, inherits from QMainWindow.
+SonetMainWindow class.
 
 Author: Horia Ghionoiu Martínez.
 Project: Sonet Mars Mission Architecture Planner
@@ -10,32 +10,31 @@ Project defense:
 import datetime
 import sys
 
+# Matlab environment
+import matlab.engine
 
-import qrainbowstyle
+sonet_path = '/Users/jorialand/code/tfm/sonet/sonet_tfm_horia/'
+eng = matlab.engine.start_matlab()
+s = eng.genpath(sonet_path)
+eng.addpath(s, nargout=0)
+
 import pandas as pd
-from pandas import Series  # Needed to use the docstring :rtype: return type hint (i.e. :rtype: Series).
 # From module X import class Y.
 from PySide2.QtCore import QAbstractListModel, QAbstractTableModel, QModelIndex, Qt
-from PySide2.QtGui import QColor
-from PySide2.QtWidgets import QMainWindow, QApplication, QMessageBox, QStyleFactory, QWidget, QVBoxLayout
-
-from fbs_runtime.application_context.PySide2 import ApplicationContext
+from PySide2.QtWidgets import QMainWindow, QApplication, QMessageBox
 
 from src import database
 from src import sonet_main_window_ui
 from src.SonetPCPFilterQt import SonetPCPFilterQt
-from src.SonetCanvasQt import SonetCanvasQt
+from src.SonetPCPManagerQt import SonetPCPManagerQt
 from src.SonetSpacecraft import SonetSpacecraft
 from src.SonetTrajectoryFilter import SonetTrajectoryFilter
 from src.SonetUtils import TripType, SonetLogType, sonet_log, popup_msg, SONET_MSG_TIMEOUT
 
 # QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)  # To avoid AA_ShareOpenGLContexts warning in QtCreator.
 
-# TODO When user selects one item, all row should be selected instead.
-
 # ==============================================================================================
 # ==============================================================================================
-#
 #
 #                                    CLASS SonetMainWindowQt
 #                            (also classes ListModel & TableModel)
@@ -44,24 +43,12 @@ from src.SonetUtils import TripType, SonetLogType, sonet_log, popup_msg, SONET_M
 # ==============================================================================================
 
 
-def get_main_window():
-    """
-    Getter method.
-    """
-    return main_window
-
-
-def get_pcp_filter_window():
-    return get_main_window()._p_pcp_filter_window
-
-
 def force_table_view_update():
     """
     Force update of the selected table view. Merder method to be reviewed.
     """
     index = get_main_window().sonet_pcp_tabs_qtw.currentIndex()
     get_main_window().sonet_pcp_tabs_qtw.currentChanged.emit(index)
-
 
 def get_current_sc() -> SonetSpacecraft:
     """
@@ -85,6 +72,14 @@ def get_current_sc() -> SonetSpacecraft:
     else:
         return None
 
+def get_main_window():
+    """
+    Getter method.
+    """
+    return main_window
+
+def get_pcp_filter_window():
+    return get_main_window()._p_pcp_filter_window
 
 class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
     """
@@ -122,6 +117,9 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         self.sonet_pcp_filter_qpb.clicked.connect(self.clicked_apply_filter)
         self.sonet_select_trajectory_qpb.clicked.connect(self.clicked_select_trajectory)
         self.sonet_draw_qpb.clicked.connect(self.clicked_draw)
+        self.sonet_open_matlab_pcp_viewer.clicked.connect(self.clicked_matlab_pcp_viewer)
+        self.sonet_open_matlab_gen_pcp.clicked.connect(self.clicked_matlab_pcp_generator)
+        self.sonet_pcp_generator_qpb.clicked.connect(self.clicked_pcp_generator)
 
         self.sonet_mission_tree_qlv.clicked.connect(self._list_model.list_clicked)
         self.sonet_pcp_tabs_qtw.currentChanged.connect(self.clicked_tab)
@@ -129,58 +127,6 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
 
     # Signals should be defined only within classes inheriting from QObject!
     # +info:https://wiki.qt.io/Qt_for_Python_Signals_and_Slots
-
-    def get_table_model(self, pcp_table_model=None):
-        switcher = {
-            TripType.OUTGOING: self._table_model_outgoing,
-            TripType.INCOMING: self._table_model_incoming
-        }
-        return switcher.get(pcp_table_model, 'Error in SonetMainWindow.get_table_model: '
-                                             'No model found with the requested argument')
-
-    def get_list_model(self):
-        return self._list_model
-
-    def get_selected_trajectory(self):
-        """
-        Getter method.
-        You get:
-            - The selected trajectory in the current tab pcp table, as a pandas Series.
-            - Its position in the pcp table (index).
-            - A flag indicating if it's a outgoing/incoming trajectory
-        @return: (Series, QModelIndex, bool)
-        """
-        sonet_log(SonetLogType.INFO, 'SonetMainWindow.get_selected_trajectory')
-
-        tab_index = main_window.sonet_pcp_tabs_qtw.currentIndex()
-
-        if tab_index is 0:
-            the_index = self.sonet_pcp_table_qtv_outgoing.selectionModel().currentIndex()
-            the_row = the_index.row()
-            the_df = self._table_model_outgoing._data
-            is_incoming_trajectory = False
-        elif tab_index is 1:
-            the_index = self.sonet_pcp_table_qtv_incoming.selectionModel().currentIndex()
-            the_row = the_index.row()
-            the_df = self._table_model_incoming._data
-            is_incoming_trajectory = True
-        else:
-            return None, None, None
-
-        if the_row == -1:
-            sonet_log(SonetLogType.INFO, 'SonetMainWindow.get_selected_trajectory."No row selected"')
-            return None, None, None
-
-        # The try-catch is because if the returned dataframe the_df is empty, and you try to access a
-        # position in it, you get an IndexError exception.
-        try:
-            result: pd.Series
-            result = the_df.iloc[the_row]
-            return result, the_index, is_incoming_trajectory
-        except IndexError:
-            sonet_log(SonetLogType.WARNING,
-                      'SonetMainWindow.get_selected_trajectory."Empty/Out-of-bonds dataframe accessed"')
-            return None, None, None
 
     def clicked_apply_filter(self):
         """
@@ -214,6 +160,25 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         index = get_main_window().sonet_mission_tree_qlv.currentIndex()
         self.sonet_mission_tree_qlv.clicked.emit(index)  # The filters are applied here inside.
         # TODO Awkward update, to improve.
+
+    def clicked_draw(self):
+        sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_draw')
+        self.statusbar.showMessage('Not yet implemented :).', SONET_MSG_TIMEOUT)
+
+        # self.statusbar.showMessage('Drawing the mission...', 1000)
+        # self.canvas_window = SonetCanvasQt()
+
+    def clicked_matlab_pcp_generator(self):
+        sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_matlab_pcp_generator')
+        self.statusbar.showMessage('Not yet implemented :).', SONET_MSG_TIMEOUT)
+
+        # eng.PCP_Planet2Planet(nargout=0)
+
+    def clicked_matlab_pcp_viewer(self):
+        sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_matlab_pcp_viewer')
+        self.statusbar.showMessage('Not yet implemented :).', SONET_MSG_TIMEOUT)
+
+        # eng.PCP_Viewer('', nargout=0)
 
     def clicked_new_spacecraft(self):
         """
@@ -260,6 +225,13 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_new_spacecraft."' + msg + '"')
 
         return True
+
+    def clicked_pcp_generator(self):
+        sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_pcp_generator')
+        self.statusbar.showMessage('Not yet implemented :).', SONET_MSG_TIMEOUT)
+
+        self.pcp_generator_window = SonetPCPManagerQt(self)
+        pass
 
     def clicked_remove_spacecraft(self):
         # Get the current list view selection.
@@ -362,12 +334,85 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         the_sc = get_current_sc()
         main_window.update_trajectory_selection_in_table_view(the_sc)
 
-    def clicked_draw(self):
-        sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_draw')
+    def exit_app(self):
+        sys.exit()
 
-        self.statusbar.showMessage('Drawing the mission...', 1000)
-        self.canvas_window = SonetCanvasQt()
+    def get_list_model(self):
+        return self._list_model
 
+    def get_selected_trajectory(self):
+        """
+        Getter method.
+        You get:
+            - The selected trajectory in the current tab pcp table, as a pandas Series.
+            - Its position in the pcp table (index).
+            - A flag indicating if it's a outgoing/incoming trajectory
+        @return: (Series, QModelIndex, bool)
+        """
+        sonet_log(SonetLogType.INFO, 'SonetMainWindow.get_selected_trajectory')
+
+        tab_index = main_window.sonet_pcp_tabs_qtw.currentIndex()
+
+        if tab_index is 0:
+            the_index = self.sonet_pcp_table_qtv_outgoing.selectionModel().currentIndex()
+            the_row = the_index.row()
+            the_df = self._table_model_outgoing._data
+            is_incoming_trajectory = False
+        elif tab_index is 1:
+            the_index = self.sonet_pcp_table_qtv_incoming.selectionModel().currentIndex()
+            the_row = the_index.row()
+            the_df = self._table_model_incoming._data
+            is_incoming_trajectory = True
+        else:
+            return None, None, None
+
+        if the_row == -1:
+            sonet_log(SonetLogType.INFO, 'SonetMainWindow.get_selected_trajectory."No row selected"')
+            return None, None, None
+
+        # The try-catch is because if the returned dataframe the_df is empty, and you try to access a
+        # position in it, you get an IndexError exception.
+        try:
+            result: pd.Series
+            result = the_df.iloc[the_row]
+            return result, the_index, is_incoming_trajectory
+        except IndexError:
+            sonet_log(SonetLogType.WARNING,
+                      'SonetMainWindow.get_selected_trajectory."Empty/Out-of-bonds dataframe accessed"')
+            return None, None, None
+
+    def get_table_model(self, pcp_table_model=None):
+        switcher = {
+            TripType.OUTGOING: self._table_model_outgoing,
+            TripType.INCOMING: self._table_model_incoming
+        }
+        return switcher.get(pcp_table_model, 'Error in SonetMainWindow.get_table_model: '
+                                             'No model found with the requested argument')
+
+    def update_trajectory_label_and_progress_bar(self, a_status=0, a_reset_widgets=False):
+        """
+        Updates both label & progbar widgets.
+        :param a_status: 0, 0.5, 1
+        :return:
+        """
+        sonet_log(SonetLogType.INFO,
+                  'SonetMainWindow.update_trajectory_label_and_progress_bar')
+        if a_reset_widgets:
+            self.sonet_label_selected_trajectory.setText('')
+            self.sonet_trajectory_selection_qprogrbar.setValue(0)
+        else:
+            if a_status == 0:
+                self.sonet_label_selected_trajectory.setText('Pending to select trajectories.')
+                self.sonet_trajectory_selection_qprogrbar.setValue(0)
+            elif a_status == 0.5:
+                self.sonet_label_selected_trajectory.setText('Pending to select trajectories.')
+                self.sonet_trajectory_selection_qprogrbar.setValue(50)
+            elif a_status == 1:
+                self.sonet_label_selected_trajectory.setText('Trajectories selected.')
+                self.sonet_trajectory_selection_qprogrbar.setValue(100)
+            else:
+                sonet_log(SonetLogType.ERROR,
+                          'SonetMainWindow.update_trajectory_label_and_progress_bar."Wrong argument value"')
 
     def update_trajectory_selection_in_table_view(self, a_the_sc: SonetSpacecraft):
         """
@@ -412,33 +457,6 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
                               'SonetMainWindow.update_trajectory_selection_in_table_view."Not supposed to arrive here"')
                     return
 
-    def update_trajectory_label_and_progress_bar(self, a_status=0, a_reset_widgets=False):
-        """
-        Updates both label & progbar widgets.
-        :param a_status: 0, 0.5, 1
-        :return:
-        """
-        sonet_log(SonetLogType.INFO,
-                  'SonetMainWindow.update_trajectory_label_and_progress_bar')
-        if a_reset_widgets:
-            self.sonet_label_selected_trajectory.setText('')
-            self.sonet_trajectory_selection_qprogrbar.setValue(0)
-        else:
-            if a_status == 0:
-                self.sonet_label_selected_trajectory.setText('Pending to select trajectories.')
-                self.sonet_trajectory_selection_qprogrbar.setValue(0)
-            elif a_status == 0.5:
-                self.sonet_label_selected_trajectory.setText('Pending to select trajectories.')
-                self.sonet_trajectory_selection_qprogrbar.setValue(50)
-            elif a_status == 1:
-                self.sonet_label_selected_trajectory.setText('Trajectories selected.')
-                self.sonet_trajectory_selection_qprogrbar.setValue(100)
-            else:
-                sonet_log(SonetLogType.ERROR,
-                          'SonetMainWindow.update_trajectory_label_and_progress_bar."Wrong argument value"')
-
-    def exit_app(self):
-        sys.exit()
 
 
 # TODO: Move TableModel and ListModel classes outside main_window.py file.
@@ -709,8 +727,8 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
 
     # App style cyberpunk|darkblue|oceanic|lightorange|darkorange|qdarkstyle|qdarkstyle3.
-    stylesheet = qrainbowstyle.load_stylesheet_pyside2(style='qdarkstyle')
-    app.setStyleSheet(stylesheet)
+    # stylesheet = qrainbowstyle.load_stylesheet_pyside2(style='qdarkstyle')
+    # app.setStyleSheet(stylesheet)
 
     main_window = SonetMainWindow()
     main_window.show()

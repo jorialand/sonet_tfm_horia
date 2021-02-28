@@ -18,6 +18,8 @@ function [  ] = PCP_Viewer ( data_file )
 %David de la Torre Sangra
 %June 2014
 
+% TODO remove
+data_file = '/Users/jorialand/code/tfm/sonet/sonet_tfm_horia/data/PCP/PCP_Earth2Mars_2025__P5_Y2_mr0_lp0/PCP_Earth2Mars.mat'
 % PCP_Viewer options
 contour_res = 64; % Contourplot resolution
 max_days_to_years = 2*365.25; % Number of days to change axis to years
@@ -69,7 +71,8 @@ dvt = raw.dvt;
 theta = raw.theta;
 clearvars raw;
 
-% Hack
+% Hack - dvt cut-off value. 
+% All dvt above the cut-off value, will be normalized.
 dvt(dvt>15)=15;
 
 % Set x-axis magnitude
@@ -165,12 +168,19 @@ plot_data(ix,iy);
     cpoint = get(gca,'Currentpoint'); % MouseClick coordinates
     
     % Ensure coordinates are within range
-    if cpoint(1,2)<ydates(1) || cpoint(1,2)>ydates(end), return; end
-    if cpoint(1,1)<xtofs(1) || cpoint(1,1)>xtofs(end), return; end
+    clicked_date = cpoint(1,2);
+    clicked_tof = cpoint(1,1);
+    min_date = ydates(1);
+    max_date = ydates(end);
+    min_tof = xtofs(1);
+    max_tof = xtofs(end);
+    
+    if clicked_date<min_date || clicked_date>max_date, return; end
+    if clicked_tof<min_tof || clicked_tof>max_tof, return; end
     
     % Get the data indices corresponding to the clicked point
-    ix = find(ydates>=cpoint(1,2),1);
-    iy = find(xtofs>=cpoint(1,1),1);
+    ix = find(ydates>=clicked_date,1);
+    iy = find(xtofs>=clicked_tof,1);
 
     % Plot data
     plot_data(ix,iy);
