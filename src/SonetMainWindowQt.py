@@ -119,7 +119,7 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         self.sonet_draw_qpb.clicked.connect(self.clicked_draw)
         self.sonet_open_matlab_pcp_viewer.clicked.connect(self.clicked_matlab_pcp_viewer)
         self.sonet_open_matlab_gen_pcp.clicked.connect(self.clicked_matlab_pcp_generator)
-        self.sonet_pcp_generator_qpb.clicked.connect(self.clicked_pcp_generator)
+        self.sonet_pcp_generator_qpb.clicked.connect(self.clicked_pcp_manager)
 
         self.sonet_mission_tree_qlv.clicked.connect(self._list_model.list_clicked)
         self.sonet_pcp_tabs_qtw.currentChanged.connect(self.clicked_tab)
@@ -226,9 +226,9 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
 
         return True
 
-    def clicked_pcp_generator(self):
-        sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_pcp_generator')
-        self.statusbar.showMessage('Not yet implemented :).', SONET_MSG_TIMEOUT)
+    def clicked_pcp_manager(self):
+        sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_pcp_manager')
+        # self.statusbar.showMessage('Not yet implemented :).', SONET_MSG_TIMEOUT)
 
         self.pcp_generator_window = SonetPCPManagerQt(self)
         pass

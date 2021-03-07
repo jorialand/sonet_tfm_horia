@@ -7,7 +7,7 @@ in = load(data_file);
 
 % Create the table.
 cols = ["DepDates","tof","c3d","c3a","dvd","dva","dvt","theta"];
-N = length(in.tofs); %A N by N matrix has N^2 elements
+N = length(in.tofs); %A N by N matrix has N^2 elementsœ
 
 t = table(nan(N^2,1) , ...
           nan(N^2,1) , ...
