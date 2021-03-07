@@ -19,7 +19,7 @@ function [  ] = PCP_Viewer ( data_file )
 %June 2014
 
 % TODO remove
-data_file = '/Users/jorialand/code/tfm/sonet/sonet_tfm_horia/data/PCP/PCP_Earth2Mars_2025__P5_Y2_mr0_lp0/PCP_Earth2Mars.mat'
+%data_file = '/Users/jorialand/code/tfm/sonet/sonet_tfm_horia/data/PCP/PCP_Earth2Mars_2025__P5_Y2_mr0_lp0/PCP_Earth2Mars.mat'
 % PCP_Viewer options
 contour_res = 64; % Contourplot resolution
 max_days_to_years = 2*365.25; % Number of days to change axis to years

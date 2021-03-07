@@ -135,7 +135,7 @@ def build_mock_DataFrame(num_rows=5, num_columns=8, min=0, max=10):
     """
     # Build columns
     num_rows = random.randint(1,int(1e2))
-    _ = ['col'+str(i) for i in range(num_columns)]
+    _ = ['var'+str(i) for i in range(num_columns)]
     result = pd.DataFrame(columns=_)
     build_row = lambda: [random.randint(min,max) for _ in range(num_columns)]
     for i in range(num_rows):

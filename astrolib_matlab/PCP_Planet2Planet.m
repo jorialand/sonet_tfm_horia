@@ -60,7 +60,7 @@ opts.odir = fullfile('/Users','jorialand', 'code', 'tfm', 'sonet', ...
     departure_planet,arrival_planet,cal0{1},...
     opts.mano,PsN,tofY,mr,lp)); % Output dir
 opts.overwrite_sim = 0; % Overwrite simulation
-opts.plot_results = 1; % Plot results
+opts.plot_results = 0; % Plot results
 opts.info_level = 10; % Info level
 opts.maxdv = 100; % Maximum value for the DeltaV plots
 
