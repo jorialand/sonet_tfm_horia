@@ -53,6 +53,7 @@ class SonetPCPManagerQt(QDialog, sonet_pcp_manager_ui.Ui_sonet_pcp_manager):
 
         # Status bar,for messages to the user.
         self.status_bar = QStatusBar()
+        self.status_bar.setBaseSize(580, 22)
         self.status_bar.setSizeGripEnabled(False)
         self.status_bar_HLayout.addWidget(self.status_bar)
 
@@ -124,6 +125,9 @@ class SonetPCPManagerQt(QDialog, sonet_pcp_manager_ui.Ui_sonet_pcp_manager):
         self.status_bar.showMessage('Pickle files written', 2*SONET_MSG_TIMEOUT)
 
         # Remove mat files and reset associated widgets.
+        self.reset_matrix_widgets()
+
+    def reset_matrix_widgets(self):
         self._pcp_mat_file_outgoing = None
         self._pcp_mat_file_incoming = None
         self.sonet_dvt_limit_qcb.setChecked(False)
@@ -256,12 +260,17 @@ class SonetPCPManagerQt(QDialog, sonet_pcp_manager_ui.Ui_sonet_pcp_manager):
         cols = ['DepDates', 'tof', 'c3d', 'c3a', 'dvd', 'dva', 'dvt', 'theta']
         data = np.zeros((table_size, len(cols)), dtype=np.double)
 
-        # print('start')
+        # Do the conversion.
         get_value = SonetPCPManagerQt._fill_the_table_data
         row = 0
         for i in range(0, table_rows):  # For each departure date.
             # print(i)
             for j in range(0, table_rows):  # For each tof.
+                # First, check max dvt, if greater than the cut-off value, discard this table row.
+                dvt = get_value(a_my_mat_file, 'dvt', i, j)
+                if dvt > a_dvt_limit:
+                    continue
+
                 # Independent vars are (1,table_rows) ndarrays.
                 data[row, 0] = get_value(a_my_mat_file, 'departure_dates', 0, i)
                 data[row, 1] = get_value(a_my_mat_file, 'tofs', 0, j)
@@ -271,12 +280,18 @@ class SonetPCPManagerQt(QDialog, sonet_pcp_manager_ui.Ui_sonet_pcp_manager):
                 data[row, 3] = get_value(a_my_mat_file, 'c3a', i, j)
                 data[row, 4] = get_value(a_my_mat_file, 'dvd', i, j)
                 data[row, 5] = get_value(a_my_mat_file, 'dva', i, j)
-                data[row, 6] = get_value(a_my_mat_file, 'dvt', i, j)
+                data[row, 6] = dvt
                 data[row, 7] = get_value(a_my_mat_file, 'theta', i, j)
 
                 row = row + 1
 
-        df = pd.DataFrame(data, columns=cols, index=rows)
+        # If the user has set a dvt limit, the returned dataframe my have less rows than the original expected.
+        if a_dvt_limit:
+            unfilled_rows = len(rows) - row
+            df = pd.DataFrame(data[:-unfilled_rows,:], columns=cols, index=[i for i in range(row)])
+        else:
+            df = pd.DataFrame(data, columns=cols, index=rows)
+
         # Add attributes to the dataframe.
         df.attrs['file_name'] = str(a_my_mat_file['fname'][0]) + '.pkl'
         df.attrs['memory_usage'] = int(df.memory_usage().sum() / 1e6)
