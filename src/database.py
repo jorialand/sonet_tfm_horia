@@ -15,11 +15,10 @@ execution. No persistence at this moment (i.e. the database dies
 when closing the program)-
 """
 import pandas as pd
-from numpy import pi
 
 # from PySide2.QtCore import QDate
 from src.SonetSpacecraft import SonetSpacecraft
-from src.SonetUtils import TripType, SonetLogType, sonet_log
+from src.SonetUtils import TripType
 
 
 def get_pcp_table(a_trip_type):
@@ -33,9 +32,15 @@ def get_pcp_table(a_trip_type):
         return False
 
     if a_trip_type == TripType.OUTGOING:
-        return pcp_outgoing
+        if df_pcp_outgoing is None:
+            return pd.DataFrame()
+        else:
+            return df_pcp_outgoing
     elif a_trip_type == TripType.INCOMING:
-        return pcp_incoming
+        if df_pcp_incoming is None:
+            return pd.DataFrame()
+        else:
+            return df_pcp_incoming
     else:
         return False
 
@@ -58,51 +63,39 @@ def get_spacecrafts_list():
     """
     return list(db.keys())
 
-def import_pcp_from_matlab():
+def get_working_pcp_paths():
+    return [df_pcp_outgoing_path, df_pcp_incoming_path]
+
+def set_working_pcp(a_trip: TripType, a_pkl_file_path: str):
     """
-    This method reads the incoming Matlab AstroLib's porkchop trajectories.
-
-    For convenience, it adds a new row 'ArrivDates', which is a combination
-    of 'DepDates'+'tof' columns.
+    Sets the working PCPs, if the passed path is empty, then the PCP is set to None.
+    :param a_trip: Outgoing/Incoming trip
+    :param a_pkl_file_path: the pkl file path
     """
-    sonet_log(SonetLogType.INFO, 'database.import_pcp_from_matlab')
+    global df_pcp_outgoing, df_pcp_outgoing_path
+    global df_pcp_incoming, df_pcp_incoming_path
 
-    # Read data
-    pcp_out = pd.read_csv(dir_path + '10kPCP_Earth2Mars.txt')
-    pcp_inc = pd.read_csv(dir_path + '10kPCP_Mars2Earth.txt')
+    if a_trip == TripType.OUTGOING:
+        if a_pkl_file_path:
+            df_pcp_outgoing = pd.read_pickle(a_pkl_file_path)
+            df_pcp_outgoing_path = a_pkl_file_path
+        else:
+            df_pcp_outgoing = None
+            df_pcp_outgoing_path = ''
+    elif a_trip == TripType.INCOMING:
+        if a_pkl_file_path:
+            df_pcp_incoming = pd.read_pickle(a_pkl_file_path)
+            df_pcp_incoming_path = a_pkl_file_path
+        else:
+            df_pcp_incoming = None
+            df_pcp_incoming_path = ''
 
-    # New column 'ArrivDates'
-    pcp_out['ArrivDates'] = pcp_out.DepDates + pcp_out.tof
-    pcp_inc['ArrivDates'] = pcp_inc.DepDates + pcp_inc.tof
-    
-    # Convert DepDates from JD2000 to JD.
-    JD2000 = 2451545.0  # Julian Day 2000, extracted from AstroLib matlab codebase.
-    # David de la Torre).
-    pcp_out['DepDates'] = (pcp_out.DepDates + JD2000)#.apply(QDate.fromJulianDay)
-    pcp_inc['DepDates'] = (pcp_inc.DepDates + JD2000)#.apply(QDate.fromJulianDay)
-
-    # Also convert ArrivDates.
-    pcp_out['ArrivDates'] = (pcp_out.ArrivDates + JD2000)#.apply(QDate.fromJulianDay)
-    pcp_inc['ArrivDates'] = (pcp_inc.ArrivDates + JD2000)#.apply(QDate.fromJulianDay)
-
-    # Convert theta from radians to sexagesimal degrees.
-    pcp_out.theta = pcp_out.theta * 180 / pi
-    pcp_inc.theta = pcp_inc.theta * 180 / pi
-
-    reordered_cols = ['DepDates', 'ArrivDates', 'tof', 'theta', 'dvt', 'dvd', 'dva', 'c3d', 'c3a']
-    pcp_out = pcp_out.reindex(columns=reordered_cols)
-    pcp_inc = pcp_inc.reindex(columns=reordered_cols)
-
-    return pcp_out, pcp_inc
-
-# The spacecrafts database in runtime.
+# The spacecrafts database.
 db = {}
 
-dir_path = '/Users/Jorialand/code/tfm/sonet/sonet_tfm_horia/data/'
-# dir_path = 'C:/workcopy/data/'
-# dir_path = 'C:/workcopy_sonet/data/'
+# The pcp trajectories database.
+df_pcp_outgoing_path = ''
+df_pcp_outgoing = None
 
-pcp_outgoing = pd.read_csv(dir_path + '10kPCP_Earth2Mars.txt')
-pcp_incoming = pd.read_csv(dir_path + '10kPCP_Mars2Earth.txt')
-
-pcp_outgoing, pcp_incoming = import_pcp_from_matlab()
+df_pcp_incoming_path = ''
+df_pcp_incoming = None

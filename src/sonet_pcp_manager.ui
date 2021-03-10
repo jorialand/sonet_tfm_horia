@@ -47,7 +47,7 @@
       </sizepolicy>
      </property>
      <property name="title">
-      <string>Set working PCP (Table format)</string>
+      <string>Working PCP (Table format)</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
       <item row="2" column="1">
@@ -146,7 +146,7 @@
       </sizepolicy>
      </property>
      <property name="title">
-      <string>Read PCP (Matrix format)</string>
+      <string>Convert PCP (Matrix to Table format)</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_4">
       <item row="2" column="0" colspan="2">
