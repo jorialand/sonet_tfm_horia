@@ -18,8 +18,9 @@ import pandas as pd
 from PySide2.QtWidgets import QDialog, QStatusBar, QFileDialog, QDialogButtonBox, QTreeWidgetItem
 from scipy.io import loadmat
 
+from src import database
 from src import sonet_pcp_manager_ui  # The user interface, created with QtCreator.
-from src.SonetUtils import SONET_MSG_TIMEOUT, SONET_PCP_DATA_DIR
+from src.SonetUtils import SONET_MSG_TIMEOUT, SONET_PCP_DATA_DIR, TripType
 
 
 class SonetPCPManagerQt(QDialog, sonet_pcp_manager_ui.Ui_sonet_pcp_manager):
@@ -79,8 +80,23 @@ class SonetPCPManagerQt(QDialog, sonet_pcp_manager_ui.Ui_sonet_pcp_manager):
         self.btn_cancel.clicked.connect(self.clicked_cancel)
         self.btn_cancel.clicked.connect(self.reject)
 
+        # If there's a currently working pcp in the database, display it to the user.
+        working_pcp_paths = database.get_working_pcp_paths()
+        self.sonet__outgoing_trajectories_table_line_edit.setText(working_pcp_paths[0])
+        self.sonet__incoming_trajectories_table_line_edit.setText(working_pcp_paths[1])
+
         # sonet_log(SonetLogType.INFO, 'class_tal.method_tal')
         # self.status_bar.showMessage('tal.', SONET_MSG_TIMEOUT)
+
+    def clicked_ok(self):
+        """
+        Sets the current working pcp files (if any) & close the window.
+        """
+
+        pkl_file_path_outgoing = self.sonet__outgoing_trajectories_table_line_edit.text()
+        pkl_file_path_incoming = self.sonet__incoming_trajectories_table_line_edit.text()
+        database.set_working_pcp(TripType.OUTGOING, pkl_file_path_outgoing)
+        database.set_working_pcp(TripType.INCOMING, pkl_file_path_incoming)
 
     def clicked_cancel(self):
         """
@@ -127,26 +143,11 @@ class SonetPCPManagerQt(QDialog, sonet_pcp_manager_ui.Ui_sonet_pcp_manager):
         # Remove mat files and reset associated widgets.
         self.reset_matrix_widgets()
 
-    def reset_matrix_widgets(self):
-        self._pcp_mat_file_outgoing = None
-        self._pcp_mat_file_incoming = None
-        self.sonet_dvt_limit_qcb.setChecked(False)
-        self.sonet__outgoing_trajectories_matrix_line_edit.clear()
-        self.sonet__incoming_trajectories_matrix_line_edit.clear()
-        self.matrix_tw_outgoing_root_item.takeChildren()
-        self.matrix_tw_incoming_root_item.takeChildren()
-
     def clicked_dvt_limit_checkbox(self):
         """
         Activate/deactivate the dvt limit line edit widget, depending of the check box state.
         """
         self.sonet_dvt_limit_qdoublespinbox.setEnabled(self.sonet_dvt_limit_qcb.isChecked())
-
-    def clicked_ok(self):
-        """
-        Sets the current working pcp files (if any) & close the window.
-        """
-        pass
 
     def clicked_read_pcp_matrix_file_incoming(self):
         """
@@ -244,6 +245,15 @@ class SonetPCPManagerQt(QDialog, sonet_pcp_manager_ui.Ui_sonet_pcp_manager):
                                      str(my_pkl_file_rows),
                                      str(my_pkl_file_cols))
 
+    def reset_matrix_widgets(self):
+        self._pcp_mat_file_outgoing = None
+        self._pcp_mat_file_incoming = None
+        self.sonet_dvt_limit_qcb.setChecked(False)
+        self.sonet__outgoing_trajectories_matrix_line_edit.clear()
+        self.sonet__incoming_trajectories_matrix_line_edit.clear()
+        self.matrix_tw_outgoing_root_item.takeChildren()
+        self.matrix_tw_incoming_root_item.takeChildren()
+
     @staticmethod
     def convert_mat_2_dataframe(a_my_mat_file, a_dvt_limit=None) -> pd.DataFrame:
         """
@@ -291,6 +301,9 @@ class SonetPCPManagerQt(QDialog, sonet_pcp_manager_ui.Ui_sonet_pcp_manager):
             df = pd.DataFrame(data[:-unfilled_rows,:], columns=cols, index=[i for i in range(row)])
         else:
             df = pd.DataFrame(data, columns=cols, index=rows)
+
+        # Add 'ArrivDates' column and perform some conversions and columns reordering.
+        df = SonetPCPManagerQt.post_process(df)
 
         # Add attributes to the dataframe.
         df.attrs['file_name'] = str(a_my_mat_file['fname'][0]) + '.pkl'
@@ -358,3 +371,31 @@ class SonetPCPManagerQt(QDialog, sonet_pcp_manager_ui.Ui_sonet_pcp_manager):
         self.sonet_working_pcp_qtw.resizeColumnToContents(0)
         self.sonet_working_pcp_qtw.resizeColumnToContents(1)
         self.sonet_working_pcp_qtw.resizeColumnToContents(2)
+
+    @staticmethod
+    def post_process(a_df: pd.DataFrame):
+        """
+        Given a input dataframe:
+            - Creates a new column called 'ArrivDates', which is a lineal combination of 'DepDates' and 'tof'.
+            - Converts 'DepDates' and 'ArrivDates' from JD2000 to JD, as QDate objects work with absolute dates.
+            - Converts 'theta' from radians to sexagesimal degrees.
+            - Reorder columns in a more convenient way.
+        :param df: a Pandas DataFrame.
+        """
+
+        # Create 'ArrivDates' column.
+        a_df['ArrivDates'] = a_df.DepDates + a_df.tof
+
+        # Convert dates JD2000 to JD.
+        JD2000 = 2451545.0  # Julian Day 2000, extracted from AstroLib matlab code.
+        a_df['DepDates'] = (a_df.DepDates + JD2000)
+        a_df['ArrivDates'] = (a_df.ArrivDates + JD2000)
+
+        # Convert theta rad to º.
+        a_df.theta = a_df.theta * 180 / np.pi
+
+        # Reorder columns.
+        reordered_cols = ['DepDates', 'ArrivDates', 'tof', 'theta', 'dvt', 'dvd', 'dva', 'c3d', 'c3a']
+        return a_df.reindex(columns=reordered_cols)
+
+    # df = post_process(df)
