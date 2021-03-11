@@ -1,5 +1,4 @@
 import pandas as pd
-
 from PySide2.QtCore import QDate
 
 from src import database
@@ -107,6 +106,11 @@ class SonetTrajectoryFilter:
         If the filter is too restrictive, then the return will be an empty DataFrame.
         :return: A pandas DataFrame. If something went wrong, then it will return False.
         """
+        # If not available pcp in the db, return empty dataframe.
+        the_pcp_table = database.get_pcp_table(self._trip_type)
+        if the_pcp_table.empty:
+            return the_pcp_table
+
         # Get activated filters as pandas DataFrame.
         the_filter_energy = SonetTrajectoryFilter._get_activated_filters_of_a_given_type(self._data, True, 'Energy')
         the_filter_tof = SonetTrajectoryFilter._get_activated_filters_of_a_given_type(self._data, True,
@@ -129,9 +133,6 @@ class SonetTrajectoryFilter:
                 query_list.append(q)
         # Resultant query string.
         query_string = ' and '.join(query_list)
-
-        # The porkchop dataframe
-        the_pcp_table = database.get_pcp_table(self._trip_type)
 
         # Check, the_pcp_table shall be a dataframe
         if not isinstance(the_pcp_table, pd.DataFrame):
