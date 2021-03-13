@@ -381,6 +381,7 @@ class Ui_sonet_pcp_filter(object):
 
         self.combo_select_trip = QComboBox(self.top_left_group_box)
         self.combo_select_trip.setObjectName(u"combo_select_trip")
+        self.combo_select_trip.setEnabled(False)
         sizePolicy5.setHeightForWidth(self.combo_select_trip.sizePolicy().hasHeightForWidth())
         self.combo_select_trip.setSizePolicy(sizePolicy5)
 

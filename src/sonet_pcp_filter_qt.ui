@@ -688,6 +688,9 @@
               </item>
               <item>
                <widget class="QComboBox" name="combo_select_trip">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
                   <horstretch>0</horstretch>
