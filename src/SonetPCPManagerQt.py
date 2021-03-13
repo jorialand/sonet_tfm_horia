@@ -20,7 +20,7 @@ from scipy.io import loadmat
 
 from src import database
 from src import sonet_pcp_manager_ui  # The user interface, created with QtCreator.
-from src.SonetUtils import SONET_MSG_TIMEOUT, SONET_PCP_DATA_DIR, TripType
+from src.SonetUtils import SONET_MSG_TIMEOUT, SONET_PCP_DATA_DIR, TripType, reset_sc_filters_and_trajectories
 
 
 class SonetPCPManagerQt(QDialog, sonet_pcp_manager_ui.Ui_sonet_pcp_manager):
@@ -31,10 +31,14 @@ class SonetPCPManagerQt(QDialog, sonet_pcp_manager_ui.Ui_sonet_pcp_manager):
     The matlab data is stored in .mat files, in matrix format.
     The app needs pcp data in table format. The tables are stored in .pkl files.
     """
-    def __init__(self, *args, **kwargs):
-        super(SonetPCPManagerQt, self).__init__(*args, **kwargs)
+    def __init__(self, *args, p_main_window=None):
+        super(SonetPCPManagerQt, self).__init__(*args)
         self.setupUi(self)
+        self.setModal(True)
         self.show()
+
+        # Reference to the main window.
+        self._p_main_window = p_main_window
 
         # Some widgets settings.
         self.sonet_read_pcp_qtw.setHeaderLabels(['Selected .mat files',
@@ -81,22 +85,49 @@ class SonetPCPManagerQt(QDialog, sonet_pcp_manager_ui.Ui_sonet_pcp_manager):
         self.btn_cancel.clicked.connect(self.reject)
 
         # If there's a currently working pcp in the database, display it to the user.
-        working_pcp_paths = database.get_working_pcp_paths()
-        self.sonet__outgoing_trajectories_table_line_edit.setText(working_pcp_paths[0])
-        self.sonet__incoming_trajectories_table_line_edit.setText(working_pcp_paths[1])
+        self.read_database_pcp()
 
         # sonet_log(SonetLogType.INFO, 'class_tal.method_tal')
         # self.status_bar.showMessage('tal.', SONET_MSG_TIMEOUT)
 
+    def read_database_pcp(self):
+        """
+        If there's a currently working pcp in the database, display it to the user.
+
+        """
+        working_pcp_paths = database.get_working_pcp_paths()
+        pkl_file_outgoing_path = working_pcp_paths[0]
+        pkl_file_incoming_path = working_pcp_paths[1]
+        # Fill the pkl files path line edit widgets.
+        self.sonet__outgoing_trajectories_table_line_edit.setText(pkl_file_outgoing_path)
+        self.sonet__incoming_trajectories_table_line_edit.setText(pkl_file_incoming_path)
+
+        # Set the members pkl files & update the table tree view.
+        if pkl_file_outgoing_path:
+            self._pcp_table_file_outgoing = database.get_pcp_table(TripType.OUTGOING)
+            self.update_table_tree_view(pkl_file_outgoing_path, p_trip='Outgoing')
+        if pkl_file_incoming_path:
+            self._pcp_table_file_incoming = database.get_pcp_table(TripType.INCOMING)
+            self.update_table_tree_view(pkl_file_incoming_path, p_trip='Incoming')
+
     def clicked_ok(self):
         """
         Sets the current working pcp files (if any) & close the window.
+        If we have changed the outgoing or incoming pkl files, all the currently set filters and trajectories
+        are going to be reset.
         """
 
         pkl_file_path_outgoing = self.sonet__outgoing_trajectories_table_line_edit.text()
         pkl_file_path_incoming = self.sonet__incoming_trajectories_table_line_edit.text()
-        database.set_working_pcp(TripType.OUTGOING, pkl_file_path_outgoing)
-        database.set_working_pcp(TripType.INCOMING, pkl_file_path_incoming)
+        has_changed_outgoing = database.set_working_pcp(TripType.OUTGOING, pkl_file_path_outgoing)
+        has_changed_incoming = database.set_working_pcp(TripType.INCOMING, pkl_file_path_incoming)
+
+        # Reset the filters and trajectories for ALL the s/c if necessary, AND inform to the user.
+        if has_changed_outgoing or has_changed_incoming:
+            reset_sc_filters_and_trajectories()
+            self._p_main_window.statusbar.showMessage('Database has changed. Filter and trajectory reset  for ALL s/c',
+                                                      SONET_MSG_TIMEOUT * 3)
+
 
     def clicked_cancel(self):
         """
@@ -214,12 +245,24 @@ class SonetPCPManagerQt(QDialog, sonet_pcp_manager_ui.Ui_sonet_pcp_manager):
         self._pcp_table_file_incoming = pd.read_pickle(file_path)
         self.status_bar.showMessage('PCP incoming .pkl file read', SONET_MSG_TIMEOUT)
 
-        file_name = file_path.split('/')[-2]
-        my_pkl_file_rows = self._pcp_table_file_incoming.shape[0]
-        my_pkl_file_cols = self._pcp_table_file_incoming.shape[1]
-        self.fill_table_QTreeWidget('Incomings', file_name,
-                                     str(my_pkl_file_rows),
-                                     str(my_pkl_file_cols))
+        # Update the bottom tree view.
+        self.update_table_tree_view(file_path, p_trip='Incoming')
+
+    def update_table_tree_view(self, a_file_path, p_trip=''):
+        a_file_name = a_file_path.split('/')[-2]
+
+        if p_trip == 'Outgoing':
+            my_pkl_file_rows = self._pcp_table_file_outgoing.shape[0]
+            my_pkl_file_cols = self._pcp_table_file_outgoing.shape[1]
+            self.fill_table_QTreeWidget('Outgoing', a_file_name,
+                                        str(my_pkl_file_rows),
+                                        str(my_pkl_file_cols))
+        else:
+            my_pkl_file_rows = self._pcp_table_file_incoming.shape[0]
+            my_pkl_file_cols = self._pcp_table_file_incoming.shape[1]
+            self.fill_table_QTreeWidget('Incoming', a_file_name,
+                                        str(my_pkl_file_rows),
+                                        str(my_pkl_file_cols))
 
     def clicked_read_pcp_table_file_outgoing(self):
         """
@@ -238,12 +281,8 @@ class SonetPCPManagerQt(QDialog, sonet_pcp_manager_ui.Ui_sonet_pcp_manager):
         self._pcp_table_file_outgoing = pd.read_pickle(file_path)
         self.status_bar.showMessage('PCP outgoing .pkl file read', SONET_MSG_TIMEOUT)
 
-        file_name = file_path.split('/')[-2]
-        my_pkl_file_rows = self._pcp_table_file_outgoing.shape[0]
-        my_pkl_file_cols = self._pcp_table_file_outgoing.shape[1]
-        self.fill_table_QTreeWidget('Outgoing', file_name,
-                                     str(my_pkl_file_rows),
-                                     str(my_pkl_file_cols))
+        # Update the bottom tree view.
+        self.update_table_tree_view(file_path, p_trip='Outgoing')
 
     def reset_matrix_widgets(self):
         self._pcp_mat_file_outgoing = None

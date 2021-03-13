@@ -2,7 +2,6 @@ import pandas as pd
 from PySide2.QtCore import QDate
 
 from src import database
-# from src.SonetSpacecraft import SonetSpacecraft
 from src.SonetUtils import TripType, sonet_log, SonetLogType
 
 
@@ -283,7 +282,10 @@ class SonetTrajectoryFilter:
 
     @staticmethod
     def update_filters_dependencies(a_the_filter):
-
+        """
+        Prepares the filters to update their dependencies.
+        :param a_the_filter: a SonetTrajectoryFilter obj or a list of them
+        """
         has_return_trajectory = False
         if isinstance(a_the_filter, list):
             has_return_trajectory = True
@@ -303,6 +305,9 @@ class SonetTrajectoryFilter:
             a_the_filter.update_filter_dependencies()
 
     def update_filter_dependencies(self):
+        """
+        Updates the filter dependencies.
+        """
         the_sc = self._p_the_spacecraft
         the_filter_complex_dates = SonetTrajectoryFilter._get_activated_filters_of_a_given_type(self._data,
                                                                                                 True, 'ComplexDate')
@@ -318,7 +323,14 @@ class SonetTrajectoryFilter:
 
     @staticmethod
     def is_valid_filter(a_the_filter: list) -> bool:
-
+        """
+        Determines if a passed filter is still valid or not.
+        First retrieve the s/c and trip to which this s/c is dependent of.
+        If the s/c cannot be found, then it has been erased, so the filter is not valid anymore.
+        If the s/c can be found, but between its current selected trajectories we cannot find the one we have in our
+        filter, then the filter is not valid anymore.
+        :param a_the_filter: a ComplexDate filter
+        """
         if a_the_filter[2] in ['At least', 'At maximum']:
             the_sc = a_the_filter[6]
             the_trip = a_the_filter[7]

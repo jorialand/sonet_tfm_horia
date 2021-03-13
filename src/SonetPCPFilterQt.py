@@ -1,7 +1,7 @@
 # General imports
 import sys
-import pandas as pd
 
+import pandas as pd
 # Qt imports
 from PySide2.QtCore import QCoreApplication, Qt, QAbstractTableModel, QModelIndex, QDate
 from PySide2.QtWidgets import QDialog, QApplication, QDialogButtonBox, QMessageBox, QStatusBar

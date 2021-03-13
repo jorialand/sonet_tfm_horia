@@ -53,7 +53,7 @@ def get_spacecraft(a_spacecraft: str):
     """
     return db[a_spacecraft]
 
-def get_spacecrafts_list():
+def get_spacecrafts_list(p_return_objects=False):
     """
     Getter function.
     Returns the list of spacecrafts within the database.
@@ -61,7 +61,10 @@ def get_spacecrafts_list():
     :return: list of spacecrafts.
     :rtype: list
     """
-    return list(db.keys())
+    if p_return_objects:
+        return list(db.values())
+    else:
+        return list(db.keys())
 
 def get_working_pcp_paths():
     return [df_pcp_outgoing_path, df_pcp_incoming_path]
@@ -71,11 +74,16 @@ def set_working_pcp(a_trip: TripType, a_pkl_file_path: str):
     Sets the working PCPs, if the passed path is empty, then the PCP is set to None.
     :param a_trip: Outgoing/Incoming trip
     :param a_pkl_file_path: the pkl file path
+    :returns bool indicating if the working pcp has changed or is the same as before.
     """
     global df_pcp_outgoing, df_pcp_outgoing_path
     global df_pcp_incoming, df_pcp_incoming_path
+    has_changed = False
 
     if a_trip == TripType.OUTGOING:
+        if a_pkl_file_path != df_pcp_outgoing_path:
+            has_changed = True
+
         if a_pkl_file_path:
             df_pcp_outgoing = pd.read_pickle(a_pkl_file_path)
             df_pcp_outgoing_path = a_pkl_file_path
@@ -83,12 +91,18 @@ def set_working_pcp(a_trip: TripType, a_pkl_file_path: str):
             df_pcp_outgoing = None
             df_pcp_outgoing_path = ''
     elif a_trip == TripType.INCOMING:
+        if a_pkl_file_path != df_pcp_incoming_path:
+            has_changed = True
+
         if a_pkl_file_path:
             df_pcp_incoming = pd.read_pickle(a_pkl_file_path)
             df_pcp_incoming_path = a_pkl_file_path
         else:
             df_pcp_incoming = None
             df_pcp_incoming_path = ''
+
+    return has_changed
+
 
 # The spacecrafts database.
 db = {}
