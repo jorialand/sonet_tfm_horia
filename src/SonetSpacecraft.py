@@ -260,9 +260,25 @@ class SonetSpacecraft:
             self._trajectory = None
             self._trajectory_index = QModelIndex()
 
-    def reset_filter_and_trajectory(self, a_trip: TripType):
+    def reset_filter_and_trajectory(self, a_trip: TripType = None, p_all_trips=False):
+        """
+        Resets the filter and trajectory of a_trip trip.
+        Additionally, if the user calls with p_all_trips = True, the she wants all the s/c
+        filters and trajectories to be updated.
+        :param p_all_trips: parameter used to reset all the filter and trajectories
+        :param a_trip: the trip to reset
+        """
+        # Use recursion to update all the filters and trajectories.
+        if p_all_trips:
+            if self._has_return_trajectory:
+                self.reset_filter_and_trajectory(TripType.OUTGOING)
+                self.reset_filter_and_trajectory(TripType.INCOMING)
+            else:
+                self.reset_filter_and_trajectory(TripType.OUTGOING)
+
+        # Outgoing trip.
         if a_trip == TripType.OUTGOING:
-            # Outgoing trip.
+            # If the trip is one-way/two-way, we access the filters and trajectories differently :D.
             if self._has_return_trajectory:
                 self._pcp_filter1 = SonetTrajectoryFilter(self, TripType.OUTGOING)
                 self._trajectory1 = None
@@ -271,16 +287,17 @@ class SonetSpacecraft:
                 self._pcp_filter = SonetTrajectoryFilter(self, TripType.OUTGOING)
                 self._trajectory = None
                 self._trajectory_index = QModelIndex()
+        # Incoming trip.
         else:
-            # Incoming trip.
             self._pcp_filter2 = SonetTrajectoryFilter(self, TripType.INCOMING)
             self._trajectory2 = None
             self._trajectory2_index = QModelIndex()
 
         # Inform to the user.
-        status_bar = self._p_main_window.statusbar
-        status_bar.showMessage('Dependencies update. Filter and trajectory reset  for s/c ' + self._spacecraft_name +
-                               ' (' + TripType.convert_to_str(a_trip) + ')', SONET_MSG_TIMEOUT * 3)
+        if a_trip is not None:
+            status_bar = self._p_main_window.statusbar
+            status_bar.showMessage('Dependencies update. Filter and trajectory reset  for s/c ' + self._spacecraft_name +
+                                   ' (' + TripType.convert_to_str(a_trip) + ')', SONET_MSG_TIMEOUT * 3)
 
     def set_filter(self, a_the_filter: SonetTrajectoryFilter, p_dataframe=False):
         """

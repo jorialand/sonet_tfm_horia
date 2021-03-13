@@ -1,10 +1,12 @@
-import random
 from enum import Enum, unique
 
-import pandas as pd
 from PySide2.QtWidgets import QMessageBox
 
+import src.database as db
 
+
+# from src.SonetSpacecraft import SonetSpacecraft # Error if importing! :S
+# from src.SonetMainWindowQt import get_main_window
 # ==============================================================================================
 # ==============================================================================================
 #
@@ -15,6 +17,7 @@ from PySide2.QtWidgets import QMessageBox
 # ==============================================================================================
 # ==============================================================================================
 
+# Enums.
 @unique
 class SpacecraftType(Enum):
     """
@@ -124,46 +127,7 @@ class SonetLogType(Enum):
     WARNING = 1
     ERROR = 2
 
-def build_mock_DataFrame(num_rows=5, num_columns=8, min=0, max=10):
-    """
-
-    :param num_rows:
-    :param num_columns:
-    :param min:
-    :param max:
-    :return:
-    """
-    # Build columns
-    num_rows = random.randint(1,int(1e2))
-    _ = ['var'+str(i) for i in range(num_columns)]
-    result = pd.DataFrame(columns=_)
-    build_row = lambda: [random.randint(min,max) for _ in range(num_columns)]
-    for i in range(num_rows):
-        result.loc[len(result)] = build_row()
-    return result
-
-def build_mock_filter():
-    _data = pd.DataFrame(columns=['Status', 'Type', 'Filter'])
-    new_row = {'Status': 0, 'Type': FilterType.ENERGY, 'Filter': ['dvt', '<=', 100, 'km/s']}
-    _data = _data.append(new_row, ignore_index=True)
-
-    new_row = {'Status': 0, 'Type': FilterType.ENERGY, 'Filter': ['c3d', '<=', 64, 'km/s']}
-    _data = _data.append(new_row, ignore_index=True)
-
-    new_row = {'Status': 0, 'Type': FilterType.ENERGY, 'Filter': ['dva', '<=', 5, 'km/s']}
-    _data = _data.append(new_row, ignore_index=True)
-
-    new_row = {'Status': 0, 'Type': FilterType.ENERGY, 'Filter': ['theta', '<=', 3.1416, 'deg']}
-    _data = _data.append(new_row, ignore_index=True)
-
-    new_row = {'Status': 0, 'Type': FilterType.TOF, 'Filter': ['tof', '<=', 250, 'Days']}
-    _data = _data.append(new_row, ignore_index=True)
-
-    new_row = {'Status': 0, 'Type': FilterType.TOF, 'Filter': ['tof', '>=', 100, 'Days']}
-    _data = _data.append(new_row, ignore_index=True)
-
-    return _data
-
+# Utility methods.
 def popup_msg(text='text', icon=QMessageBox.Information, info_text='info_text', window_title='window_title'):
     msg = QMessageBox()
     msg.setIcon(icon)
@@ -200,6 +164,16 @@ def sonet_log(a_log_type, a_log_msg):
             # Info logs, are only printed in FULL_VERBOSE mode.
             if SONET_DEBUG_LEVEL is SonetDebugLevel.FULL_VERBOSE:
                 print('Info: ' + a_log_msg)
+
+def reset_sc_filters_and_trajectories():
+    """
+    Traverse all the s/c in the database and reset their filters and trajectories,
+    inform to the user throught the main window status bar.
+    """
+    for sc in db.get_spacecrafts_list(p_return_objects=True):
+        # sc: SonetSpacecraft
+        sc.reset_filter_and_trajectory(p_all_trips=True)
+
 
 # Global debug verbose level for the application.
 SONET_DEBUG_LEVEL = SonetDebugLevel.ONLY_ERRORS

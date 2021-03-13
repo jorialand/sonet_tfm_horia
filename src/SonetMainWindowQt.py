@@ -11,12 +11,12 @@ import datetime
 import sys
 
 # Matlab environment
-import matlab.engine
+# import matlab.engine
 
 sonet_path = '/Users/jorialand/code/tfm/sonet/sonet_tfm_horia/'
-eng = matlab.engine.start_matlab()
-s = eng.genpath(sonet_path)
-eng.addpath(s, nargout=0)
+# eng = matlab.engine.start_matlab()
+# s = eng.genpath(sonet_path)
+# eng.addpath(s, nargout=0)
 
 import pandas as pd
 # From module X import class Y.
@@ -93,10 +93,11 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         # Access to SonetPCPFilterQt window.
         self._p_pcp_filter_window = None
 
-        # Menu bar
+        # Widgets settings.
         self.menubar.setNativeMenuBar(False)  # I'd problems with MacOSX native menubar, the menus didn't appear
         self.sonet_pcp_tabs_qtw.setCurrentIndex(0)
-        # TODO Añadir QActions (e.g. Exit, Save, etc.)
+        self.sonet_spacecraft_type_qcmb.setCurrentIndex(1)  # Select cargo payload, by default.
+
 
         # Objects database
         self.n = 0  # Counter for spacecrafts naming, to be deprecated
@@ -149,11 +150,8 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         # Update pointer to the dialog, e.g. for accessing to its status bar.
         self._p_pcp_filter_window = filter_dialog_qt
 
-        # SonetPCPFilterQt - Settings.
         filter_dialog_qt.setModal(True)
         filter_dialog_qt.setSizeGripEnabled(True)
-
-        # Run it.
         filter_dialog_qt.exec_()
 
         # Force Qt repaint to update the table views.
@@ -228,10 +226,8 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
 
     def clicked_pcp_manager(self):
         sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_pcp_manager')
-        # self.statusbar.showMessage('Not yet implemented :).', SONET_MSG_TIMEOUT)
 
-        self.pcp_generator_window = SonetPCPManagerQt(self)
-        pass
+        pcp_manager_window = SonetPCPManagerQt(self, p_main_window=self)
 
     def clicked_remove_spacecraft(self):
         # Get the current list view selection.
