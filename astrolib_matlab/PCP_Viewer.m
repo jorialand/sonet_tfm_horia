@@ -31,8 +31,8 @@ end
 
 % Exit on data_file cancel
 if isnumeric(data_file)
-    close(fh); % Close figure
-    return; % Return
+    close(fh);
+    return;
 end
 
 % Error on data_file not found

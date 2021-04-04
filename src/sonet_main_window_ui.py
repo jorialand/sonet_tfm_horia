@@ -208,23 +208,13 @@ class Ui_main_window(object):
 
         self.verticalLayout_2.addWidget(self.line_7)
 
-        self.sonet_matlab_btn_qhbox = QHBoxLayout()
-        self.sonet_matlab_btn_qhbox.setObjectName(u"sonet_matlab_btn_qhbox")
+        self.sonet_pcp_generator_qhbox_4 = QHBoxLayout()
+        self.sonet_pcp_generator_qhbox_4.setObjectName(u"sonet_pcp_generator_qhbox_4")
         self.sonet_open_matlab_pcp_viewer = QPushButton(self.sonet_mission_tree_qgb)
         self.sonet_open_matlab_pcp_viewer.setObjectName(u"sonet_open_matlab_pcp_viewer")
 
-        self.sonet_matlab_btn_qhbox.addWidget(self.sonet_open_matlab_pcp_viewer)
+        self.sonet_pcp_generator_qhbox_4.addWidget(self.sonet_open_matlab_pcp_viewer)
 
-        self.sonet_open_matlab_gen_pcp = QPushButton(self.sonet_mission_tree_qgb)
-        self.sonet_open_matlab_gen_pcp.setObjectName(u"sonet_open_matlab_gen_pcp")
-
-        self.sonet_matlab_btn_qhbox.addWidget(self.sonet_open_matlab_gen_pcp)
-
-
-        self.verticalLayout_2.addLayout(self.sonet_matlab_btn_qhbox)
-
-        self.sonet_pcp_generator_qhbox_4 = QHBoxLayout()
-        self.sonet_pcp_generator_qhbox_4.setObjectName(u"sonet_pcp_generator_qhbox_4")
         self.sonet_pcp_generator_qpb = QPushButton(self.sonet_mission_tree_qgb)
         self.sonet_pcp_generator_qpb.setObjectName(u"sonet_pcp_generator_qpb")
 
@@ -266,7 +256,7 @@ class Ui_main_window(object):
     # setupUi
 
     def retranslateUi(self, main_window):
-        main_window.setWindowTitle(QCoreApplication.translate("main_window", u"SONET Mars Mission Timeline", None))
+        main_window.setWindowTitle(QCoreApplication.translate("main_window", u"SONet Mars Mission Timeline", None))
         self.exit.setText(QCoreApplication.translate("main_window", u"&Exit", None))
         self.open_pcp_filter.setText(QCoreApplication.translate("main_window", u"Apply filter to PCP table", None))
         self.actionHelp.setText(QCoreApplication.translate("main_window", u"Help", None))
@@ -323,11 +313,7 @@ class Ui_main_window(object):
 #if QT_CONFIG(tooltip)
         self.sonet_open_matlab_pcp_viewer.setToolTip(QCoreApplication.translate("main_window", u"Create new s/c", None))
 #endif // QT_CONFIG(tooltip)
-        self.sonet_open_matlab_pcp_viewer.setText(QCoreApplication.translate("main_window", u"PCP_Viewer", None))
-#if QT_CONFIG(tooltip)
-        self.sonet_open_matlab_gen_pcp.setToolTip(QCoreApplication.translate("main_window", u"Remove s/c", None))
-#endif // QT_CONFIG(tooltip)
-        self.sonet_open_matlab_gen_pcp.setText(QCoreApplication.translate("main_window", u"Generate PCP", None))
+        self.sonet_open_matlab_pcp_viewer.setText(QCoreApplication.translate("main_window", u"PCP viewer", None))
 #if QT_CONFIG(tooltip)
         self.sonet_pcp_generator_qpb.setToolTip(QCoreApplication.translate("main_window", u"Remove s/c", None))
 #endif // QT_CONFIG(tooltip)

@@ -62,7 +62,7 @@
    <item row="0" column="0">
     <widget class="QToolBox" name="the_tool_box">
      <property name="currentIndex">
-      <number>2</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="pcp_generator_page">
       <property name="geometry">
@@ -78,7 +78,7 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <widget class="QPushButton" name="pushButton">
+        <widget class="QPushButton" name="matlab_pcp_generator_pb">
          <property name="text">
           <string>Matlab PCP generator</string>
          </property>
@@ -140,7 +140,7 @@
            <number>1</number>
           </property>
           <item row="1" column="0" colspan="2">
-           <widget class="QLabel" name="label_4">
+           <widget class="QLabel" name="label_tal">
             <property name="text">
              <string>Outgoing trajectories</string>
             </property>
@@ -303,6 +303,14 @@
       </layout>
      </widget>
      <widget class="QWidget" name="pcp_working_database_page">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>626</width>
+        <height>346</height>
+       </rect>
+      </property>
       <attribute name="label">
        <string>Working PCP</string>
       </attribute>

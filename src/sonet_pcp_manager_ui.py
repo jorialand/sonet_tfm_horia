@@ -54,10 +54,10 @@ class Ui_sonet_pcp_manager(object):
         self.pcp_generator_page.setGeometry(QRect(0, 0, 626, 346))
         self.verticalLayout_2 = QVBoxLayout(self.pcp_generator_page)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.pushButton = QPushButton(self.pcp_generator_page)
-        self.pushButton.setObjectName(u"pushButton")
+        self.matlab_pcp_generator_pb = QPushButton(self.pcp_generator_page)
+        self.matlab_pcp_generator_pb.setObjectName(u"matlab_pcp_generator_pb")
 
-        self.verticalLayout_2.addWidget(self.pushButton)
+        self.verticalLayout_2.addWidget(self.matlab_pcp_generator_pb)
 
         self.verticalSpacer_3 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
@@ -80,10 +80,10 @@ class Ui_sonet_pcp_manager(object):
         self.gridLayout_4 = QGridLayout(self.sonet_read_pcp_qgb)
         self.gridLayout_4.setObjectName(u"gridLayout_4")
         self.gridLayout_4.setContentsMargins(1, 1, 1, 1)
-        self.label_4 = QLabel(self.sonet_read_pcp_qgb)
-        self.label_4.setObjectName(u"label_4")
+        self.label_tal = QLabel(self.sonet_read_pcp_qgb)
+        self.label_tal.setObjectName(u"label_tal")
 
-        self.gridLayout_4.addWidget(self.label_4, 1, 0, 1, 2)
+        self.gridLayout_4.addWidget(self.label_tal, 1, 0, 1, 2)
 
         self.label = QLabel(self.sonet_read_pcp_qgb)
         self.label.setObjectName(u"label")
@@ -184,6 +184,7 @@ class Ui_sonet_pcp_manager(object):
         self.the_tool_box.addItem(self.pcp_converter_page, u"Convert PCP")
         self.pcp_working_database_page = QWidget()
         self.pcp_working_database_page.setObjectName(u"pcp_working_database_page")
+        self.pcp_working_database_page.setGeometry(QRect(0, 0, 626, 346))
         self.verticalLayout_3 = QVBoxLayout(self.pcp_working_database_page)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.sonet_working_pcp_qgb = QGroupBox(self.pcp_working_database_page)
@@ -250,7 +251,7 @@ class Ui_sonet_pcp_manager(object):
 
         self.retranslateUi(sonet_pcp_manager)
 
-        self.the_tool_box.setCurrentIndex(2)
+        self.the_tool_box.setCurrentIndex(1)
 
 
         QMetaObject.connectSlotsByName(sonet_pcp_manager)
@@ -258,10 +259,10 @@ class Ui_sonet_pcp_manager(object):
 
     def retranslateUi(self, sonet_pcp_manager):
         sonet_pcp_manager.setWindowTitle(QCoreApplication.translate("sonet_pcp_manager", u"SONet PCP manager", None))
-        self.pushButton.setText(QCoreApplication.translate("sonet_pcp_manager", u"Matlab PCP generator", None))
+        self.matlab_pcp_generator_pb.setText(QCoreApplication.translate("sonet_pcp_manager", u"Matlab PCP generator", None))
         self.the_tool_box.setItemText(self.the_tool_box.indexOf(self.pcp_generator_page), QCoreApplication.translate("sonet_pcp_manager", u"Generate PCP", None))
         self.sonet_read_pcp_qgb.setTitle("")
-        self.label_4.setText(QCoreApplication.translate("sonet_pcp_manager", u"Outgoing trajectories", None))
+        self.label_tal.setText(QCoreApplication.translate("sonet_pcp_manager", u"Outgoing trajectories", None))
         self.label.setText(QCoreApplication.translate("sonet_pcp_manager", u"Post-processing options", None))
         self.label_5.setText(QCoreApplication.translate("sonet_pcp_manager", u"Incoming trajectories", None))
         self.sonet_read_pcp_outgoing_trajectories_matrix_qpb.setText(QCoreApplication.translate("sonet_pcp_manager", u"Read mat file", None))

@@ -182,6 +182,8 @@ SONET_DEBUG_LEVEL = SonetDebugLevel.ONLY_ERRORS
 SONET_MSG_TIMEOUT = 2500
 
 # Global paths.
-SONET_PCP_DATA_DIR = '/Users/jorialand/code/tfm/sonet/sonet_tfm_horia/data/PCP/'
+SONET_DIR = '/Users/jorialand/code/tfm/sonet/sonet_tfm_horia/'
+SONET_PCP_DATA_DIR = SONET_DIR + 'data/PCP/'
+
 if __name__ == "__main__":
     pass

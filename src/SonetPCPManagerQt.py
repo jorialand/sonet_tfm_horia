@@ -31,7 +31,7 @@ class SonetPCPManagerQt(QDialog, sonet_pcp_manager_ui.Ui_sonet_pcp_manager):
     The matlab data is stored in .mat files, in matrix format.
     The app needs pcp data in table format. The tables are stored in .pkl files.
     """
-    def __init__(self, *args, p_main_window=None):
+    def __init__(self, *args, p_main_window=None, p_mat_eng=None):
         super(SonetPCPManagerQt, self).__init__(*args)
         self.setupUi(self)
         self.setModal(True)
@@ -39,6 +39,9 @@ class SonetPCPManagerQt(QDialog, sonet_pcp_manager_ui.Ui_sonet_pcp_manager):
 
         # Reference to the main window.
         self._p_main_window = p_main_window
+
+        # Reference to matlab engine.
+        self._p_matlab_engine = p_mat_eng
 
         # Some widgets settings.
         self.sonet_read_pcp_qtw.setHeaderLabels(['Selected .mat files',
@@ -75,7 +78,7 @@ class SonetPCPManagerQt(QDialog, sonet_pcp_manager_ui.Ui_sonet_pcp_manager):
         self.sonet_convert_pcp_2_table_format_qpb.clicked.connect(self.clicked_convert_pcp_2_table_format)
         self.sonet_read_pcp_outgoing_trajectories_table_qpb.clicked.connect(self.clicked_read_pcp_table_file_outgoing)
         self.sonet_read_pcp_incoming_trajectories_table_qpb.clicked.connect(self.clicked_read_pcp_table_file_incoming)
-
+        self.matlab_pcp_generator_pb.clicked.connect(self.clicked_matlab_pcp_generator)
         self.btn_OK = self.sonet_ok_cancel_qpb_group.button(QDialogButtonBox.Ok)
         self.btn_OK.clicked.connect(self.clicked_ok)
         self.btn_OK.clicked.connect(self.accept)
@@ -128,7 +131,6 @@ class SonetPCPManagerQt(QDialog, sonet_pcp_manager_ui.Ui_sonet_pcp_manager):
             self._p_main_window.statusbar.showMessage('Database has changed. Filter and trajectory reset  for ALL s/c',
                                                       SONET_MSG_TIMEOUT * 3)
 
-
     def clicked_cancel(self):
         """
         Abort all the operations & close the window.
@@ -179,6 +181,9 @@ class SonetPCPManagerQt(QDialog, sonet_pcp_manager_ui.Ui_sonet_pcp_manager):
         Activate/deactivate the dvt limit line edit widget, depending of the check box state.
         """
         self.sonet_dvt_limit_qdoublespinbox.setEnabled(self.sonet_dvt_limit_qcb.isChecked())
+
+    def clicked_matlab_pcp_generator(self):
+        self._p_matlab_engine.PCPGenerator(nargout=0)
 
     def clicked_read_pcp_matrix_file_incoming(self):
         """
@@ -436,5 +441,3 @@ class SonetPCPManagerQt(QDialog, sonet_pcp_manager_ui.Ui_sonet_pcp_manager):
         # Reorder columns.
         reordered_cols = ['DepDates', 'ArrivDates', 'tof', 'theta', 'dvt', 'dvd', 'dva', 'c3d', 'c3a']
         return a_df.reindex(columns=reordered_cols)
-
-    # df = post_process(df)
