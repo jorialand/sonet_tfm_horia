@@ -11,13 +11,7 @@ import datetime
 import sys
 
 # Matlab environment
-# import matlab.engine
-
-sonet_path = '/Users/jorialand/code/tfm/sonet/sonet_tfm_horia/'
-# eng = matlab.engine.start_matlab()
-# s = eng.genpath(sonet_path)
-# eng.addpath(s, nargout=0)
-
+import matlab.engine
 import pandas as pd
 # From module X import class Y.
 from PySide2.QtCore import QAbstractListModel, QAbstractTableModel, QModelIndex, Qt
@@ -29,8 +23,11 @@ from src.SonetPCPFilterQt import SonetPCPFilterQt
 from src.SonetPCPManagerQt import SonetPCPManagerQt
 from src.SonetSpacecraft import SonetSpacecraft
 from src.SonetTrajectoryFilter import SonetTrajectoryFilter
-from src.SonetUtils import TripType, SonetLogType, sonet_log, popup_msg, SONET_MSG_TIMEOUT
+from src.SonetUtils import TripType, SonetLogType, sonet_log, popup_msg, SONET_MSG_TIMEOUT, SONET_DIR
 
+matlab_engine = matlab.engine.start_matlab()
+s = matlab_engine.genpath(SONET_DIR)
+matlab_engine.addpath(s, nargout=0)
 # QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)  # To avoid AA_ShareOpenGLContexts warning in QtCreator.
 
 # ==============================================================================================
@@ -119,7 +116,6 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         self.sonet_select_trajectory_qpb.clicked.connect(self.clicked_select_trajectory)
         self.sonet_draw_qpb.clicked.connect(self.clicked_draw)
         self.sonet_open_matlab_pcp_viewer.clicked.connect(self.clicked_matlab_pcp_viewer)
-        self.sonet_open_matlab_gen_pcp.clicked.connect(self.clicked_matlab_pcp_generator)
         self.sonet_pcp_generator_qpb.clicked.connect(self.clicked_pcp_manager)
 
         self.sonet_mission_tree_qlv.clicked.connect(self._list_model.list_clicked)
@@ -170,13 +166,15 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_matlab_pcp_generator')
         self.statusbar.showMessage('Not yet implemented :).', SONET_MSG_TIMEOUT)
 
-        # eng.PCP_Planet2Planet(nargout=0)
+        # matlab_engine.PCP_Planet2Planet(nargout=0)
 
     def clicked_matlab_pcp_viewer(self):
         sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_matlab_pcp_viewer')
-        self.statusbar.showMessage('Not yet implemented :).', SONET_MSG_TIMEOUT)
+        # self.statusbar.showMessage('Not yet implemented :).', SONET_MSG_TIMEOUT)
 
-        # eng.PCP_Viewer('', nargout=0)
+        # matlab_engine.PCP_Viewer('', nargout=0)
+        stop = True
+        pass
 
     def clicked_new_spacecraft(self):
         """
@@ -227,7 +225,7 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
     def clicked_pcp_manager(self):
         sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_pcp_manager')
 
-        pcp_manager_window = SonetPCPManagerQt(self, p_main_window=self)
+        pcp_manager_window = SonetPCPManagerQt(self, p_main_window=self, p_mat_eng=matlab_engine)
 
     def clicked_remove_spacecraft(self):
         # Get the current list view selection.
@@ -237,7 +235,7 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         db = database.db
         if len(list(db.keys())) is 0:
             sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_remove_spacecraft."No s/c to remove"')
-            self.statusbar.showMessage('No s/c to remove.', SONET_MSG_TIMEOUT)
+            self.statusbar.showMessage('NoFFF s/c to remove.', SONET_MSG_TIMEOUT)
             return True
 
         # If there is no selection, remove last SonetSpacecraft.

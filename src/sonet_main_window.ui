@@ -313,31 +313,17 @@
         </widget>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="sonet_matlab_btn_qhbox">
+        <layout class="QHBoxLayout" name="sonet_pcp_generator_qhbox_4">
          <item>
           <widget class="QPushButton" name="sonet_open_matlab_pcp_viewer">
            <property name="toolTip">
             <string>Create new s/c</string>
            </property>
            <property name="text">
-            <string>PCP_Viewer</string>
+            <string>PCP viewer</string>
            </property>
           </widget>
          </item>
-         <item>
-          <widget class="QPushButton" name="sonet_open_matlab_gen_pcp">
-           <property name="toolTip">
-            <string>Remove s/c</string>
-           </property>
-           <property name="text">
-            <string>Generate PCP</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="sonet_pcp_generator_qhbox_4">
          <item>
           <widget class="QPushButton" name="sonet_pcp_generator_qpb">
            <property name="toolTip">
