@@ -251,7 +251,7 @@ class Ui_sonet_pcp_manager(object):
 
         self.retranslateUi(sonet_pcp_manager)
 
-        self.the_tool_box.setCurrentIndex(1)
+        self.the_tool_box.setCurrentIndex(2)
 
 
         QMetaObject.connectSlotsByName(sonet_pcp_manager)
@@ -262,9 +262,9 @@ class Ui_sonet_pcp_manager(object):
         self.matlab_pcp_generator_pb.setText(QCoreApplication.translate("sonet_pcp_manager", u"Matlab PCP generator", None))
         self.the_tool_box.setItemText(self.the_tool_box.indexOf(self.pcp_generator_page), QCoreApplication.translate("sonet_pcp_manager", u"Generate PCP", None))
         self.sonet_read_pcp_qgb.setTitle("")
-        self.label_tal.setText(QCoreApplication.translate("sonet_pcp_manager", u"Outgoing trajectories", None))
+        self.label_tal.setText(QCoreApplication.translate("sonet_pcp_manager", u"Earth-Mars", None))
         self.label.setText(QCoreApplication.translate("sonet_pcp_manager", u"Post-processing options", None))
-        self.label_5.setText(QCoreApplication.translate("sonet_pcp_manager", u"Incoming trajectories", None))
+        self.label_5.setText(QCoreApplication.translate("sonet_pcp_manager", u"Mars-Earth", None))
         self.sonet_read_pcp_outgoing_trajectories_matrix_qpb.setText(QCoreApplication.translate("sonet_pcp_manager", u"Read mat file", None))
         self.sonet_read_pcp_incoming_trajectories_matrix_qpb.setText(QCoreApplication.translate("sonet_pcp_manager", u"Read mat file", None))
         self.sonet_dvt_limit_qcb.setText(QCoreApplication.translate("sonet_pcp_manager", u"dvt limit", None))
@@ -273,8 +273,8 @@ class Ui_sonet_pcp_manager(object):
         self.sonet_working_pcp_qgb.setTitle("")
         self.sonet_read_pcp_incoming_trajectories_table_qpb.setText(QCoreApplication.translate("sonet_pcp_manager", u"Read pkl file", None))
         self.sonet_read_pcp_outgoing_trajectories_table_qpb.setText(QCoreApplication.translate("sonet_pcp_manager", u"Read pkl file", None))
-        self.label_2.setText(QCoreApplication.translate("sonet_pcp_manager", u"Outgoing trajectories", None))
-        self.label_3.setText(QCoreApplication.translate("sonet_pcp_manager", u"Incoming trajectories", None))
+        self.label_2.setText(QCoreApplication.translate("sonet_pcp_manager", u"Earth-Mars", None))
+        self.label_3.setText(QCoreApplication.translate("sonet_pcp_manager", u"Mars-Earth", None))
         self.the_tool_box.setItemText(self.the_tool_box.indexOf(self.pcp_working_database_page), QCoreApplication.translate("sonet_pcp_manager", u"Working PCP", None))
     # retranslateUi
 

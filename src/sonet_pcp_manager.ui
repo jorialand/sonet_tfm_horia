@@ -62,7 +62,7 @@
    <item row="0" column="0">
     <widget class="QToolBox" name="the_tool_box">
      <property name="currentIndex">
-      <number>1</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="pcp_generator_page">
       <property name="geometry">
@@ -142,7 +142,7 @@
           <item row="1" column="0" colspan="2">
            <widget class="QLabel" name="label_tal">
             <property name="text">
-             <string>Outgoing trajectories</string>
+             <string>Earth-Mars</string>
             </property>
            </widget>
           </item>
@@ -156,7 +156,7 @@
           <item row="1" column="2" colspan="3">
            <widget class="QLabel" name="label_5">
             <property name="text">
-             <string>Incoming trajectories</string>
+             <string>Mars-Earth</string>
             </property>
            </widget>
           </item>
@@ -382,14 +382,14 @@
           <item row="1" column="0">
            <widget class="QLabel" name="label_2">
             <property name="text">
-             <string>Outgoing trajectories</string>
+             <string>Earth-Mars</string>
             </property>
            </widget>
           </item>
           <item row="1" column="1">
            <widget class="QLabel" name="label_3">
             <property name="text">
-             <string>Incoming trajectories</string>
+             <string>Mars-Earth</string>
             </property>
            </widget>
           </item>

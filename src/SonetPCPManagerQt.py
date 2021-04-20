@@ -9,9 +9,6 @@
 # ==============================================================================================
 # ==============================================================================================
 """
-# TODO Read PCP file .mat and convert it to dataframe.
-# TODO Convert PCP file to dataframe.
-# TODO Save it to .pkl file.
 
 import numpy as np
 import pandas as pd
@@ -48,15 +45,15 @@ class SonetPCPManagerQt(QDialog, sonet_pcp_manager_ui.Ui_sonet_pcp_manager):
                                                  'Total trajectories',
                                                  'Departure Dates',
                                                  'TOFs'])
-        self.matrix_tw_outgoing_root_item = QTreeWidgetItem(self.sonet_read_pcp_qtw, ['Outgoing', '', '', ''])
-        self.matrix_tw_incoming_root_item = QTreeWidgetItem(self.sonet_read_pcp_qtw, ['Incoming', '', '', ''])
+        self.matrix_tw_outgoing_root_item = QTreeWidgetItem(self.sonet_read_pcp_qtw, ['Earth-Mars', '', '', ''])
+        self.matrix_tw_incoming_root_item = QTreeWidgetItem(self.sonet_read_pcp_qtw, ['Mars-Earth', '', '', ''])
         self.resize_matrix_tw_columns()
 
         self.sonet_working_pcp_qtw.setHeaderLabels(['Selected .pkl files',
                                                     'Rows',
                                                     'Columns'])
-        self.table_tw_outgoing_root_item = QTreeWidgetItem(self.sonet_working_pcp_qtw, ['Outgoing', '', ''])
-        self.table_tw_incoming_root_item = QTreeWidgetItem(self.sonet_working_pcp_qtw, ['Incoming', '', ''])
+        self.table_tw_outgoing_root_item = QTreeWidgetItem(self.sonet_working_pcp_qtw, ['Earth-Mars', '', ''])
+        self.table_tw_incoming_root_item = QTreeWidgetItem(self.sonet_working_pcp_qtw, ['Mars-Earth', '', ''])
         self.resize_table_tw_columns()
 
         # Status bar,for messages to the user.
@@ -108,10 +105,10 @@ class SonetPCPManagerQt(QDialog, sonet_pcp_manager_ui.Ui_sonet_pcp_manager):
         # Set the members pkl files & update the table tree view.
         if pkl_file_outgoing_path:
             self._pcp_table_file_outgoing = database.get_pcp_table(TripType.OUTGOING)
-            self.update_table_tree_view(pkl_file_outgoing_path, p_trip='Outgoing')
+            self.update_table_tree_view(pkl_file_outgoing_path, p_trip='Earth-Mars')
         if pkl_file_incoming_path:
             self._pcp_table_file_incoming = database.get_pcp_table(TripType.INCOMING)
-            self.update_table_tree_view(pkl_file_incoming_path, p_trip='Incoming')
+            self.update_table_tree_view(pkl_file_incoming_path, p_trip='Mars-Earth')
 
     def clicked_ok(self):
         """
@@ -142,6 +139,7 @@ class SonetPCPManagerQt(QDialog, sonet_pcp_manager_ui.Ui_sonet_pcp_manager):
         Converts matrix to tabular pcp data. .mat -> .pkl.
         - Reads all the current available .mat files.
         - Converts them to tabular format (pandas dataframes).
+            - Also does some filtering (i.e. max dvt).
         - Saves the tables to pickle .pkl files.
         """
         # self.status_bar.showMessage('SonetPCPManagerQt.clicked_convert_pcp_2_table_format."Not implemented."',
@@ -203,7 +201,7 @@ class SonetPCPManagerQt(QDialog, sonet_pcp_manager_ui.Ui_sonet_pcp_manager):
         my_mat_file_dep_dates = self._pcp_mat_file_incoming['departure_dates'].shape[1]
         my_mat_file_tofs = self._pcp_mat_file_incoming['tofs'].shape[1]
         my_mat_file_total_trajectories = my_mat_file_dep_dates * my_mat_file_tofs
-        self.fill_matrix_QTreeWidget('Incoming', file_name,
+        self.fill_matrix_QTreeWidget('Mars-Earth', file_name,
                                      str(my_mat_file_total_trajectories),
                                      str(my_mat_file_dep_dates),
                                      str(my_mat_file_dep_dates))
@@ -229,7 +227,7 @@ class SonetPCPManagerQt(QDialog, sonet_pcp_manager_ui.Ui_sonet_pcp_manager):
         my_mat_file_dep_dates = self._pcp_mat_file_outgoing['departure_dates'].shape[1]
         my_mat_file_tofs = self._pcp_mat_file_outgoing['tofs'].shape[1]
         my_mat_file_total_trajectories = my_mat_file_dep_dates * my_mat_file_tofs
-        self.fill_matrix_QTreeWidget('Outgoing', file_name,
+        self.fill_matrix_QTreeWidget('Earth-Mars', file_name,
                                      str(my_mat_file_total_trajectories),
                                      str(my_mat_file_dep_dates),
                                      str(my_mat_file_dep_dates))
@@ -251,21 +249,21 @@ class SonetPCPManagerQt(QDialog, sonet_pcp_manager_ui.Ui_sonet_pcp_manager):
         self.status_bar.showMessage('PCP incoming .pkl file read', SONET_MSG_TIMEOUT)
 
         # Update the bottom tree view.
-        self.update_table_tree_view(file_path, p_trip='Incoming')
+        self.update_table_tree_view(file_path, p_trip='Mars-Earth')
 
     def update_table_tree_view(self, a_file_path, p_trip=''):
         a_file_name = a_file_path.split('/')[-2]
 
-        if p_trip == 'Outgoing':
+        if p_trip == 'Earth-Mars':
             my_pkl_file_rows = self._pcp_table_file_outgoing.shape[0]
             my_pkl_file_cols = self._pcp_table_file_outgoing.shape[1]
-            self.fill_table_QTreeWidget('Outgoing', a_file_name,
+            self.fill_table_QTreeWidget('Earth-Mars', a_file_name,
                                         str(my_pkl_file_rows),
                                         str(my_pkl_file_cols))
         else:
             my_pkl_file_rows = self._pcp_table_file_incoming.shape[0]
             my_pkl_file_cols = self._pcp_table_file_incoming.shape[1]
-            self.fill_table_QTreeWidget('Incoming', a_file_name,
+            self.fill_table_QTreeWidget('Mars-Earth', a_file_name,
                                         str(my_pkl_file_rows),
                                         str(my_pkl_file_cols))
 
@@ -287,7 +285,7 @@ class SonetPCPManagerQt(QDialog, sonet_pcp_manager_ui.Ui_sonet_pcp_manager):
         self.status_bar.showMessage('PCP outgoing .pkl file read', SONET_MSG_TIMEOUT)
 
         # Update the bottom tree view.
-        self.update_table_tree_view(file_path, p_trip='Outgoing')
+        self.update_table_tree_view(file_path, p_trip='Earth-Mars')
 
     def reset_matrix_widgets(self):
         self._pcp_mat_file_outgoing = None
@@ -305,7 +303,6 @@ class SonetPCPManagerQt(QDialog, sonet_pcp_manager_ui.Ui_sonet_pcp_manager):
         :param a_my_mat_file: input mat file.
         :param a_dvt_limit: the max dvt allowed for the output dataframe.
         """
-        # TODO implement a_dvt_limit parameter.
         # Initialize the data structures.
         table_rows = a_my_mat_file['departure_dates'].shape[1]  # Table rows is N.
         table_size = table_rows ** 2  # Table size is N^2.
@@ -351,7 +348,10 @@ class SonetPCPManagerQt(QDialog, sonet_pcp_manager_ui.Ui_sonet_pcp_manager):
 
         # Add attributes to the dataframe.
         df.attrs['file_name'] = str(a_my_mat_file['fname'][0]) + '.pkl'
+        df.attrs['limit_dvt'] = a_dvt_limit
         df.attrs['memory_usage'] = int(df.memory_usage().sum() / 1e6)
+        df.attrs['m_departure_dates'] = a_my_mat_file['departure_dates'].tolist()[0]
+        df.attrs['m_tofs'] = a_my_mat_file['tofs'].tolist()[0]
         return df
 
     @staticmethod
@@ -368,7 +368,7 @@ class SonetPCPManagerQt(QDialog, sonet_pcp_manager_ui.Ui_sonet_pcp_manager):
 
         # root_node = self.sonet_read_pcp_qtw.invisibleRootItem()
 
-        if a_file_type == 'Outgoing':
+        if a_file_type == 'Earth-Mars':
             self.matrix_tw_outgoing_root_item.takeChildren()
             the_new_item = QTreeWidgetItem(self.matrix_tw_outgoing_root_item, [a_file_name,
                                                                                a_total_trajectories,
@@ -391,7 +391,7 @@ class SonetPCPManagerQt(QDialog, sonet_pcp_manager_ui.Ui_sonet_pcp_manager):
         if p_clean_qtw_before_cleaning:
             self.sonet_working_pcp_qtw.clear()
 
-        if a_file_type == 'Outgoing':
+        if a_file_type == 'Earth-Mars':
             self.table_tw_outgoing_root_item.takeChildren()
             the_new_item = QTreeWidgetItem(self.table_tw_outgoing_root_item, [a_file_name,
                                                                               a_total_rows,
