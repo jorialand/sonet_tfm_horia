@@ -18,7 +18,7 @@ import pandas as pd
 
 # from PySide2.QtCore import QDate
 from src.SonetSpacecraft import SonetSpacecraft
-from src.SonetUtils import TripType
+from src.SonetUtils import TripType, DEFAULT_OUTGOING_PCP, DEFAULT_INCOMING_PCP
 
 
 def get_pcp_table(a_trip_type):
@@ -108,8 +108,13 @@ def set_working_pcp(a_trip: TripType, a_pkl_file_path: str):
 db = {}
 
 # The pcp trajectories database.
+
 df_pcp_outgoing_path = ''
 df_pcp_outgoing = None
 
 df_pcp_incoming_path = ''
 df_pcp_incoming = None
+
+# Default pcp.
+set_working_pcp(TripType.OUTGOING, DEFAULT_OUTGOING_PCP)
+set_working_pcp(TripType.INCOMING, DEFAULT_INCOMING_PCP)
