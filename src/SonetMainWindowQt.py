@@ -7,15 +7,19 @@ Started:
 Code submitted:
 Project defense:
 """
+
 import datetime
 import sys
 
 # Matlab environment
 import matlab.engine
+# Some Python modules.
 import pandas as pd
+# SONet imports.
 # From module X import class Y.
-from PySide2.QtCore import QAbstractListModel, QAbstractTableModel, QModelIndex, Qt
+from PySide2.QtCore import QAbstractListModel, QAbstractTableModel, QModelIndex, Qt, QDate
 from PySide2.QtWidgets import QMainWindow, QApplication, QMessageBox
+from scipy.io import savemat
 
 from src import database
 from src import sonet_main_window_ui
@@ -23,7 +27,7 @@ from src.SonetPCPFilterQt import SonetPCPFilterQt
 from src.SonetPCPManagerQt import SonetPCPManagerQt
 from src.SonetSpacecraft import SonetSpacecraft
 from src.SonetTrajectoryFilter import SonetTrajectoryFilter
-from src.SonetUtils import TripType, SonetLogType, sonet_log, popup_msg, SONET_MSG_TIMEOUT, SONET_DIR
+from src.SonetUtils import TripType, SonetLogType, sonet_log, popup_msg, SONET_MSG_TIMEOUT, SONET_DIR, SONET_DATA_DIR
 
 matlab_engine = matlab.engine.start_matlab()
 s = matlab_engine.genpath(SONET_DIR)
@@ -115,9 +119,8 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         self.sonet_pcp_filter_qpb.clicked.connect(self.clicked_apply_filter)
         self.sonet_select_trajectory_qpb.clicked.connect(self.clicked_select_trajectory)
         self.sonet_draw_qpb.clicked.connect(self.clicked_draw)
-        self.sonet_open_matlab_pcp_viewer.clicked.connect(self.clicked_matlab_pcp_viewer)
+        self.sonet_open_matlab_pcp_viewer.clicked.connect(self.clicked_pcp_viewer)
         self.sonet_pcp_generator_qpb.clicked.connect(self.clicked_pcp_manager)
-
         self.sonet_mission_tree_qlv.clicked.connect(self._list_model.list_clicked)
         self.sonet_pcp_tabs_qtw.currentChanged.connect(self.clicked_tab)
 
@@ -161,20 +164,6 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
 
         # self.statusbar.showMessage('Drawing the mission...', 1000)
         # self.canvas_window = SonetCanvasQt()
-
-    def clicked_matlab_pcp_generator(self):
-        sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_matlab_pcp_generator')
-        self.statusbar.showMessage('Not yet implemented :).', SONET_MSG_TIMEOUT)
-
-        # matlab_engine.PCP_Planet2Planet(nargout=0)
-
-    def clicked_matlab_pcp_viewer(self):
-        sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_matlab_pcp_viewer')
-        # self.statusbar.showMessage('Not yet implemented :).', SONET_MSG_TIMEOUT)
-
-        # matlab_engine.PCP_Viewer('', nargout=0)
-        stop = True
-        pass
 
     def clicked_new_spacecraft(self):
         """
@@ -227,6 +216,58 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
 
         pcp_manager_window = SonetPCPManagerQt(self, p_main_window=self, p_mat_eng=matlab_engine)
 
+    def clicked_pcp_viewer(self):
+        """
+        When user clicks over 'PCP Viewer' btn, the current pcp being displayed should be sent to matlab and a contour
+        plot generated.
+        The user selects the desired trajectory, and when closing the window, the selected trajectory appears selected
+        back in the python app.
+        """
+        sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_pcp_viewer')
+        # self.statusbar.showMessage('Not yet implemented :).', SONET_MSG_TIMEOUT)
+
+        # Get the current displayed pcp, as dataframe.
+        df = self.sonet_pcp_tabs_qtw.currentWidget().children()[1].model()._data
+
+        # Check.
+        if df is None:
+            self.statusbar.showMessage('No PCP selected.', SONET_MSG_TIMEOUT)
+            return
+        elif df.empty:
+            self.statusbar.showMessage('No PCP selected.', SONET_MSG_TIMEOUT)
+            return
+
+        # Save it to a temporary mat file, which is read by matlab.
+        if self.sonet_pcp_tabs_qtw.currentWidget().objectName() == 'sonet_pcp_table_transit_1':
+            departure_planet = 'Earth'
+            arrival_planet = 'Mars'
+        else:
+            departure_planet = 'Mars'
+            arrival_planet = 'Earth'
+
+        mat_file = SONET_DATA_DIR + 'pcp_viewer_tmp.mat'
+        savemat(mat_file, {'departure_planet': departure_planet,
+                           'arrival_planet': arrival_planet,
+                           'jd0': QDate.toJulianDay(df.iloc[0].DepDates),
+                           'cal0': [df.iloc[0].DepDates.year(), df.iloc[0].DepDates.month(), df.iloc[0].DepDates.day()],
+                           'departure_dates': df.DepDates.apply(QDate.toJulianDay).tolist(),
+                           'arrival_dates': df.ArrivDates.apply(QDate.toJulianDay).tolist(),
+                           'm_departure_dates': df.attrs['m_departure_dates'], # This are the original dep dates in the mat file, before filtering trajectories by max dvt.
+                           'tofs': df.tof.tolist(),
+                           'm_tofs': df.attrs['m_tofs'], # This are the original dep dates in the mat file, before filtering trajectories by max dvt.
+                           'dvd': df.dvd.tolist(),
+                           'dva': df.dva.tolist(),
+                           'dvt': df.dvt.tolist(),
+                           'theta': df.theta.tolist()})  # In degrees!
+
+        # Read mat file with matlab, display pcp plot, and return last selected trajectory when closed the app.
+        selected_trajectory = matlab_engine.PCP_Viewer(mat_file, nargout=1)
+        self.clicked_select_trajectory(p_called_from_pcp_viewer=True, p_pcp_viewer_selected_trajectory=int(selected_trajectory))
+
+        print(df.iloc[int(selected_trajectory)])
+        stop = True
+        pass
+
     def clicked_remove_spacecraft(self):
         # Get the current list view selection.
         selection = self.sonet_mission_tree_qlv.currentIndex().row()
@@ -263,11 +304,12 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
 
         return True
 
-    def clicked_select_trajectory(self):
+    def clicked_select_trajectory(self, p_called_from_pcp_viewer=False, p_pcp_viewer_selected_trajectory=None):
         """
         Gets the current selection for the current selected s/c and stores it inside the s/c.
         If no selection, displays a msg in the main window status bar.
-        It also updates the associated widgets.
+        It also informs to the user, by updating the relevant widgets.
+        Update: Refactored to include also the possibility to be called from clicked_pcp_viewer.
         """
         sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_select_trajectory')
 
@@ -282,12 +324,14 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
 
         # Set the selected trajectory within the s/c.
         the_selected_trajectory: pd.Series
-        the_selected_trajectory, index, is_incoming_trajectory = self.get_selected_trajectory()
+        the_selected_trajectory, index, is_incoming_trajectory = self.get_selected_trajectory(p_called_from_pcp_viewer, p_pcp_viewer_selected_trajectory)
         the_spacecraft.set_trajectory(the_selected_trajectory, index, a_is_incoming_trajectory=is_incoming_trajectory)
 
         # Update the trajectory label & progress bar.
         status = the_spacecraft.get_trajectory_selection_status()
-        main_window.update_trajectory_label_and_progress_bar(status)
+        self.update_trajectory_label_and_progress_bar(status)
+        force_table_view_update()
+        # self.activateWindow()
 
     def clicked_tab(self, index):
         """
@@ -334,33 +378,54 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
     def get_list_model(self):
         return self._list_model
 
-    def get_selected_trajectory(self):
+    def get_selected_trajectory(self, p_called_from_pcp_viewer=False, p_pcp_viewer_selected_trajectory=None):
         """
         Getter method.
         You get:
             - The selected trajectory in the current tab pcp table, as a pandas Series.
             - Its position in the pcp table (index).
             - A flag indicating if it's a outgoing/incoming trajectory
+        Update: Refactored to include also the possibility to be called from clicked_pcp_viewer.
         @return: (Series, QModelIndex, bool)
         """
         sonet_log(SonetLogType.INFO, 'SonetMainWindow.get_selected_trajectory')
 
+        # We are setting Earth-Mars or Mars-Earth trajectory?
         tab_index = main_window.sonet_pcp_tabs_qtw.currentIndex()
 
-        if tab_index is 0:
-            the_index = self.sonet_pcp_table_qtv_outgoing.selectionModel().currentIndex()
-            the_row = the_index.row()
-            the_df = self._table_model_outgoing._data
-            is_incoming_trajectory = False
-        elif tab_index is 1:
-            the_index = self.sonet_pcp_table_qtv_incoming.selectionModel().currentIndex()
-            the_row = the_index.row()
-            the_df = self._table_model_incoming._data
-            is_incoming_trajectory = True
+        # If trajectory was selected from the pcp_viewer pcp plot, or directly through the table.
+        if p_called_from_pcp_viewer and p_pcp_viewer_selected_trajectory:
+            if tab_index is 0:
+                the_model = self.sonet_pcp_table_qtv_outgoing.selectionModel().model()
+                the_index = the_model.createIndex(p_pcp_viewer_selected_trajectory, 0)
+                the_row = p_pcp_viewer_selected_trajectory
+                the_df = self._table_model_outgoing._data
+                is_incoming_trajectory = False
+            elif tab_index is 1:
+                the_model = self.sonet_pcp_table_qtv_incoming.selectionModel().model()
+                the_index = the_model.createIndex(p_pcp_viewer_selected_trajectory, 0)
+                the_row = p_pcp_viewer_selected_trajectory
+                the_df = self._table_model_incoming._data
+                is_incoming_trajectory = True
+            else:
+                sonet_log(SonetLogType.WARNING, 'SonetMainWindow.get_selected_trajectory."Unexpected behaviour')
+                return None, None, None
         else:
-            return None, None, None
+            if tab_index is 0:
+                the_index = self.sonet_pcp_table_qtv_outgoing.selectionModel().currentIndex()
+                the_row = the_index.row()
+                the_df = self._table_model_outgoing._data
+                is_incoming_trajectory = False
+            elif tab_index is 1:
+                the_index = self.sonet_pcp_table_qtv_incoming.selectionModel().currentIndex()
+                the_row = the_index.row()
+                the_df = self._table_model_incoming._data
+                is_incoming_trajectory = True
+            else:
+                sonet_log(SonetLogType.WARNING, 'SonetMainWindow.get_selected_trajectory."Unexpected behaviour')
+                return None, None, None
 
-        if the_row == -1:
+        if the_row < 0:
             sonet_log(SonetLogType.INFO, 'SonetMainWindow.get_selected_trajectory."No row selected"')
             return None, None, None
 

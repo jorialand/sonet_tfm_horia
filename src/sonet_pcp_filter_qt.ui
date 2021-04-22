@@ -29,6 +29,52 @@
    <string>Apply filter to PCP table</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="3" column="0" colspan="2">
+    <layout class="QGridLayout" name="top_grid_layout"/>
+   </item>
+   <item row="5" column="0">
+    <spacer name="verticalSpacer_55">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="19" column="0" colspan="2">
+    <layout class="QHBoxLayout" name="status_bar_HLayout"/>
+   </item>
+   <item row="9" column="0" rowspan="2" colspan="2">
+    <layout class="QHBoxLayout" name="horizontalLayout_9">
+     <item>
+      <widget class="QPushButton" name="pb_reset">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string>Reset</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pb_add">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Add</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
    <item row="18" column="1">
     <widget class="QDialogButtonBox" name="dialog_button_box">
      <property name="enabled">
@@ -45,15 +91,15 @@
    <item row="4" column="0" colspan="2">
     <widget class="QToolBox" name="toolBox">
      <property name="currentIndex">
-      <number>2</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="page_3">
       <property name="geometry">
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>664</width>
-        <height>348</height>
+        <width>649</width>
+        <height>338</height>
        </rect>
       </property>
       <attribute name="label">
@@ -500,7 +546,7 @@
         <x>0</x>
         <y>0</y>
         <width>664</width>
-        <height>277</height>
+        <height>262</height>
        </rect>
       </property>
       <attribute name="label">
@@ -663,6 +709,14 @@
       </layout>
      </widget>
      <widget class="QWidget" name="page_5">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>664</width>
+        <height>86</height>
+       </rect>
+      </property>
       <attribute name="label">
        <string>Energy</string>
       </attribute>
@@ -808,34 +862,23 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="options_page">
+      <attribute name="label">
+       <string>Auto trajectory selection options</string>
+      </attribute>
+      <widget class="QWidget" name="gridLayoutWidget">
+       <property name="geometry">
+        <rect>
+         <x>90</x>
+         <y>0</y>
+         <width>160</width>
+         <height>80</height>
+        </rect>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_3"/>
+      </widget>
+     </widget>
     </widget>
-   </item>
-   <item row="3" column="0" colspan="2">
-    <layout class="QGridLayout" name="top_grid_layout"/>
-   </item>
-   <item row="9" column="0" rowspan="2" colspan="2">
-    <layout class="QHBoxLayout" name="horizontalLayout_9">
-     <item>
-      <widget class="QPushButton" name="pb_reset">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="text">
-        <string>Reset</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pb_add">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="text">
-        <string>Add</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
    </item>
    <item row="17" column="0" colspan="2">
     <widget class="QGroupBox" name="bottom_group_box">
@@ -902,9 +945,6 @@
      </layout>
     </widget>
    </item>
-   <item row="19" column="0" colspan="2">
-    <layout class="QHBoxLayout" name="status_bar_HLayout"/>
-   </item>
    <item row="2" column="0" colspan="2">
     <layout class="QHBoxLayout" name="horizontalLayout_6">
      <item>
@@ -923,22 +963,6 @@
       <widget class="QComboBox" name="select_trip"/>
      </item>
     </layout>
-   </item>
-   <item row="5" column="0">
-    <spacer name="verticalSpacer_55">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
    </item>
   </layout>
  </widget>
