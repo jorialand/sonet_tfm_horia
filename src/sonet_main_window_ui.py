@@ -53,6 +53,10 @@ class Ui_main_window(object):
         self.sonet_pcp_table_qtv_outgoing.setMidLineWidth(1)
         self.sonet_pcp_table_qtv_outgoing.setSelectionMode(QAbstractItemView.SingleSelection)
         self.sonet_pcp_table_qtv_outgoing.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.sonet_pcp_table_qtv_outgoing.horizontalHeader().setProperty("showSortIndicator", True)
+        self.sonet_pcp_table_qtv_outgoing.horizontalHeader().setStretchLastSection(True)
+        self.sonet_pcp_table_qtv_outgoing.verticalHeader().setProperty("showSortIndicator", False)
+        self.sonet_pcp_table_qtv_outgoing.verticalHeader().setStretchLastSection(False)
 
         self.verticalLayout_4.addWidget(self.sonet_pcp_table_qtv_outgoing)
 
@@ -73,6 +77,10 @@ class Ui_main_window(object):
         self.sonet_pcp_table_qtv_incoming.setMidLineWidth(1)
         self.sonet_pcp_table_qtv_incoming.setSelectionMode(QAbstractItemView.SingleSelection)
         self.sonet_pcp_table_qtv_incoming.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.sonet_pcp_table_qtv_incoming.horizontalHeader().setProperty("showSortIndicator", True)
+        self.sonet_pcp_table_qtv_incoming.horizontalHeader().setStretchLastSection(True)
+        self.sonet_pcp_table_qtv_incoming.verticalHeader().setProperty("showSortIndicator", False)
+        self.sonet_pcp_table_qtv_incoming.verticalHeader().setStretchLastSection(False)
 
         self.verticalLayout_3.addWidget(self.sonet_pcp_table_qtv_incoming)
 

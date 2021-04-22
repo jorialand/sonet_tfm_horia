@@ -183,7 +183,9 @@ SONET_MSG_TIMEOUT = 2500
 
 # Global paths.
 SONET_DIR = '/Users/jorialand/code/tfm/sonet/sonet_tfm_horia/'
+SONET_DATA_DIR = SONET_DIR + 'data/'
 SONET_PCP_DATA_DIR = SONET_DIR + 'data/PCP/'
-
+DEFAULT_OUTGOING_PCP = SONET_PCP_DATA_DIR + 'PCP_Earth2Mars_2025__P5_Y1.500000e+00_mr0_lp0/PCP_Earth2Mars.pkl'
+DEFAULT_INCOMING_PCP = SONET_PCP_DATA_DIR + 'PCP_Mars2Earth_2026__P5_Y1.500000e+00_mr0_lp0/PCP_Mars2Earth.pkl'
 if __name__ == "__main__":
     pass
