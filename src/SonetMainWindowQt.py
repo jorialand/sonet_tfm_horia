@@ -265,8 +265,6 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         self.clicked_select_trajectory(p_called_from_pcp_viewer=True, p_pcp_viewer_selected_trajectory=int(selected_trajectory))
 
         print(df.iloc[int(selected_trajectory)])
-        stop = True
-        pass
 
     def clicked_remove_spacecraft(self):
         # Get the current list view selection.
@@ -276,7 +274,7 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         db = database.db
         if len(list(db.keys())) is 0:
             sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_remove_spacecraft."No s/c to remove"')
-            self.statusbar.showMessage('NoFFF s/c to remove.', SONET_MSG_TIMEOUT)
+            self.statusbar.showMessage('No s/c to remove.', SONET_MSG_TIMEOUT)
             return True
 
         # If there is no selection, remove last SonetSpacecraft.
@@ -331,7 +329,8 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         status = the_spacecraft.get_trajectory_selection_status()
         self.update_trajectory_label_and_progress_bar(status)
         force_table_view_update()
-        # self.activateWindow()
+        # Force focus on main window.
+        self.raise_()
 
     def clicked_tab(self, index):
         """

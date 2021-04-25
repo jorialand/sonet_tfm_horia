@@ -194,20 +194,40 @@ class Ui_main_window(object):
 
         self.verticalLayout_2.addWidget(self.line_3)
 
+        self.sonet_pcp_generator_qhbox_5 = QHBoxLayout()
+        self.sonet_pcp_generator_qhbox_5.setObjectName(u"sonet_pcp_generator_qhbox_5")
         self.sonet_pcp_filter_qpb = QPushButton(self.sonet_mission_tree_qgb)
         self.sonet_pcp_filter_qpb.setObjectName(u"sonet_pcp_filter_qpb")
 
-        self.verticalLayout_2.addWidget(self.sonet_pcp_filter_qpb)
+        self.sonet_pcp_generator_qhbox_5.addWidget(self.sonet_pcp_filter_qpb)
 
+        self.sonet_open_matlab_pcp_viewer = QPushButton(self.sonet_mission_tree_qgb)
+        self.sonet_open_matlab_pcp_viewer.setObjectName(u"sonet_open_matlab_pcp_viewer")
+
+        self.sonet_pcp_generator_qhbox_5.addWidget(self.sonet_open_matlab_pcp_viewer)
+
+
+        self.verticalLayout_2.addLayout(self.sonet_pcp_generator_qhbox_5)
+
+        self.sonet_pcp_generator_qhbox_8 = QHBoxLayout()
+        self.sonet_pcp_generator_qhbox_8.setObjectName(u"sonet_pcp_generator_qhbox_8")
         self.sonet_select_trajectory_qpb = QPushButton(self.sonet_mission_tree_qgb)
         self.sonet_select_trajectory_qpb.setObjectName(u"sonet_select_trajectory_qpb")
 
-        self.verticalLayout_2.addWidget(self.sonet_select_trajectory_qpb)
+        self.sonet_pcp_generator_qhbox_8.addWidget(self.sonet_select_trajectory_qpb)
 
-        self.sonet_draw_qpb = QPushButton(self.sonet_mission_tree_qgb)
-        self.sonet_draw_qpb.setObjectName(u"sonet_draw_qpb")
+        self.sonet_unselect_trajectory_qpb = QPushButton(self.sonet_mission_tree_qgb)
+        self.sonet_unselect_trajectory_qpb.setObjectName(u"sonet_unselect_trajectory_qpb")
 
-        self.verticalLayout_2.addWidget(self.sonet_draw_qpb)
+        self.sonet_pcp_generator_qhbox_8.addWidget(self.sonet_unselect_trajectory_qpb)
+
+
+        self.verticalLayout_2.addLayout(self.sonet_pcp_generator_qhbox_8)
+
+        self.sonet_pcp_generator_qpb = QPushButton(self.sonet_mission_tree_qgb)
+        self.sonet_pcp_generator_qpb.setObjectName(u"sonet_pcp_generator_qpb")
+
+        self.verticalLayout_2.addWidget(self.sonet_pcp_generator_qpb)
 
         self.line_7 = QFrame(self.sonet_mission_tree_qgb)
         self.line_7.setObjectName(u"line_7")
@@ -216,20 +236,10 @@ class Ui_main_window(object):
 
         self.verticalLayout_2.addWidget(self.line_7)
 
-        self.sonet_pcp_generator_qhbox_4 = QHBoxLayout()
-        self.sonet_pcp_generator_qhbox_4.setObjectName(u"sonet_pcp_generator_qhbox_4")
-        self.sonet_open_matlab_pcp_viewer = QPushButton(self.sonet_mission_tree_qgb)
-        self.sonet_open_matlab_pcp_viewer.setObjectName(u"sonet_open_matlab_pcp_viewer")
+        self.sonet_draw_qpb = QPushButton(self.sonet_mission_tree_qgb)
+        self.sonet_draw_qpb.setObjectName(u"sonet_draw_qpb")
 
-        self.sonet_pcp_generator_qhbox_4.addWidget(self.sonet_open_matlab_pcp_viewer)
-
-        self.sonet_pcp_generator_qpb = QPushButton(self.sonet_mission_tree_qgb)
-        self.sonet_pcp_generator_qpb.setObjectName(u"sonet_pcp_generator_qpb")
-
-        self.sonet_pcp_generator_qhbox_4.addWidget(self.sonet_pcp_generator_qpb)
-
-
-        self.verticalLayout_2.addLayout(self.sonet_pcp_generator_qhbox_4)
+        self.verticalLayout_2.addWidget(self.sonet_draw_qpb)
 
 
         self.gridLayout.addWidget(self.sonet_mission_tree_qgb, 0, 1, 1, 1)
@@ -312,20 +322,24 @@ class Ui_main_window(object):
 #if QT_CONFIG(tooltip)
         self.sonet_pcp_filter_qpb.setToolTip(QCoreApplication.translate("main_window", u"Apply filter", None))
 #endif // QT_CONFIG(tooltip)
-        self.sonet_pcp_filter_qpb.setText(QCoreApplication.translate("main_window", u"Open filter", None))
+        self.sonet_pcp_filter_qpb.setText(QCoreApplication.translate("main_window", u"Edit s/c filter", None))
+#if QT_CONFIG(tooltip)
+        self.sonet_open_matlab_pcp_viewer.setToolTip(QCoreApplication.translate("main_window", u"Create new s/c", None))
+#endif // QT_CONFIG(tooltip)
+        self.sonet_open_matlab_pcp_viewer.setText(QCoreApplication.translate("main_window", u"View s/c trajectories", None))
 #if QT_CONFIG(tooltip)
         self.sonet_select_trajectory_qpb.setToolTip(QCoreApplication.translate("main_window", u"Select trajectory", None))
 #endif // QT_CONFIG(tooltip)
         self.sonet_select_trajectory_qpb.setText(QCoreApplication.translate("main_window", u"Select trajectory", None))
-        self.sonet_draw_qpb.setText(QCoreApplication.translate("main_window", u"Draw Mars Mission Timeline", None))
 #if QT_CONFIG(tooltip)
-        self.sonet_open_matlab_pcp_viewer.setToolTip(QCoreApplication.translate("main_window", u"Create new s/c", None))
+        self.sonet_unselect_trajectory_qpb.setToolTip(QCoreApplication.translate("main_window", u"Select trajectory", None))
 #endif // QT_CONFIG(tooltip)
-        self.sonet_open_matlab_pcp_viewer.setText(QCoreApplication.translate("main_window", u"PCP viewer", None))
+        self.sonet_unselect_trajectory_qpb.setText(QCoreApplication.translate("main_window", u"Unselect trajectory", None))
 #if QT_CONFIG(tooltip)
         self.sonet_pcp_generator_qpb.setToolTip(QCoreApplication.translate("main_window", u"Remove s/c", None))
 #endif // QT_CONFIG(tooltip)
         self.sonet_pcp_generator_qpb.setText(QCoreApplication.translate("main_window", u"PCP manager", None))
+        self.sonet_draw_qpb.setText(QCoreApplication.translate("main_window", u"Draw mission", None))
         self.file.setTitle(QCoreApplication.translate("main_window", u"&File", None))
         self.menuEdit.setTitle(QCoreApplication.translate("main_window", u"Edit", None))
         self.menuHelp.setTitle(QCoreApplication.translate("main_window", u"Help", None))
