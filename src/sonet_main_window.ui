@@ -303,29 +303,60 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="sonet_pcp_filter_qpb">
-         <property name="toolTip">
-          <string>Apply filter</string>
-         </property>
-         <property name="text">
-          <string>Open filter</string>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" name="sonet_pcp_generator_qhbox_5">
+         <item>
+          <widget class="QPushButton" name="sonet_pcp_filter_qpb">
+           <property name="toolTip">
+            <string>Apply filter</string>
+           </property>
+           <property name="text">
+            <string>Edit s/c filter</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="sonet_open_matlab_pcp_viewer">
+           <property name="toolTip">
+            <string>Create new s/c</string>
+           </property>
+           <property name="text">
+            <string>View s/c trajectories</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
-        <widget class="QPushButton" name="sonet_select_trajectory_qpb">
-         <property name="toolTip">
-          <string>Select trajectory</string>
-         </property>
-         <property name="text">
-          <string>Select trajectory</string>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" name="sonet_pcp_generator_qhbox_8">
+         <item>
+          <widget class="QPushButton" name="sonet_select_trajectory_qpb">
+           <property name="toolTip">
+            <string>Select trajectory</string>
+           </property>
+           <property name="text">
+            <string>Select trajectory</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="sonet_unselect_trajectory_qpb">
+           <property name="toolTip">
+            <string>Select trajectory</string>
+           </property>
+           <property name="text">
+            <string>Unselect trajectory</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
-        <widget class="QPushButton" name="sonet_draw_qpb">
+        <widget class="QPushButton" name="sonet_pcp_generator_qpb">
+         <property name="toolTip">
+          <string>Remove s/c</string>
+         </property>
          <property name="text">
-          <string>Draw Mars Mission Timeline</string>
+          <string>PCP manager</string>
          </property>
         </widget>
        </item>
@@ -337,28 +368,11 @@
         </widget>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="sonet_pcp_generator_qhbox_4">
-         <item>
-          <widget class="QPushButton" name="sonet_open_matlab_pcp_viewer">
-           <property name="toolTip">
-            <string>Create new s/c</string>
-           </property>
-           <property name="text">
-            <string>PCP viewer</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="sonet_pcp_generator_qpb">
-           <property name="toolTip">
-            <string>Remove s/c</string>
-           </property>
-           <property name="text">
-            <string>PCP manager</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <widget class="QPushButton" name="sonet_draw_qpb">
+         <property name="text">
+          <string>Draw mission</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>

@@ -91,7 +91,7 @@
    <item row="4" column="0" colspan="2">
     <widget class="QToolBox" name="toolBox">
      <property name="currentIndex">
-      <number>3</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="page_3">
       <property name="geometry">
@@ -317,6 +317,9 @@
                       <horstretch>0</horstretch>
                       <verstretch>0</verstretch>
                      </sizepolicy>
+                    </property>
+                    <property name="currentIndex">
+                     <number>1</number>
                     </property>
                     <item>
                      <property name="text">
@@ -863,6 +866,14 @@
       </layout>
      </widget>
      <widget class="QWidget" name="options_page">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>664</width>
+        <height>73</height>
+       </rect>
+      </property>
       <attribute name="label">
        <string>Auto trajectory selection options</string>
       </attribute>
