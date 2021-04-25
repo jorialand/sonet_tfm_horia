@@ -48,7 +48,7 @@
        <item>
         <widget class="QTabWidget" name="sonet_pcp_tabs_qtw">
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="sonet_pcp_table_transit_1">
           <attribute name="title">
@@ -71,6 +71,9 @@
              </property>
              <property name="selectionBehavior">
               <enum>QAbstractItemView::SelectRows</enum>
+             </property>
+             <property name="sortingEnabled">
+              <bool>true</bool>
              </property>
              <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
               <bool>true</bool>
@@ -115,6 +118,9 @@
              </property>
              <property name="selectionBehavior">
               <enum>QAbstractItemView::SelectRows</enum>
+             </property>
+             <property name="sortingEnabled">
+              <bool>true</bool>
              </property>
              <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
               <bool>true</bool>

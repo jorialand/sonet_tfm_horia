@@ -3,9 +3,9 @@ SonetMainWindow class.
 
 Author: Horia Ghionoiu Martínez.
 Project: Sonet Mars Mission Architecture Planner
-Started:
-Code submitted:
-Project defense:
+Started:    22th June 2020
+Code submitted: 22th June 2021
+Project defense: 22th July 2021
 """
 
 import datetime
@@ -15,9 +15,10 @@ import sys
 import matlab.engine
 # Some Python modules.
 import pandas as pd
+from PySide2.QtCore import QAbstractListModel, QAbstractTableModel, QModelIndex, Qt, QDate
 # SONet imports.
 # From module X import class Y.
-from PySide2.QtCore import QAbstractListModel, QAbstractTableModel, QModelIndex, Qt, QDate
+from PySide2.QtGui import QColor
 from PySide2.QtWidgets import QMainWindow, QApplication, QMessageBox
 from scipy.io import savemat
 
@@ -47,6 +48,7 @@ matlab_engine.addpath(s, nargout=0)
 def force_table_view_update():
     """
     Force update of the selected table view. Merder method to be reviewed.
+    It simlates the user clicking over the current selected tab (Earth-Mars or Mars-Earth).
     """
     index = get_main_window().sonet_pcp_tabs_qtw.currentIndex()
     get_main_window().sonet_pcp_tabs_qtw.currentChanged.emit(index)
@@ -99,14 +101,21 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         self.sonet_pcp_tabs_qtw.setCurrentIndex(0)
         self.sonet_spacecraft_type_qcmb.setCurrentIndex(1)  # Select cargo payload, by default.
 
-
-        # Objects database
-        self.n = 0  # Counter for spacecrafts naming, to be deprecated
         # Table models, it should be declared prior to list model
         self._table_model_outgoing = TableModel(TripType.OUTGOING)
         self._table_model_incoming = TableModel(TripType.INCOMING)
         self.sonet_pcp_table_qtv_outgoing.setModel(self._table_model_outgoing)
         self.sonet_pcp_table_qtv_incoming.setModel(self._table_model_incoming)
+
+        # Stackoverflow - QSortProxyModel for sorting the columns, TOO SLOW! :(
+        # tableModel = Model()
+        # tableView = QtGui.QTableView()
+        # proxyModel = QtGui.QSortFilterProxyModel()
+        # proxyModel.setSourceModel(tableModel)
+        # tableView.setModel(proxyModel)
+        # tableView.setSortingEnabled(True)
+        # tableView.show()
+        # app.exec_()
 
         # List model, it should be declared after table model
         self._list_model = ListModel()
@@ -123,6 +132,9 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         self.sonet_pcp_generator_qpb.clicked.connect(self.clicked_pcp_manager)
         self.sonet_mission_tree_qlv.clicked.connect(self._list_model.list_clicked)
         self.sonet_pcp_tabs_qtw.currentChanged.connect(self.clicked_tab)
+        # self.sonet_pcp_table_qtv_outgoing.horizontalHeader().sortIndicatorChanged.connect(self.clicked_table_view_column)
+        self.sonet_pcp_table_qtv_outgoing.horizontalHeader().sectionClicked.connect(self.clicked_table_view_column)
+        self.sonet_pcp_table_qtv_incoming.horizontalHeader().sectionClicked.connect(self.clicked_table_view_column)
 
 
     # Signals should be defined only within classes inheriting from QObject!
@@ -205,7 +217,7 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         lm = self.get_list_model()
         lm.update()
 
-        msg = ('Created Spacecraft ' + str(self.n)
+        msg = ('Created Spacecraft ' + spacecraft_name
                   + ' (' + spacecraft_type_crew + ', ' + spacecraft_type_return + ')')
         sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_new_spacecraft."' + msg + '"')
 
@@ -311,6 +323,7 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         """
         sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_select_trajectory')
 
+        # Get the current selected s/c.
         index = self.sonet_mission_tree_qlv.currentIndex().row()
         the_spacecraft = self._list_model.get_spacecraft(a_row=index)
 
@@ -371,6 +384,9 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         the_sc = get_current_sc()
         main_window.update_trajectory_selection_in_table_view(the_sc)
 
+    def clicked_table_view_column(self, logicalIndex):
+        force_table_view_update()
+
     def exit_app(self):
         sys.exit()
 
@@ -395,15 +411,13 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         # If trajectory was selected from the pcp_viewer pcp plot, or directly through the table.
         if p_called_from_pcp_viewer and p_pcp_viewer_selected_trajectory:
             if tab_index is 0:
-                the_model = self.sonet_pcp_table_qtv_outgoing.selectionModel().model()
-                the_index = the_model.createIndex(p_pcp_viewer_selected_trajectory, 0)
                 the_row = p_pcp_viewer_selected_trajectory
+                the_real_dataframe_index = p_pcp_viewer_selected_trajectory
                 the_df = self._table_model_outgoing._data
                 is_incoming_trajectory = False
             elif tab_index is 1:
-                the_model = self.sonet_pcp_table_qtv_incoming.selectionModel().model()
-                the_index = the_model.createIndex(p_pcp_viewer_selected_trajectory, 0)
                 the_row = p_pcp_viewer_selected_trajectory
+                the_real_dataframe_index = p_pcp_viewer_selected_trajectory
                 the_df = self._table_model_incoming._data
                 is_incoming_trajectory = True
             else:
@@ -414,11 +428,13 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
                 the_index = self.sonet_pcp_table_qtv_outgoing.selectionModel().currentIndex()
                 the_row = the_index.row()
                 the_df = self._table_model_outgoing._data
+                the_real_dataframe_index = the_df.index[the_row]
                 is_incoming_trajectory = False
             elif tab_index is 1:
                 the_index = self.sonet_pcp_table_qtv_incoming.selectionModel().currentIndex()
                 the_row = the_index.row()
                 the_df = self._table_model_incoming._data
+                the_real_dataframe_index = the_df.index[the_row]
                 is_incoming_trajectory = True
             else:
                 sonet_log(SonetLogType.WARNING, 'SonetMainWindow.get_selected_trajectory."Unexpected behaviour')
@@ -433,7 +449,7 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         try:
             result: pd.Series
             result = the_df.iloc[the_row]
-            return result, the_index, is_incoming_trajectory
+            return result, the_real_dataframe_index, is_incoming_trajectory
         except IndexError:
             sonet_log(SonetLogType.WARNING,
                       'SonetMainWindow.get_selected_trajectory."Empty/Out-of-bonds dataframe accessed"')
@@ -496,10 +512,29 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
             if sc_has_return_trajectory:
                 # There are both out/inc trips, update both out/inc table views.
                 if qtw_index == 0:
-                    self.sonet_pcp_table_qtv_outgoing.setCurrentIndex(a_the_sc._trajectory1_index)
-                elif qtw_index == 1:
-                    self.sonet_pcp_table_qtv_incoming.setCurrentIndex(a_the_sc._trajectory2_index)
+                    the_model = self._table_model_outgoing
+                    the_df = the_model._data
 
+                    the_current_dataframe_index = a_the_sc._trajectory1_index
+                    try:
+                        the_current_position_in_table_view = the_df.index.to_list().index(the_current_dataframe_index)
+                        the_index = the_model.createIndex(the_current_position_in_table_view, 0)
+                    except ValueError:
+                        the_index = the_model.createIndex(-1, -1)
+
+                    self.sonet_pcp_table_qtv_outgoing.setCurrentIndex(the_index)
+                elif qtw_index == 1:
+                    the_model = self._table_model_incoming
+                    the_df = the_model._data
+
+                    the_current_dataframe_index = a_the_sc._trajectory2_index
+                    try:
+                        the_current_position_in_table_view = the_df.index.to_list().index(the_current_dataframe_index)
+                        the_index = the_model.createIndex(the_current_position_in_table_view, 0)
+                    except ValueError:
+                        the_index = the_model.createIndex(-1, -1)
+
+                    self.sonet_pcp_table_qtv_incoming.setCurrentIndex(the_index)
                 else:
                     sonet_log(SonetLogType.WARNING,
                               'SonetMainWindow.update_trajectory_selection_in_table_view."Not supposed to arrive here"')
@@ -507,7 +542,21 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
             else:
                 # There is only out trip, so update only out table view.
                 if qtw_index == 0:
-                    self.sonet_pcp_table_qtv_outgoing.setCurrentIndex(a_the_sc._trajectory_index)
+                    # First, get the real stored dataframe index for the s/c. Then, find where is this current row in
+                    # the current table view, as the user may filter the columns, dataframe index 10 (for example) may
+                    # be located in row 1100 of the current displayed table view.
+
+                    the_model = self._table_model_outgoing
+                    the_df = the_model._data
+
+                    the_current_dataframe_index = a_the_sc._trajectory_index
+                    try:
+                        the_current_position_in_table_view = the_df.index.to_list().index(the_current_dataframe_index)
+                        the_index = the_model.createIndex(the_current_position_in_table_view, 0)
+                    except ValueError:
+                        the_index = the_model.createIndex(-1, -1)
+
+                    self.sonet_pcp_table_qtv_outgoing.setCurrentIndex(the_index)
                 elif qtw_index == 1:
                     pass
                 else:
@@ -653,25 +702,14 @@ class ListModel(QAbstractListModel):
 
 class TableModel(QAbstractTableModel):
     """
-    TODO docstring TableModel()
+    The Earth-Mars and Mars-Earth table views displayed in the main window are QAbstractTableModels.
     """
 
     def __init__(self, a_spacecraft=None, a_trip_type=None, parent=None):
         super(TableModel, self).__init__(parent)
-        self._data = pd.DataFrame()  # A Pandas dataframe
-        self._trip_type = a_trip_type  # TripType.[OUTGOING|INCOMING] # DEPRECATED, as now you have a
-        # member variable _spacecraft, which points to the spacecraft owner, there you can access the trip type, name, etc.
+        self._data = pd.DataFrame()
+        self._trip_type = a_trip_type
         self._spacecraft = a_spacecraft
-    # def add_spacecraft(self):
-    #     n = len(self._data.keys())
-    #
-    #     # The XResetModel() notifies all the attached views that the model is about to be updated.
-    #     self.beginResetModel()
-    #     self._data['Spacecraft ' + str(n + 1)] = SonetSpacecraft()
-    #     self.endResetModel()
-    #     # Custom update procedure to update the SonetMainWindow's list model and list view.
-    #     lm = get_main_window().get_list_model()
-    #     lm.update()
 
     def get_spacecraft(self):
         """
@@ -734,12 +772,8 @@ class TableModel(QAbstractTableModel):
         row = index.row()
         column = index.column()
 
-        # if role == Qt.DisplayRole:
-        # return str(self._data[self.dict_key]._df_outgoing.iloc[row, column])
         if role == Qt.DisplayRole:
-            # return str(self._data.iloc[index.row(), index.column()])
-            # Get the raw value
-            # value = self._data[self.dict_key].get_pcp_table(self._trip_type).iloc[row, column]
+
             value = self._data.iloc[row, column]
 
             # Perform per-type checks and render accordingly.
@@ -759,10 +793,9 @@ class TableModel(QAbstractTableModel):
             return value
 
         if role == Qt.BackgroundRole:
-            pass
             # Pair rows will have different color, to visually distinguish them from the even ones.
-            # if row % 2 is not 0:
-            #     return QColor(255, 230, 255)
+            if row % 2 is not 0:
+                return QColor(255, 230, 255)
             # Very light blue 230, 242, 255
             # Very light purple 240, 240, 245
             # Very light pink 255, 230, 255
@@ -772,12 +805,22 @@ class TableModel(QAbstractTableModel):
 
         if role == Qt.DisplayRole:
             if orientation == Qt.Horizontal:
-                # return str(self._data[self.dict_key].get_pcp_table(self._trip_type).columns[section])
                 return str(self._data.columns[section])
             if orientation == Qt.Vertical:
-                # return str(self._data[self.dict_key].get_pcp_table(self._trip_type).index[section])
                 return str(self._data.index[section])
         return None
+
+    def sort(self, Ncol, order):
+        """
+        Sort table by given column number.
+        https://stackoverflow.com/questions/28660287/sort-qtableview-in-pyqt5
+        """
+        try:
+            self.layoutAboutToBeChanged.emit()
+            self._data = self._data.sort_values(self._data.columns[Ncol], ascending=not order)
+            self.layoutChanged.emit()
+        except Exception as e:
+            print(e)
 
 if __name__ == "__main__":
     # Using no fbs module

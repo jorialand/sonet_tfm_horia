@@ -26,7 +26,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Apply filter to PCP table</string>
+   <string>Edit s/c filter</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="3" column="0" colspan="2">
