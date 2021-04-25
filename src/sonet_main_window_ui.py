@@ -53,6 +53,7 @@ class Ui_main_window(object):
         self.sonet_pcp_table_qtv_outgoing.setMidLineWidth(1)
         self.sonet_pcp_table_qtv_outgoing.setSelectionMode(QAbstractItemView.SingleSelection)
         self.sonet_pcp_table_qtv_outgoing.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.sonet_pcp_table_qtv_outgoing.setSortingEnabled(True)
         self.sonet_pcp_table_qtv_outgoing.horizontalHeader().setProperty("showSortIndicator", True)
         self.sonet_pcp_table_qtv_outgoing.horizontalHeader().setStretchLastSection(True)
         self.sonet_pcp_table_qtv_outgoing.verticalHeader().setProperty("showSortIndicator", False)
@@ -77,6 +78,7 @@ class Ui_main_window(object):
         self.sonet_pcp_table_qtv_incoming.setMidLineWidth(1)
         self.sonet_pcp_table_qtv_incoming.setSelectionMode(QAbstractItemView.SingleSelection)
         self.sonet_pcp_table_qtv_incoming.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.sonet_pcp_table_qtv_incoming.setSortingEnabled(True)
         self.sonet_pcp_table_qtv_incoming.horizontalHeader().setProperty("showSortIndicator", True)
         self.sonet_pcp_table_qtv_incoming.horizontalHeader().setStretchLastSection(True)
         self.sonet_pcp_table_qtv_incoming.verticalHeader().setProperty("showSortIndicator", False)
@@ -267,7 +269,7 @@ class Ui_main_window(object):
 
         self.retranslateUi(main_window)
 
-        self.sonet_pcp_tabs_qtw.setCurrentIndex(1)
+        self.sonet_pcp_tabs_qtw.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(main_window)
