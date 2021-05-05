@@ -30,9 +30,13 @@ from src.SonetSpacecraft import SonetSpacecraft
 from src.SonetTrajectoryFilter import SonetTrajectoryFilter
 from src.SonetUtils import TripType, SonetLogType, sonet_log, popup_msg, SONET_MSG_TIMEOUT, SONET_DIR, SONET_DATA_DIR
 
+print('Loading Matlab engine.')
+print('...')
 matlab_engine = matlab.engine.start_matlab()
 s = matlab_engine.genpath(SONET_DIR)
 matlab_engine.addpath(s, nargout=0)
+print('Matlab engine loaded.')
+
 # QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)  # To avoid AA_ShareOpenGLContexts warning in QtCreator.
 
 # ==============================================================================================
@@ -227,6 +231,16 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_pcp_manager')
 
         pcp_manager_window = SonetPCPManagerQt(self, p_main_window=self, p_mat_eng=matlab_engine)
+        pcp_manager_window.exec_()
+
+        # Update the trajectory label & progress bar.
+        sc = self._list_model.get_spacecraft(self.sonet_mission_tree_qlv.currentIndex())
+        status = sc.get_trajectory_selection_status()
+        self.update_trajectory_label_and_progress_bar(status)
+        # & select current trajectory in the table view.
+        self.update_trajectory_selection_in_table_view(sc)
+        force_table_view_update()
+
 
     def clicked_pcp_viewer(self):
         """

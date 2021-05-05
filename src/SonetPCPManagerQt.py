@@ -113,8 +113,8 @@ class SonetPCPManagerQt(QDialog, sonet_pcp_manager_ui.Ui_sonet_pcp_manager):
     def clicked_ok(self):
         """
         Sets the current working pcp files (if any) & close the window.
-        If we have changed the outgoing or incoming pkl files, all the currently set filters and trajectories
-        are going to be reset.
+        If we have changed the outgoing or incoming pkl files, all the currently set trajectories are going to be reset.
+        If the s/c had any filter, it remains unchanged.
         """
 
         pkl_file_path_outgoing = self.sonet__outgoing_trajectories_table_line_edit.text()
@@ -122,17 +122,20 @@ class SonetPCPManagerQt(QDialog, sonet_pcp_manager_ui.Ui_sonet_pcp_manager):
         has_changed_outgoing = database.set_working_pcp(TripType.OUTGOING, pkl_file_path_outgoing)
         has_changed_incoming = database.set_working_pcp(TripType.INCOMING, pkl_file_path_incoming)
 
-        # Reset the filters and trajectories for ALL the s/c if necessary, AND inform to the user.
+        # Reset the trajectories for ALL the s/c if necessary, AND inform to the user.
         if has_changed_outgoing or has_changed_incoming:
-            reset_sc_filters_and_trajectories()
-            self._p_main_window.statusbar.showMessage('Database has changed. Filter and trajectory reset  for ALL s/c',
+            reset_sc_filters_and_trajectories(p_filters_and_trajectories='Trajectories')
+            self._p_main_window.statusbar.showMessage('Database has changed. Selected trajectories reset for ALL s/c',
                                                       SONET_MSG_TIMEOUT * 3)
+            self._exit_status = 'clicked_ok_and_changed'
+        else:
+             self._exit_status = 'clicked_ok'
 
     def clicked_cancel(self):
         """
         Abort all the operations & close the window.
         """
-        pass
+        self._exit_status = 'clicked_cancel'
 
     def clicked_convert_pcp_2_table_format(self):
         """
@@ -424,7 +427,7 @@ class SonetPCPManagerQt(QDialog, sonet_pcp_manager_ui.Ui_sonet_pcp_manager):
             - Converts 'DepDates' and 'ArrivDates' from JD2000 to JD, as QDate objects work with absolute dates.
             - Converts 'theta' from radians to sexagesimal degrees.
             - Reorder columns in a more convenient way.
-        :param df: a Pandas DataFrame.
+        :param a_df: a Pandas DataFrame.
         """
 
         # Create 'ArrivDates' column.

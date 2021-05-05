@@ -165,15 +165,37 @@ def sonet_log(a_log_type, a_log_msg):
             if SONET_DEBUG_LEVEL is SonetDebugLevel.FULL_VERBOSE:
                 print('Info: ' + a_log_msg)
 
-def reset_sc_filters_and_trajectories():
+def reset_sc_filters_and_trajectories(p_filters_and_trajectories='Both', p_trips='Both'):
     """
     Traverse all the s/c in the database and reset their filters and trajectories,
     inform to the user throught the main window status bar.
     """
+    # For each s/c.
     for sc in db.get_spacecrafts_list(p_return_objects=True):
-        # sc: SonetSpacecraft
-        sc.reset_filter_and_trajectory(p_all_trips=True)
-
+        if p_filters_and_trajectories == 'Both':
+        # Reset filters and trajectories.
+            if p_trips == 'Both':
+                sc.reset_filter_and_trajectory(p_all_trips=True)
+            if p_trips == 'Earth-Mars':
+                sc.reset_filter_and_trajectory(TripType.OUTGOING)
+            if p_trips == 'Mars-Earth':
+                sc.reset_filter_and_trajectory(TripType.INCOMING)
+        elif p_filters_and_trajectories == 'Trajectories':
+        # Reset trajectories.
+            if p_trips == 'Both':
+                sc.reset_trajectory()
+            if p_trips == 'Earth-Mars':
+                sc.reset_trajectory('Earth-Mars')
+            if p_trips == 'Mars-Earth':
+                sc.reset_trajectory('Mars-Earth')
+        elif p_filters_and_trajectories == 'Filters':
+        # Reset filters - NOT NEEDED YET.
+            if p_trips == 'Both':
+                pass
+            if p_trips == 'Earth-Mars':
+                pass
+            if p_trips == 'Mars-Earth':
+                pass
 
 # Global debug verbose level for the application.
 SONET_DEBUG_LEVEL = SonetDebugLevel.ONLY_ERRORS

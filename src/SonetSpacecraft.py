@@ -246,17 +246,36 @@ class SonetSpacecraft:
         else:
             return self._trajectory_index
 
-    def reset_trajectory(self):
+    def reset_trajectory(self, p_all_trajectories=True, p_trajectory=''):
         """
         Resets the current selected trajectories. Used when a s/c filter changes and the already selected trajectories
         are no longer valid.
+        Its intended use is:
+            - You want to reset the only trajectory of a one-way s/c, call sc.reset_trajectory().
+            - You want to reset all the trajectories of a two-way s/c, call sc.reset_trajectory().
+            - You want to reset 'Mars-Earth'  trajectory of a two-way s/c, call
+            sc.reset_trajectory(p_all_trajectories=False, p_trajectory='Mars-Earth').
         """
+
         if self._has_return_trajectory:
-            self._trajectory1 = None
-            self._trajectory2 = None
-            self._trajectory1_index = QModelIndex()
-            self._trajectory2_index = QModelIndex()
+        # Two-way s/c.
+
+            if p_all_trajectories:
+            # Reset all trajectories.
+                self._trajectory1 = None
+                self._trajectory2 = None
+                self._trajectory1_index = QModelIndex()
+                self._trajectory2_index = QModelIndex()
+            else:
+            # Reset specific trajectories.
+                if p_trajectory == 'Earth-Mars':
+                    self._trajectory1 = None
+                    self._trajectory1_index = QModelIndex()
+                elif p_trajectory == 'Mars-Earth':
+                    self._trajectory2 = None
+                    self._trajectory2_index = QModelIndex()
         else:
+        # One-way s/c.
             self._trajectory = None
             self._trajectory_index = QModelIndex()
 
