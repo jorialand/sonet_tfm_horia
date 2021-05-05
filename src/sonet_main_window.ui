@@ -194,16 +194,6 @@
          </property>
         </widget>
        </item>
-       <item>
-        <widget class="QPushButton" name="sonet_draw_qpb">
-         <property name="text">
-          <string>Draw Mars Mission Timeline</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="sonet_style_picker_qhlayout"/>
-       </item>
       </layout>
      </widget>
     </item>
