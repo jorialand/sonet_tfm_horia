@@ -543,7 +543,7 @@ class Ui_sonet_pcp_filter(object):
     # setupUi
 
     def retranslateUi(self, sonet_pcp_filter):
-        sonet_pcp_filter.setWindowTitle(QCoreApplication.translate("sonet_pcp_filter", u"Apply filter to PCP table", None))
+        sonet_pcp_filter.setWindowTitle(QCoreApplication.translate("sonet_pcp_filter", u"Edit s/c filter", None))
         self.pb_reset.setText(QCoreApplication.translate("sonet_pcp_filter", u"Reset", None))
         self.pb_add.setText(QCoreApplication.translate("sonet_pcp_filter", u"Add", None))
         self.top_left_group_box.setTitle("")

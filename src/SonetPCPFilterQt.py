@@ -432,7 +432,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         self.cb_dates_1.setChecked(False)
         self.spin_number.setValue(0)
         self.combo_time_scale.setCurrentIndex(0)
-        self.combo_when.setCurrentIndex(0)
+        self.combo_when.setCurrentIndex(1)
         self.combo_select_spacecraft.clear()
 
         # Weird way to uncheck all radio buttons.

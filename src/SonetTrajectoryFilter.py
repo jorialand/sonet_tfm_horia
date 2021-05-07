@@ -308,7 +308,7 @@ class SonetTrajectoryFilter:
         """
         Updates the filter dependencies.
         """
-        the_sc = self._p_the_spacecraft
+        sc = self._p_the_spacecraft
         the_filter_complex_dates = SonetTrajectoryFilter._get_activated_filters_of_a_given_type(self._data,
                                                                                                 True, 'ComplexDate')
 
@@ -319,7 +319,7 @@ class SonetTrajectoryFilter:
                 break
 
         if not is_valid:
-            the_sc.reset_filter_and_trajectory(self._trip_type)
+            sc.reset_filter_and_trajectory(self._trip_type)
 
     @staticmethod
     def is_valid_filter(a_the_filter: list) -> bool:

@@ -658,25 +658,25 @@ class ListModel(QAbstractListModel):
             return
 
         # Otherwise, get the s/c, and its filter.
-        the_sc = self.get_spacecraft(a_index=a_index)
-        if not isinstance(the_sc, SonetSpacecraft):
+        sc = self.get_spacecraft(a_index=a_index)
+        if not isinstance(sc, SonetSpacecraft):
             sonet_log(SonetLogType.ERROR, 'list_clicked."Wrong s/c type"')
             return False
 
-        SonetTrajectoryFilter.update_filters_dependencies(the_sc.get_filter())
-        the_filter = the_sc.get_filter()
+        SonetTrajectoryFilter.update_filters_dependencies(sc.get_filter())
+        the_filter = sc.get_filter()
 
-        if not the_sc.get_has_return_trajectory():
+        if not sc.get_has_return_trajectory():
             # The sc has got only outgoing trajectory.
 
             # Get the filtered pcp dataframe.
             the_filtered_dataframe = the_filter.get_filtered_pcp()
             # Update the table model.
-            main_window._table_model_outgoing.set_model_data(the_sc, the_filtered_dataframe)
+            main_window._table_model_outgoing.set_model_data(sc, the_filtered_dataframe)
 
             # Again for the 2nd table view.
             the_filtered_dataframe = pd.DataFrame()
-            main_window._table_model_incoming.set_model_data(the_sc, the_filtered_dataframe)
+            main_window._table_model_incoming.set_model_data(sc, the_filtered_dataframe)
         else:
             # The sc has got both outgoing and incoming trajectories.
             sonet_log(SonetLogType.INFO, 'list_clicked."This spacecraft is of two-way type"')
@@ -684,17 +684,17 @@ class ListModel(QAbstractListModel):
             # Get the filtered pcp dataframe.
             the_filtered_dataframe = the_filter[0].get_filtered_pcp()
             # Update the table model.
-            main_window._table_model_outgoing.set_model_data(the_sc, the_filtered_dataframe)
+            main_window._table_model_outgoing.set_model_data(sc, the_filtered_dataframe)
 
             # Again for the 2nd table view.
             the_filtered_dataframe = the_filter[1].get_filtered_pcp()
-            main_window._table_model_incoming.set_model_data(the_sc, the_filtered_dataframe)
+            main_window._table_model_incoming.set_model_data(sc, the_filtered_dataframe)
 
         # Update the trajectory label & progress bar.
-        status = the_sc.get_trajectory_selection_status()
+        status = sc.get_trajectory_selection_status()
         main_window.update_trajectory_label_and_progress_bar(status)
         # & select current trajectory in the table view.
-        main_window.update_trajectory_selection_in_table_view(the_sc)
+        main_window.update_trajectory_selection_in_table_view(sc)
         force_table_view_update()
 
     def update(self):
