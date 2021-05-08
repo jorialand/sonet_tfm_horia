@@ -12,7 +12,6 @@ import datetime
 import sys
 
 # Matlab environment
-import matlab.engine
 # Some Python modules.
 import pandas as pd
 from PySide2.QtCore import QAbstractListModel, QAbstractTableModel, QModelIndex, Qt, QDate
@@ -28,14 +27,17 @@ from src.SonetPCPFilterQt import SonetPCPFilterQt
 from src.SonetPCPManagerQt import SonetPCPManagerQt
 from src.SonetSpacecraft import SonetSpacecraft
 from src.SonetTrajectoryFilter import SonetTrajectoryFilter
-from src.SonetUtils import TripType, SonetLogType, sonet_log, popup_msg, SONET_MSG_TIMEOUT, SONET_DIR, SONET_DATA_DIR
+from src.SonetUtils import TripType, SonetLogType, sonet_log, popup_msg, SONET_MSG_TIMEOUT, SONET_DATA_DIR
 
-print('Loading Matlab engine.')
-print('...')
-matlab_engine = matlab.engine.start_matlab()
-s = matlab_engine.genpath(SONET_DIR)
-matlab_engine.addpath(s, nargout=0)
-print('Matlab engine loaded.')
+if False:
+    print('Loading Matlab engine.')
+    print('...')
+    matlab_engine = matlab.engine.start_matlab()
+    s = matlab_engine.genpath(SONET_DIR)
+    matlab_engine.addpath(s, nargout=0)
+    print('Matlab engine loaded.')
+else:
+    print("Matlab engine not loaded, some functionality won't be availabe.")
 
 # QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)  # To avoid AA_ShareOpenGLContexts warning in QtCreator.
 
@@ -104,6 +106,14 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         self.menubar.setNativeMenuBar(False)  # I'd problems with MacOSX native menubar, the menus didn't appear
         self.sonet_pcp_tabs_qtw.setCurrentIndex(0)
         self.sonet_spacecraft_type_qcmb.setCurrentIndex(1)  # Select cargo payload, by default.
+
+        # If matlab engine isn't loaded, disable associated widgets.
+        # Useful when want to load the app without the matlab env, because it takes a lot to load.
+        try:
+            matlab_engine
+        except:
+            self.sonet_open_matlab_pcp_viewer.setEnabled(False)
+            self.sonet_pcp_generator_qpb.setEnabled(False)
 
         # Table models, it should be declared prior to list model
         self._table_model_outgoing = TableModel(TripType.OUTGOING)
@@ -835,6 +845,18 @@ class TableModel(QAbstractTableModel):
             self.layoutChanged.emit()
         except Exception as e:
             print(e)
+
+    # If you would want to edit the cells.
+    # Thanks to: https://www.mfitzp.com/forum/t/tutorial-on-editing-a-qtableview/63
+
+    # def setData(self, index, value, role):
+    #     if role == Qt.EditRole:
+    #         # self._data[index.row()][index.column()] = value # SettingWithCopyWarning?
+    #         self._data.at[index.row(), index.column()] = value
+    #         return True
+    #
+    # def flags(self, index):
+    #     return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable
 
 if __name__ == "__main__":
     # Using no fbs module

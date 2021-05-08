@@ -255,7 +255,14 @@ class SonetSpacecraft:
             - You want to reset all the trajectories of a two-way s/c, call sc.reset_trajectory().
             - You want to reset 'Mars-Earth'  trajectory of a two-way s/c, call
             sc.reset_trajectory(p_all_trajectories=False, p_trajectory='Mars-Earth').
+        If the user asks to reset the a non-existent trajectory (i.e. the 'Mars-Earth' traj of a one-way s/c)
+        , then do nothing.
         """
+        # For convenience, p_trajectory can also take [0|1] or [TripType.OUTGOING|TripType.INCOMING]  as input.
+        if p_trajectory == 0 or p_trajectory == TripType.OUTGOING:
+            p_trajectory = 'Earth-Mars'
+        elif p_trajectory == 1 or p_trajectory == TripType.INCOMING:
+            p_trajectory = 'Mars-Earth'
 
         if self._has_return_trajectory:
         # Two-way s/c.

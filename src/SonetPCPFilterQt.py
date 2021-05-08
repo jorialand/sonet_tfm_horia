@@ -1048,12 +1048,7 @@ class SonetAppliedFiltersTableModel(QAbstractTableModel):
 
     def __init__(self, parent=None):
         super(SonetAppliedFiltersTableModel, self).__init__(parent)
-        self._data = pd.DataFrame(columns=['Status', 'Type', 'Filter'])  # pd.DataFrame()  # A Pandas dataframe
-
-        # Draft
-        # new_row = {'Status': 1, 'Type': FilterType.ENERGY, 'Filter': 'filter1'}
-        # self._data = self._data.append(new_row, ignore_index=True)
-        # self._data = self._data.append(new_row, ignore_index=True)
+        self._data = pd.DataFrame(columns=['Status', 'Type', 'Filter'])
 
     def rowCount(self, QModelIndex_parent=None, *args, **kwargs):
         if self._data is None:
@@ -1145,6 +1140,22 @@ class SonetAppliedFiltersTableModel(QAbstractTableModel):
         self._data = the_filter_data
         self.endResetModel()
         return True
+
+    def setData(self, index, value, role):
+        if role == Qt.EditRole:
+            if index.column() == 0:
+                self._data.at[index.row(), 'Status'] = value
+            elif index.column() == 1:
+                self._data.at[index.row(), 'Type'] = value
+            elif index.column() == 2:
+                self._data.at[index.row(), 'Filter'] = value
+            else:
+                stop = True
+            return True
+
+    def flags(self, index):
+        return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable
+
 
 if __name__ == "__main__":
     QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)  # To avoid AA_ShareOpenGLContexts Qt warning.

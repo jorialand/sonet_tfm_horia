@@ -197,6 +197,11 @@ def reset_sc_filters_and_trajectories(p_filters_and_trajectories='Both', p_trips
             if p_trips == 'Mars-Earth':
                 pass
 
+def print_dataframe(a_dataframe):
+    for i in range(a_dataframe.shape[0]):
+        row = a_dataframe.iloc[i]
+        print(row.to_list())
+
 # Global debug verbose level for the application.
 SONET_DEBUG_LEVEL = SonetDebugLevel.ONLY_ERRORS
 

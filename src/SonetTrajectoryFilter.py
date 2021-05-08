@@ -307,19 +307,20 @@ class SonetTrajectoryFilter:
     def update_filter_dependencies(self):
         """
         Updates the filter dependencies.
+            - The dependencies are introduced by the complex date filter (the one which relates a s/c dep/arriv date with
+            other s/c dep/arriv date.
+            - If a complex date filter isn't valid, then deactivate it and reset any selected trajectory.
         """
-        sc = self._p_the_spacecraft
-        the_filter_complex_dates = SonetTrajectoryFilter._get_activated_filters_of_a_given_type(self._data,
-                                                                                                True, 'ComplexDate')
 
-        is_valid = True
-        for f in list(the_filter_complex_dates):
-            if not SonetTrajectoryFilter.is_valid_filter(f):
-                is_valid = False
-                break
-
-        if not is_valid:
-            sc.reset_filter_and_trajectory(self._trip_type)
+        # Traverse the filter dataframe, if found and activated & invalid 'ComplexDate' row, deactivate it.
+        for i in range(self._data.shape[0]):
+            row = self._data.iloc[i]
+            if row['Status'] == 1 and row['Type'] == 'ComplexDate':
+                if not SonetTrajectoryFilter.is_valid_filter(row['Filter']):
+                    # The filter isn't valid anymore, deactivate it and reset any s/c selected trajectory
+                    # self._data.iloc[i]['Status'] = 0 #DataFrame SettingWithCopyWarning!
+                    self._data.at[i,'Status'] = 0
+                    self._p_the_spacecraft.reset_trajectory(self._trip_type)
 
     @staticmethod
     def is_valid_filter(a_the_filter: list) -> bool:
@@ -327,7 +328,7 @@ class SonetTrajectoryFilter:
         Determines if a passed filter is still valid or not.
         First retrieve the s/c and trip to which this s/c is dependent of.
         If the s/c cannot be found, then it has been erased, so the filter is not valid anymore.
-        If the s/c can be found, but between its current selected trajectories we cannot find the one we have in our
+        If the s/c can be found, but among its current selected trajectories, we cannot find the one we have in our
         filter, then the filter is not valid anymore.
         :param a_the_filter: a ComplexDate filter
         """
