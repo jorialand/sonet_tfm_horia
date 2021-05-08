@@ -86,7 +86,7 @@ class Ui_sonet_pcp_filter(object):
         self.cb_dep_arriv_dates.setObjectName(u"cb_dep_arriv_dates")
         self.cb_dep_arriv_dates.setEnabled(False)
         self.cb_dep_arriv_dates.setCursor(QCursor(Qt.PointingHandCursor))
-        self.cb_dep_arriv_dates.setChecked(True)
+        self.cb_dep_arriv_dates.setChecked(False)
 
         self.verticalLayout_11.addWidget(self.cb_dep_arriv_dates)
 
@@ -324,7 +324,7 @@ class Ui_sonet_pcp_filter(object):
         sizePolicy6.setHeightForWidth(self.cb_time_of_flight.sizePolicy().hasHeightForWidth())
         self.cb_time_of_flight.setSizePolicy(sizePolicy6)
         self.cb_time_of_flight.setCursor(QCursor(Qt.PointingHandCursor))
-        self.cb_time_of_flight.setChecked(True)
+        self.cb_time_of_flight.setChecked(False)
 
         self.gridLayout_5.addWidget(self.cb_time_of_flight, 0, 0, 1, 1)
 
@@ -405,7 +405,7 @@ class Ui_sonet_pcp_filter(object):
         sizePolicy7.setHeightForWidth(self.cb_energy.sizePolicy().hasHeightForWidth())
         self.cb_energy.setSizePolicy(sizePolicy7)
         self.cb_energy.setCursor(QCursor(Qt.PointingHandCursor))
-        self.cb_energy.setChecked(True)
+        self.cb_energy.setChecked(False)
 
         self.horizontalLayout_2.addWidget(self.cb_energy)
 

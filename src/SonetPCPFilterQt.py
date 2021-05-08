@@ -943,8 +943,8 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
         self.reset_filter_energy()
         self.reset_filter_time_of_flight()
-        self.reset_filter_departure_dates_step1()
-        self.reset_filter_departure_dates_left()
+        # self.reset_filter_departure_dates_step1()
+        # self.reset_filter_departure_dates_left()
         self.reset_filter_departure_dates_right()
 
     def clicked_radio_mission(self):
