@@ -121,16 +121,6 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         self.sonet_pcp_table_qtv_outgoing.setModel(self._table_model_outgoing)
         self.sonet_pcp_table_qtv_incoming.setModel(self._table_model_incoming)
 
-        # Stackoverflow - QSortProxyModel for sorting the columns, TOO SLOW! :(
-        # tableModel = Model()
-        # tableView = QtGui.QTableView()
-        # proxyModel = QtGui.QSortFilterProxyModel()
-        # proxyModel.setSourceModel(tableModel)
-        # tableView.setModel(proxyModel)
-        # tableView.setSortingEnabled(True)
-        # tableView.show()
-        # app.exec_()
-
         # List model, it should be declared after table model
         self._list_model = ListModel()
         self.sonet_mission_tree_qlv.setModel(self._list_model)
@@ -141,12 +131,12 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         self.sonet_remove_spacecraft_qpb.clicked.connect(self.clicked_remove_spacecraft)
         self.sonet_pcp_filter_qpb.clicked.connect(self.clicked_apply_filter)
         self.sonet_select_trajectory_qpb.clicked.connect(self.clicked_select_trajectory)
+        self.sonet_unselect_trajectory_qpb.clicked.connect(self.clicked_unselect_trajectory)
         self.sonet_draw_qpb.clicked.connect(self.clicked_draw)
         self.sonet_open_matlab_pcp_viewer.clicked.connect(self.clicked_pcp_viewer)
         self.sonet_pcp_generator_qpb.clicked.connect(self.clicked_pcp_manager)
         self.sonet_mission_tree_qlv.clicked.connect(self._list_model.list_clicked)
         self.sonet_pcp_tabs_qtw.currentChanged.connect(self.clicked_tab)
-        # self.sonet_pcp_table_qtv_outgoing.horizontalHeader().sortIndicatorChanged.connect(self.clicked_table_view_column)
         self.sonet_pcp_table_qtv_outgoing.horizontalHeader().sectionClicked.connect(self.clicked_table_view_column)
         self.sonet_pcp_table_qtv_incoming.horizontalHeader().sectionClicked.connect(self.clicked_table_view_column)
 
@@ -247,10 +237,10 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         sc = self._list_model.get_spacecraft(self.sonet_mission_tree_qlv.currentIndex())
         status = sc.get_trajectory_selection_status()
         self.update_trajectory_label_and_progress_bar(status)
-        # & select current trajectory in the table view.
         self.update_trajectory_selection_in_table_view(sc)
         force_table_view_update()
-
+        # Force focus on main window.
+        self.raise_()
 
     def clicked_pcp_viewer(self):
         """
@@ -332,6 +322,8 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         # Update main window widgets/labels/progress bars.
         force_table_view_update()
         self.update_trajectory_label_and_progress_bar(a_reset_widgets=True)
+        # Force focus on main window.
+        self.raise_()
 
         msg = key + ' removed'
         sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_remove_spacecraft."' + msg + '"')
@@ -411,6 +403,34 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
     def clicked_table_view_column(self, logicalIndex):
         force_table_view_update()
 
+    def clicked_unselect_trajectory(self):
+        """
+        Gets the current selected s/c and resets its selected trajectory, if any.
+        If no selection, displays a msg in the main window status bar.
+        It also informs to the user, by updating the relevant widgets.
+        """
+        sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_unselect_trajectory')
+
+        # Get the current selected s/c.
+        index = self.sonet_mission_tree_qlv.currentIndex().row()
+        sc = self._list_model.get_spacecraft(a_row=index)
+
+        # Check
+        if sc is None:
+            sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_unselect_trajectory."No s/c selected"')
+            self.statusbar.showMessage('No s/c selected.', SONET_MSG_TIMEOUT)
+            return
+
+        # Reset the selected trajectory, if any.
+        sc.reset_trajectory(p_all_trajectories=False,
+                            p_trajectory=self.sonet_pcp_tabs_qtw.currentIndex())
+
+        # Update the trajectory label & progress bar.
+        status = sc.get_trajectory_selection_status()
+        self.update_trajectory_label_and_progress_bar(status)
+        force_table_view_update()
+        # Force focus on main window.
+        self.raise_()
     def exit_app(self):
         sys.exit()
 
@@ -703,9 +723,11 @@ class ListModel(QAbstractListModel):
         # Update the trajectory label & progress bar.
         status = sc.get_trajectory_selection_status()
         main_window.update_trajectory_label_and_progress_bar(status)
-        # & select current trajectory in the table view.
         main_window.update_trajectory_selection_in_table_view(sc)
         force_table_view_update()
+        # Force focus on main window.
+        main_window.raise_()
+        main_window.sonet_pcp_table_qtv_outgoing.raise_()
 
     def update(self):
         self.beginResetModel()
