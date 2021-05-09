@@ -375,7 +375,7 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
                 # Outgoing trip selected.
 
                 # Update the # rows filtered label.
-                n_filtered = main_window._table_model_outgoing._data.shape[0]
+                n_filtered = self._table_model_outgoing._data.shape[0]
                 n = database.get_pcp_table(TripType.OUTGOING).shape[0]
                 self.sonet_label_rows_filtered_visible.setText(str(n_filtered) + ' rows filtered out of ' + str(n))
 
@@ -384,14 +384,14 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
 
                 # If the selected s/c has no return trajectory, inform to the user.
                 row = self.sonet_mission_tree_qlv.currentIndex().row()
-                the_spacecraft = self._list_model.get_spacecraft(a_row=row)
-                if the_spacecraft.get_has_return_trajectory() is False:
+                sc = self._list_model.get_spacecraft(a_row=row)
+                if sc.get_has_return_trajectory() is False:
                     self.sonet_label_rows_filtered_visible.setText('This s/c has no return trip.')
                     return
 
                 # Update the # rows filtered label.
-                n_filtered = main_window._table_model_incoming._data.shape[0]
-                n = database.get_pcp_table(TripType.OUTGOING).shape[0]
+                n_filtered = self._table_model_incoming._data.shape[0]
+                n = database.get_pcp_table(TripType.INCOMING).shape[0]
                 self.sonet_label_rows_filtered_visible.setText(str(n_filtered) + ' rows filtered out of ' + str(n))
         else:
             self.sonet_label_rows_filtered_visible.setText('')

@@ -231,8 +231,8 @@ class SonetTrajectoryFilter:
                 if part_2 in ['At least', 'At maximum']:
                     query_str.append(str_1 + ' ' + str_2 + ' ' + str_3)
                 elif part_2 in ['At the same time']:
-                    the_date_one_day_after = str(the_date + 1)
-                    the_date_one_day_before = str(the_date - 1)
+                    the_date_one_day_after = str(the_date + 5)
+                    the_date_one_day_before = str(the_date - 5)
                     query_str.append(
                         str_1 + ' >= ' + the_date_one_day_before + ' and ' + str_1 + ' <= ' + the_date_one_day_after)
 

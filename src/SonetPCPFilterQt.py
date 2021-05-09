@@ -24,17 +24,12 @@ from src.SonetUtils import FilterType, TripType, SonetLogType, sonet_log, popup_
 
 class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
     """
-    The filter window (QDialog).
+    The edit filter window (QDialog).
     """
     def __init__(self, *args, ar_list_spacecrafts=None, ar_current_index=-1):
         super(SonetPCPFilterQt, self).__init__(*args)  # , **kwargs)
         self.setupUi(self)
         self.init(ar_list_spacecrafts, ar_current_index)
-
-        # Draft
-        # self._applied_filters_table_model = SonetAppliedFiltersTableModel()
-        # self.applied_filters_table_view.setModel(self._applied_filters_table_model)
-        self.applied_filters_table_view.resizeColumnsToContents()
 
         # Status bar,for messages to the user.
         self.status_bar = QStatusBar()
@@ -96,11 +91,10 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         # Fill select_spacecraft combo with the available spacecrafts and select the current one.
         self.init_combo_select_spacecraft(ar_list_spacecrafts, ar_current_index)
 
+        # Some widgets settings.
+        self.applied_filters_table_view.resizeColumnsToContents()
         self.dateEdit.setDisplayFormat('dd-MM-yyyy')
         self.dateEdit.setCalendarPopup(True)
-
-        # Computations
-        self.compute_spacecrafts_with_selected_trajectories(p_return_type='String')
 
     def init_combo_select_spacecraft(self, ar_list_spacecrafts=None, ar_current_index=-1):
         """
@@ -137,40 +131,6 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         """
         self._applied_filters_table_model = SonetAppliedFiltersTableModel()
         self.applied_filters_table_view.setModel(self._applied_filters_table_model)
-
-    def compute_spacecrafts_with_selected_trajectories(self, p_return_type='String'):
-        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.get_spacecrafts_with_selected_trajectories')
-
-        # List with available s/c for which the user has selected at least a trajectory.
-        self._spacecrafts_with_selected_trajectories = []
-
-        # Traverse all the spacecrafts and update their filters.
-        for sc_name in database.get_spacecrafts_list():
-            sc = database.get_spacecraft(sc_name)
-
-            # If the sc has at least one trajectory selected, then should be included in the list.
-            if sc.get_trajectory_selection_status() in [0.5, 1]:
-                if p_return_type == 'String':
-                    self._spacecrafts_with_selected_trajectories.append(sc.get_spacecraft_name())
-                elif p_return_type == 'Object':
-                    self._spacecrafts_with_selected_trajectories.append(sc)
-
-        # The current selected element (in select_spacecraft combo) shouldn't be included in the list.
-        current_selected_sc = self.select_spacecraft.currentText()
-        if p_return_type == 'Object':
-            current_selected_sc = database.get_spacecraft(current_selected_sc)
-
-        try:
-            index = self._spacecrafts_with_selected_trajectories.index(current_selected_sc)
-            self._spacecrafts_with_selected_trajectories.pop(index)
-        except ValueError:
-            # The current selected s/c isn't in the list, so nothing to do.
-            pass
-
-        sonet_log(SonetLogType.INFO,
-                  'SonetPCPFilterQt.get_spacecrafts_with_selected_trajectories.'
-                  '"Number of s/c with at least a trajectory selected: ' +
-                  str(len(self._spacecrafts_with_selected_trajectories)) + '"')
 
     def dates_combos_check1(self):
         """
@@ -373,25 +333,6 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         # return the_selection
         return {'Status': 1, 'Type': 'Energy', 'Filter': the_selection}
 
-    def get_spacecrafts_with_selected_trajectories(self, return_type='String'):
-        """
-        Getter method.
-
-        Returns the list of sc with at least one selected trajectory, in string or object format.
-        If the list isn't calculated, it computes it.
-        :rtype: list
-        """
-        sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.get_spacecrafts_with_selected_trajectories')
-
-        # Return the list, or compute it if it wasn't defined.
-        if return_type == 'String':
-            try:
-                return self._spacecrafts_with_selected_trajectories
-            except NameError:
-                return self.compute_spacecrafts_with_selected_trajectories(p_return_type='String')
-        elif return_type == 'Object':
-            return self.compute_spacecrafts_with_selected_trajectories(p_return_type='Object')
-
     def get_time_of_flight_combos_selection(self):
         """
         Retrieves the time of flight combo boxes data, to apply filters.
@@ -592,7 +533,6 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
         if selected_spacecraft == 'Select s/c':
             self.select_trip.clear()
             self.select_trip.addItems(['Select trip'])
-            return True
         else:
             has_return_trajectory = database.db[selected_spacecraft].get_has_return_trajectory()
 
@@ -600,7 +540,6 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
                 sonet_log(SonetLogType.ERROR,
                           'SonetPCPFilterQt.changed_cmb_select_spacecraft.'
                           '"S/C with a non bool member has_return_trajectory"')
-                return False
 
             self.select_trip.blockSignals(True)
 
@@ -623,11 +562,9 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
                 self.select_trip.setCurrentIndex(1)
 
-            # Every time the selected s/c is changed, the  self._spacecrafts_with_selected_trajectories list should
-            # be updated, extracting the current selected s/c in case it is present in the list, as it makes no sense.
-            self.compute_spacecrafts_with_selected_trajectories(p_return_type='String')
-
-            return True
+        # Update also the combo_select_spacecraft widget.
+        self.radio_spacecraft.toggled.emit(True)
+        # self.combo_select_spacecraft.currentIndexChanged.emit(ar_index)
 
     def changed_combo_select_spacecraft(self):
         """
@@ -996,8 +933,10 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
         if p_config_for == 'Spacecrafts':
             # Fill the combo with the available s/c with at least one trajectory selected in the main window.
-            items = ['Select s/c']
-            items.extend(self.get_spacecrafts_with_selected_trajectories(return_type='String'))
+            items = []
+            all_sc_but_the_one_selected = [self.select_spacecraft.itemText(i) for i in range(self.select_spacecraft.count())]
+            all_sc_but_the_one_selected.remove(self.select_spacecraft.currentText())
+            items.extend(all_sc_but_the_one_selected)
             self.combo_select_spacecraft.addItems(items)
 
         if p_config_for == 'Missions':
@@ -1005,8 +944,11 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
     def fill_dates_combo_select_trip(self, ar_the_sc: str):
         """
-        Fills the combo_select_trip with the available trips (the ones with a trajectory selected)
+        Fills the combo_select_trip with the available trips
         for a given ar_the_sc spacecraft.
+        The available trips are:
+            - Earth - Mars, for one-way s/c.
+            - Earth - Mars + Mars-Earth, for two-way s/c.
         """
         sonet_log(SonetLogType.INFO, 'SonetPCPFilterQt.fill_dates_combo_select_trip')
 
@@ -1014,13 +956,13 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
             self.combo_select_trip.clear()
             return
 
-        # Get the s/c.
         sc = database.get_spacecraft(ar_the_sc)
 
-        # Get their available trips (the ones with a trajectory selected).
-        items = sc.get_trajectory_selected()
+        if sc.get_has_return_trajectory():
+            items = ['Earth - Mars', 'Mars - Earth']
+        else:
+            items = ['Earth - Mars']
 
-        # Fill the combo.
         self.combo_select_trip.clear()
         self.combo_select_trip.addItems(items)
 
@@ -1144,7 +1086,7 @@ class SonetAppliedFiltersTableModel(QAbstractTableModel):
     def setData(self, index, value, role):
         if role == Qt.EditRole:
             if index.column() == 0:
-                self._data.at[index.row(), 'Status'] = value
+                self._data.at[index.row(), 'Status'] = int(value)
             elif index.column() == 1:
                 self._data.at[index.row(), 'Type'] = value
             elif index.column() == 2:
