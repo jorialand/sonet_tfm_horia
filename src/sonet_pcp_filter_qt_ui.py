@@ -505,6 +505,8 @@ class Ui_sonet_pcp_filter(object):
         self.applied_filters_table_view.setMinimumSize(QSize(100, 0))
         self.applied_filters_table_view.setAlternatingRowColors(True)
         self.applied_filters_table_view.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.applied_filters_table_view.horizontalHeader().setStretchLastSection(True)
+        self.applied_filters_table_view.verticalHeader().setStretchLastSection(False)
 
         self.bottom_grid_layout.addWidget(self.applied_filters_table_view, 0, 0, 1, 1)
 
@@ -535,7 +537,7 @@ class Ui_sonet_pcp_filter(object):
         self.retranslateUi(sonet_pcp_filter)
         self.select_spacecraft.activated.connect(self.cb_dep_arriv_dates.show)
 
-        self.toolBox.setCurrentIndex(2)
+        self.toolBox.setCurrentIndex(0)
         self.combo_when.setCurrentIndex(1)
 
 
