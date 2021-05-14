@@ -185,9 +185,9 @@ def reset_sc_filters_and_trajectories(p_filters_and_trajectories='Both', p_trips
             if p_trips == 'Both':
                 sc.reset_trajectory()
             if p_trips == 'Earth-Mars':
-                sc.reset_trajectory('Earth-Mars')
+                sc.reset_trajectory(p_all_trajectories=False, p_trajectory='Earth-Mars')
             if p_trips == 'Mars-Earth':
-                sc.reset_trajectory('Mars-Earth')
+                sc.reset_trajectory(p_all_trajectories=False, p_trajectory='Mars-Earth')
         elif p_filters_and_trajectories == 'Filters':
         # Reset filters - NOT NEEDED YET.
             if p_trips == 'Both':
@@ -201,6 +201,29 @@ def print_dataframe(a_dataframe):
     for i in range(a_dataframe.shape[0]):
         row = a_dataframe.iloc[i]
         print(row.to_list())
+
+def find_min_max_idx(a_df, p_find='Min', p_col='dvt'):
+    """
+    Find the index of the min or max value of the p_col within the DataFrame a_df.
+
+    :param a_df: a Pandas DataFrame.
+    :param p_find: find a min or a max.
+    :param p_col: the dataframe column where to search.
+    :return: the index of the DataFrame row.
+    """
+    # Convert the input, if needed.
+    if p_col == 'Departure date':
+        p_col = 'DepDates'
+    elif p_col == 'Arrival date':
+        p_col = 'ArrivDates'
+
+    stop = True
+
+    if p_find == 'Min':
+        return a_df[[p_col]].idxmin()
+    elif p_find == 'Max':
+        return a_df[[p_col]].idxmax()
+
 
 # Global debug verbose level for the application.
 SONET_DEBUG_LEVEL = SonetDebugLevel.ONLY_ERRORS

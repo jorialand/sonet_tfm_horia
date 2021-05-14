@@ -27,7 +27,8 @@ from src.SonetPCPFilterQt import SonetPCPFilterQt
 from src.SonetPCPManagerQt import SonetPCPManagerQt
 from src.SonetSpacecraft import SonetSpacecraft
 from src.SonetTrajectoryFilter import SonetTrajectoryFilter
-from src.SonetUtils import TripType, SonetLogType, sonet_log, popup_msg, SONET_MSG_TIMEOUT, SONET_DATA_DIR
+from src.SonetUtils import TripType, SonetLogType, sonet_log, popup_msg, SONET_MSG_TIMEOUT, SONET_DATA_DIR, \
+    find_min_max_idx
 
 if False:
     print('Loading Matlab engine.')
@@ -160,7 +161,7 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         arg2 = self.sonet_mission_tree_qlv.currentIndex().row()
 
         # SonetPCPFilterQt.
-        filter_dialog_qt = SonetPCPFilterQt(self, ar_list_spacecrafts=arg1, ar_current_index=arg2)
+        filter_dialog_qt = SonetPCPFilterQt(self, a_list_spacecrafts=arg1, a_current_index=arg2)
 
         # Update pointer to the dialog, e.g. for accessing to its status bar.
         self._p_pcp_filter_window = filter_dialog_qt
@@ -330,32 +331,33 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
 
         return True
 
-    def clicked_select_trajectory(self, p_called_from_pcp_viewer=False, p_pcp_viewer_selected_trajectory=None):
+    def clicked_select_trajectory(self, p_called_from_pcp_viewer=False, p_pcp_viewer_selected_trajectory=None, p_idx=None):
         """
         Gets the current selection for the current selected s/c and stores it inside the s/c.
         If no selection, displays a msg in the main window status bar.
         It also informs to the user, by updating the relevant widgets.
         Update: Refactored to include also the possibility to be called from clicked_pcp_viewer.
+        Update: Refactored to include also the possibility to be called by passing directly the df index.
         """
         sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_select_trajectory')
 
         # Get the current selected s/c.
-        index = self.sonet_mission_tree_qlv.currentIndex().row()
-        the_spacecraft = self._list_model.get_spacecraft(a_row=index)
+        idx = self.sonet_mission_tree_qlv.currentIndex().row()
+        sc = self._list_model.get_spacecraft(a_row=idx)
 
         # Check
-        if the_spacecraft is None:
+        if sc is None:
             sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_select_trajectory."No s/c selected"')
             self.statusbar.showMessage('No s/c selected.', SONET_MSG_TIMEOUT)
             return False
 
         # Set the selected trajectory within the s/c.
         the_selected_trajectory: pd.Series
-        the_selected_trajectory, index, is_incoming_trajectory = self.get_selected_trajectory(p_called_from_pcp_viewer, p_pcp_viewer_selected_trajectory)
-        the_spacecraft.set_trajectory(the_selected_trajectory, index, a_is_incoming_trajectory=is_incoming_trajectory)
+        the_selected_trajectory, idx, is_incoming_trajectory = self.get_selected_trajectory(p_called_from_pcp_viewer, p_pcp_viewer_selected_trajectory, p_idx=p_idx)
+        sc.set_trajectory(the_selected_trajectory, idx, a_is_incoming_trajectory=is_incoming_trajectory)
 
         # Update the trajectory label & progress bar.
-        status = the_spacecraft.get_trajectory_selection_status()
+        status = sc.get_trajectory_selection_status()
         self.update_trajectory_label_and_progress_bar(status)
         force_table_view_update()
         # Force focus on main window.
@@ -365,8 +367,8 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         """
         Slot executed whenever the Earth-Mars/Mars-Earth tab is changed. Sometimes, the signal is emitted to force
         an update.
-        It controls the state of the main window labels and progress bar, which communicate to the usr the current
-        trajectory selection state for a given s/c.
+        It controls the a_state of the main window labels and progress bar, which communicate to the usr the current
+        trajectory selection a_state for a given s/c.
         """
         sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_tab')
 
@@ -431,13 +433,14 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         force_table_view_update()
         # Force focus on main window.
         self.raise_()
+
     def exit_app(self):
         sys.exit()
 
     def get_list_model(self):
         return self._list_model
 
-    def get_selected_trajectory(self, p_called_from_pcp_viewer=False, p_pcp_viewer_selected_trajectory=None):
+    def get_selected_trajectory(self, p_called_from_pcp_viewer=False, p_pcp_viewer_selected_trajectory=None, p_idx=None):
         """
         Getter method.
         You get:
@@ -445,6 +448,7 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
             - Its position in the pcp table (index).
             - A flag indicating if it's a outgoing/incoming trajectory
         Update: Refactored to include also the possibility to be called from clicked_pcp_viewer.
+        Update: Refactored to include also the possibility to be called by passing directly the df index.
         @return: (Series, QModelIndex, bool)
         """
         sonet_log(SonetLogType.INFO, 'SonetMainWindow.get_selected_trajectory')
@@ -452,8 +456,8 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         # We are setting Earth-Mars or Mars-Earth trajectory?
         tab_index = main_window.sonet_pcp_tabs_qtw.currentIndex()
 
-        # If trajectory was selected from the pcp_viewer pcp plot, or directly through the table.
         if p_called_from_pcp_viewer and p_pcp_viewer_selected_trajectory:
+        # If trajectory was selected from the pcp_viewer pcp plot.
             if tab_index is 0:
                 the_row = p_pcp_viewer_selected_trajectory
                 the_real_dataframe_index = p_pcp_viewer_selected_trajectory
@@ -467,7 +471,19 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
             else:
                 sonet_log(SonetLogType.WARNING, 'SonetMainWindow.get_selected_trajectory."Unexpected behaviour')
                 return None, None, None
+        elif p_idx is not None and p_idx.any():
+        # Trajectory selected automatically from the edit filter window.
+            if tab_index is 0:
+                the_df = self._table_model_outgoing._data
+                return the_df.loc[p_idx].iloc[0], p_idx.values[0], False
+            elif tab_index is 1:
+                the_df = self._table_model_incoming._data
+                return the_df.loc[p_idx].iloc[0], p_idx.values[0], True
+            else:
+                sonet_log(SonetLogType.WARNING, 'SonetMainWindow.get_selected_trajectory."Unexpected behaviour')
+                return None, None, None
         else:
+        # Trajectory selected through the main window btn 'Select trajectory'.
             if tab_index is 0:
                 the_index = self.sonet_pcp_table_qtv_outgoing.selectionModel().currentIndex()
                 the_row = the_index.row()
@@ -506,6 +522,21 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         }
         return switcher.get(pcp_table_model, 'Error in SonetMainWindow.get_table_model: '
                                              'No model found with the requested argument')
+
+    def keyPressEvent(self, event):
+        if event.key() in [Qt.Key_A, Qt.Key_Enter, Qt.Key_Return]:
+            self.clicked_new_spacecraft()
+        elif event.key() in [Qt.Key_R, Qt.Key_Backspace, Qt.Key_Delete]:
+            self.clicked_remove_spacecraft()
+        elif event.key() in [Qt.Key_E]:
+            self.clicked_apply_filter()
+        elif event.key() in [Qt.Key_S]:
+            self.clicked_select_trajectory()
+        elif event.key() in [Qt.Key_U]:
+            self.clicked_unselect_trajectory()
+        elif event.key() in [Qt.Key_D]:
+            self.clicked_draw()
+        # event.accept()
 
     def update_trajectory_label_and_progress_bar(self, a_status=0, a_reset_widgets=False):
         """
@@ -693,9 +724,17 @@ class ListModel(QAbstractListModel):
             sonet_log(SonetLogType.ERROR, 'list_clicked."Wrong s/c type"')
             return False
 
+        # Update tab widget, depending on the s/c.
+        if sc.get_has_return_trajectory():
+            main_window.sonet_pcp_table_transit_2.setEnabled(True)
+        else:
+            main_window.sonet_pcp_table_transit_2.setEnabled(False)
+
+        # If the filter had a dependency with another s/c that now is invalid, deactivate it.
         SonetTrajectoryFilter.update_filters_dependencies(sc.get_filter())
         the_filter = sc.get_filter()
 
+        # Get the filtered pcp and set it to the s/c.
         if not sc.get_has_return_trajectory():
             # The sc has got only outgoing trajectory.
 
@@ -719,6 +758,16 @@ class ListModel(QAbstractListModel):
             # Again for the 2nd table view.
             the_filtered_dataframe = the_filter[1].get_filtered_pcp()
             main_window._table_model_incoming.set_model_data(sc, the_filtered_dataframe)
+
+        # Auto select a trajectory if activated within the s/c filter.
+        if not sc.get_has_return_trajectory():
+            auto_traj_sel = SonetTrajectoryFilter.get_auto_traj_sel(p_filter=the_filter._data, p_activated=True)
+
+            if auto_traj_sel:
+                idx = find_min_max_idx(main_window._table_model_outgoing._data, p_find=auto_traj_sel[0], p_col=auto_traj_sel[1])
+                main_window.clicked_select_trajectory(p_idx=idx)
+        else:
+            pass
 
         # Update the trajectory label & progress bar.
         status = sc.get_trajectory_selection_status()
@@ -770,6 +819,11 @@ class TableModel(QAbstractTableModel):
         """
         sonet_log(SonetLogType.INFO, 'TableModel.set_model_data."' + str(self._trip_type) + '"')
 
+        if type(a_the_filtered_dataframe) == bool \
+            or a_the_spacecraft is None \
+                or  a_the_filtered_dataframe is None:
+            sonet_log(SonetLogType.ERROR,'SonetMainWindow.TableModel.set_model_data."Wrong arguments type"')
+            return
         # The spacecraft which owns the data.
         self._spacecraft = a_the_spacecraft
 

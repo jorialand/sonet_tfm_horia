@@ -112,12 +112,9 @@ class SonetTrajectoryFilter:
 
         # Get activated filters as pandas DataFrame.
         the_filter_energy = SonetTrajectoryFilter._get_activated_filters_of_a_given_type(self._data, True, 'Energy')
-        the_filter_tof = SonetTrajectoryFilter._get_activated_filters_of_a_given_type(self._data, True,
-                                                                                      'Time of flight')
-        the_filter_simple_dates = SonetTrajectoryFilter._get_activated_filters_of_a_given_type(self._data, True,
-                                                                                               'SimpleDate')
-        the_filter_complex_dates = SonetTrajectoryFilter._get_activated_filters_of_a_given_type(self._data, True,
-                                                                                                'ComplexDate')
+        the_filter_tof = SonetTrajectoryFilter._get_activated_filters_of_a_given_type(self._data, True, 'Time of flight')
+        the_filter_simple_dates = SonetTrajectoryFilter._get_activated_filters_of_a_given_type(self._data, True, 'SimpleDate')
+        the_filter_complex_dates = SonetTrajectoryFilter._get_activated_filters_of_a_given_type(self._data, True, 'ComplexDate')
 
         # Convert them to string.
         query_energy = self._get_query_string(the_filter_energy, a_type='Energy')
@@ -148,7 +145,7 @@ class SonetTrajectoryFilter:
                 res = the_pcp_table.query(query_string)
                 return self.convert_pcp_table_to_human_format(res.copy())
             except KeyError:
-                print('Error in SonetTrajectoryFilter.get_filtered_pcp: Wrong _trip_type')
+                print('Error in SonetTrajectoryFilter.get_filtered_pcp')
                 return False
 
     def get_trip_type(self):
@@ -161,6 +158,14 @@ class SonetTrajectoryFilter:
     @staticmethod
     def _get_activated_filters_of_a_given_type(a_filter, a_activated, a_filter_type):
         return a_filter.loc[(a_filter['Status'] == a_activated) & (a_filter['Type'] == a_filter_type), 'Filter'].copy()
+
+    @staticmethod
+    def get_auto_traj_sel(p_filter=None, p_activated=True):
+        try:
+            res = p_filter.loc[(p_filter['Status'] == p_activated) & (p_filter['Type'] == 'AutoTrajSel'), 'Filter'].copy().to_list()[0]
+        except:
+            res = []
+        return res
 
     def _get_query_string(self, a_filter, a_type='') -> str:
         """
@@ -252,23 +257,23 @@ class SonetTrajectoryFilter:
         # Check that input is a pandas DataFrame.
         if not isinstance(a_data, pd.DataFrame):
             sonet_log(SonetLogType.ERROR, 'SonetTrajectoryFilter.set_data."Wrong input type"')
-            return False
+            return
 
         # Check columns.
         if not list(a_data.columns) == ['Status', 'Type', 'Filter']:
             sonet_log(SonetLogType.ERROR, 'SonetTrajectoryFilter.set_data."Wrong filter columns"')
-            return False
+            return
 
         # If the filter is the same, do not apply it.
         if a_data.equals(self._data):
-            return True
+            return
         else:
             # If not, set the new filter
             self._data = a_data.copy()
 
-            # And reset the current selected trajectories for the s/c.
-            self._p_the_spacecraft.reset_trajectory()
-            return True
+            # And reset the current selected trajectory for this trip.
+            self._p_the_spacecraft.reset_trajectory(p_all_trajectories=False, p_trajectory=self._trip_type)
+            return
 
     def set_trip_type(self, a_trip_type):
         """
@@ -309,7 +314,7 @@ class SonetTrajectoryFilter:
         Updates the filter dependencies.
             - The dependencies are introduced by the complex date filter (the one which relates a s/c dep/arriv date with
             other s/c dep/arriv date.
-            - If a complex date filter isn't valid, then deactivate it and reset any selected trajectory.
+            - If a complex date filter isn't valid, then deactivate it and reset the selected trajectory, if any.
         """
 
         # Traverse the filter dataframe, if found and activated & invalid 'ComplexDate' row, deactivate it.
@@ -320,7 +325,7 @@ class SonetTrajectoryFilter:
                     # The filter isn't valid anymore, deactivate it and reset any s/c selected trajectory
                     # self._data.iloc[i]['Status'] = 0 #DataFrame SettingWithCopyWarning!
                     self._data.at[i,'Status'] = 0
-                    self._p_the_spacecraft.reset_trajectory(self._trip_type)
+                    self._p_the_spacecraft.reset_trajectory(p_all_trajectories=False, p_trajectory=self._trip_type)
 
     @staticmethod
     def is_valid_filter(a_the_filter: list) -> bool:

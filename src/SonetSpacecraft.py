@@ -332,7 +332,7 @@ class SonetSpacecraft:
         a list of filters, then the spacecraft has outgoing and return trajectories and has two filters,
         otherwise it only has outgoing trajectory and thus only one filter.
 
-        :param a_the_filter: the pcp filter
+        :param a_the_filter: the pcp filter or list of them.
         :param p_dataframe: flag indicating if the argument a_the_filter is a dataframe or a SonetTrajectoryFilter
         """
         sonet_log(SonetLogType.INFO, 'SonetSpacecraft.set_filter')
