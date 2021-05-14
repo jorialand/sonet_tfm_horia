@@ -2,6 +2,26 @@ Example 1
 
 s/c A cargo one-way
     'date2' Arrives Mars Before 01-07-2026
+    'energy' dvd < 13
+    'energy' dva < 8
+
+s/c B cargo one-way
+    'date1' Departs Earth 30d+ + A Earth-Mars Launch
+    'tof' < 180d
+    'energy' dvt < 9
+
+s/c C crew two-way
+    -> 'date1' Departs Earth 90d+ + A Earth-Mars Land
+    -> 'date1' Departs Earth 90d+ + B Earth-Mars Land
+    -> 'tof' < 180d
+    -> 'energy' dvt < 9
+    <- 'energy' dvt < 9
+
+-----------------------------------------------------------------------------------------------------------------------
+Example 2
+
+s/c A cargo one-way
+    'date2' Arrives Mars Before 01-07-2026
     'energy' dvd < 6
     'energy' dva < 3
 
@@ -26,33 +46,6 @@ s/c NAME TYPE RETURN
     ['date2'] [Departs|Arrives] [Earth|Mars] [On|Before|After] [01-05-2020]
     ['tof'] [tof] [<|=|>] [0d]
     ['energy'] [dvt|dvd|dva|c3d|c3a|theta] [<|=|>] [0]
-
------------------------------------------------------------------------------------------------------------------------
-
-Example #
-
-s/c NAME TYPE RETURN
-    COND1
-    COND2
-    ...
-
------------------------------------------------------------------------------------------------------------------------
-
-Example #
-
-s/c NAME TYPE RETURN
-    COND1
-    COND2
-    ...
-
------------------------------------------------------------------------------------------------------------------------
-
-Example #
-
-s/c NAME TYPE RETURN
-    COND1
-    COND2
-    ...
 
 -----------------------------------------------------------------------------------------------------------------------
 
