@@ -1129,7 +1129,7 @@ class SonetAppliedFiltersTableModel(QAbstractTableModel):
     def is_data_valid(self, a_data):
         if not a_data:
             return False
-        valid_values = ['1', '2', 'Energy', 'Time of flight', 'SimpleDate', 'ComplexDate', 'AutoTrajSel']
+        valid_values = ['0', '1', 'Energy', 'Time of flight', 'SimpleDate', 'ComplexDate', 'AutoTrajSel']
         if (a_data not in valid_values) and (a_data[0] != '[') and (a_data[-1] != ']'):
             return False
         return True

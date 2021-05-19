@@ -12,6 +12,7 @@ import datetime
 import sys
 
 # Matlab environment
+import matlab.engine
 # Some Python modules.
 import pandas as pd
 from PySide2.QtCore import QAbstractListModel, QAbstractTableModel, QModelIndex, Qt, QDate
@@ -28,9 +29,9 @@ from src.SonetPCPManagerQt import SonetPCPManagerQt
 from src.SonetSpacecraft import SonetSpacecraft
 from src.SonetTrajectoryFilter import SonetTrajectoryFilter
 from src.SonetUtils import TripType, SonetLogType, sonet_log, popup_msg, SONET_MSG_TIMEOUT, SONET_DATA_DIR, \
-    find_min_max_idx
+    find_min_max_idx, SONET_DIR
 
-if False:
+if True:
     print('Loading Matlab engine.')
     print('...')
     matlab_engine = matlab.engine.start_matlab()
