@@ -17,7 +17,7 @@ class Ui_main_window(object):
     def setupUi(self, main_window):
         if not main_window.objectName():
             main_window.setObjectName(u"main_window")
-        main_window.resize(995, 651)
+        main_window.resize(982, 683)
         sizePolicy = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -25,7 +25,7 @@ class Ui_main_window(object):
         main_window.setSizePolicy(sizePolicy)
         main_window.setMinimumSize(QSize(900, 600))
         main_window.setBaseSize(QSize(1024, 960))
-        main_window.setWindowOpacity(50.000000000000000)
+        main_window.setWindowOpacity(1.000000000000000)
         main_window.setTabShape(QTabWidget.Rounded)
         main_window.setUnifiedTitleAndToolBarOnMac(True)
         self.exit = QAction(main_window)
@@ -111,13 +111,13 @@ class Ui_main_window(object):
 #endif
         self.sonet_pcp_tabs_qtw.setPalette(palette)
         self.sonet_pcp_tabs_qtw.setCursor(QCursor(Qt.PointingHandCursor))
-        self.sonet_pcp_tabs_qtw.setAutoFillBackground(True)
+        self.sonet_pcp_tabs_qtw.setAutoFillBackground(False)
         self.sonet_pcp_tabs_qtw.setTabPosition(QTabWidget.North)
         self.sonet_pcp_tabs_qtw.setTabShape(QTabWidget.Rounded)
         self.sonet_pcp_tabs_qtw.setElideMode(Qt.ElideLeft)
         self.sonet_pcp_table_transit_1 = QWidget()
         self.sonet_pcp_table_transit_1.setObjectName(u"sonet_pcp_table_transit_1")
-        self.sonet_pcp_table_transit_1.setAutoFillBackground(True)
+        self.sonet_pcp_table_transit_1.setAutoFillBackground(False)
         self.verticalLayout_4 = QVBoxLayout(self.sonet_pcp_table_transit_1)
         self.verticalLayout_4.setObjectName(u"verticalLayout_4")
         self.sonet_pcp_table_qtv_outgoing = QTableView(self.sonet_pcp_table_transit_1)
@@ -138,7 +138,7 @@ class Ui_main_window(object):
         self.sonet_pcp_tabs_qtw.addTab(self.sonet_pcp_table_transit_1, "")
         self.sonet_pcp_table_transit_2 = QWidget()
         self.sonet_pcp_table_transit_2.setObjectName(u"sonet_pcp_table_transit_2")
-        self.sonet_pcp_table_transit_2.setAutoFillBackground(True)
+        self.sonet_pcp_table_transit_2.setAutoFillBackground(False)
         self.verticalLayout_3 = QVBoxLayout(self.sonet_pcp_table_transit_2)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.sonet_pcp_table_qtv_incoming = QTableView(self.sonet_pcp_table_transit_2)
@@ -194,7 +194,8 @@ class Ui_main_window(object):
         self.sonet_mission_tree_qgb.setObjectName(u"sonet_mission_tree_qgb")
         sizePolicy.setHeightForWidth(self.sonet_mission_tree_qgb.sizePolicy().hasHeightForWidth())
         self.sonet_mission_tree_qgb.setSizePolicy(sizePolicy)
-        self.sonet_mission_tree_qgb.setMinimumSize(QSize(400, 0))
+        self.sonet_mission_tree_qgb.setMinimumSize(QSize(0, 0))
+        self.sonet_mission_tree_qgb.setMaximumSize(QSize(260, 16777215))
         self.sonet_mission_tree_qgb.setBaseSize(QSize(0, 0))
         self.sonet_mission_tree_qgb.setFlat(True)
         self.verticalLayout_2 = QVBoxLayout(self.sonet_mission_tree_qgb)
@@ -211,24 +212,26 @@ class Ui_main_window(object):
         self.toolBox.setObjectName(u"toolBox")
         self.page_mission = QWidget()
         self.page_mission.setObjectName(u"page_mission")
-        self.page_mission.setGeometry(QRect(0, 0, 370, 196))
+        self.page_mission.setGeometry(QRect(0, 0, 230, 228))
         self.verticalLayout_8 = QVBoxLayout(self.page_mission)
         self.verticalLayout_8.setObjectName(u"verticalLayout_8")
-        self.sonet_add_rm_mission_qhbox = QHBoxLayout()
-        self.sonet_add_rm_mission_qhbox.setObjectName(u"sonet_add_rm_mission_qhbox")
+        self.verticalLayout_11 = QVBoxLayout()
+        self.verticalLayout_11.setObjectName(u"verticalLayout_11")
         self.sonet_add_mission_qpb = QPushButton(self.page_mission)
         self.sonet_add_mission_qpb.setObjectName(u"sonet_add_mission_qpb")
+        self.sonet_add_mission_qpb.setEnabled(False)
         self.sonet_add_mission_qpb.setFlat(False)
 
-        self.sonet_add_rm_mission_qhbox.addWidget(self.sonet_add_mission_qpb)
+        self.verticalLayout_11.addWidget(self.sonet_add_mission_qpb)
 
         self.sonet_remove_mission_qpb = QPushButton(self.page_mission)
         self.sonet_remove_mission_qpb.setObjectName(u"sonet_remove_mission_qpb")
+        self.sonet_remove_mission_qpb.setEnabled(False)
 
-        self.sonet_add_rm_mission_qhbox.addWidget(self.sonet_remove_mission_qpb)
+        self.verticalLayout_11.addWidget(self.sonet_remove_mission_qpb)
 
 
-        self.verticalLayout_8.addLayout(self.sonet_add_rm_mission_qhbox)
+        self.verticalLayout_8.addLayout(self.verticalLayout_11)
 
         self.verticalSpacer = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
 
@@ -237,7 +240,7 @@ class Ui_main_window(object):
         self.toolBox.addItem(self.page_mission, u"Mission")
         self.page_spacecraft = QWidget()
         self.page_spacecraft.setObjectName(u"page_spacecraft")
-        self.page_spacecraft.setGeometry(QRect(0, 0, 370, 196))
+        self.page_spacecraft.setGeometry(QRect(0, 0, 230, 228))
         self.verticalLayout_7 = QVBoxLayout(self.page_spacecraft)
         self.verticalLayout_7.setObjectName(u"verticalLayout_7")
         self.sonet_sc_name_le = QLineEdit(self.page_spacecraft)
@@ -268,11 +271,13 @@ class Ui_main_window(object):
         self.sonet_add_rm_sc_qhbox.setObjectName(u"sonet_add_rm_sc_qhbox")
         self.sonet_add_spacecraft_qpb = QPushButton(self.page_spacecraft)
         self.sonet_add_spacecraft_qpb.setObjectName(u"sonet_add_spacecraft_qpb")
+        self.sonet_add_spacecraft_qpb.setMaximumSize(QSize(170, 16777215))
 
         self.sonet_add_rm_sc_qhbox.addWidget(self.sonet_add_spacecraft_qpb)
 
         self.sonet_remove_spacecraft_qpb = QPushButton(self.page_spacecraft)
         self.sonet_remove_spacecraft_qpb.setObjectName(u"sonet_remove_spacecraft_qpb")
+        self.sonet_remove_spacecraft_qpb.setMaximumSize(QSize(170, 16777215))
 
         self.sonet_add_rm_sc_qhbox.addWidget(self.sonet_remove_spacecraft_qpb)
 
@@ -286,42 +291,47 @@ class Ui_main_window(object):
         self.toolBox.addItem(self.page_spacecraft, u"S/C")
         self.page_commands = QWidget()
         self.page_commands.setObjectName(u"page_commands")
-        self.page_commands.setGeometry(QRect(0, 0, 370, 196))
+        self.page_commands.setGeometry(QRect(0, 0, 230, 228))
         self.verticalLayout_6 = QVBoxLayout(self.page_commands)
         self.verticalLayout_6.setObjectName(u"verticalLayout_6")
-        self.sonet_pcp_generator_qhbox_5 = QHBoxLayout()
-        self.sonet_pcp_generator_qhbox_5.setObjectName(u"sonet_pcp_generator_qhbox_5")
+        self.verticalLayout_10 = QVBoxLayout()
+        self.verticalLayout_10.setObjectName(u"verticalLayout_10")
         self.sonet_pcp_filter_qpb = QPushButton(self.page_commands)
         self.sonet_pcp_filter_qpb.setObjectName(u"sonet_pcp_filter_qpb")
+        self.sonet_pcp_filter_qpb.setMaximumSize(QSize(170, 16777215))
 
-        self.sonet_pcp_generator_qhbox_5.addWidget(self.sonet_pcp_filter_qpb)
+        self.verticalLayout_10.addWidget(self.sonet_pcp_filter_qpb)
 
         self.sonet_open_matlab_pcp_viewer = QPushButton(self.page_commands)
         self.sonet_open_matlab_pcp_viewer.setObjectName(u"sonet_open_matlab_pcp_viewer")
+        self.sonet_open_matlab_pcp_viewer.setMaximumSize(QSize(170, 16777215))
 
-        self.sonet_pcp_generator_qhbox_5.addWidget(self.sonet_open_matlab_pcp_viewer)
+        self.verticalLayout_10.addWidget(self.sonet_open_matlab_pcp_viewer)
 
 
-        self.verticalLayout_6.addLayout(self.sonet_pcp_generator_qhbox_5)
+        self.verticalLayout_6.addLayout(self.verticalLayout_10)
 
-        self.sonet_pcp_generator_qhbox_8 = QHBoxLayout()
-        self.sonet_pcp_generator_qhbox_8.setObjectName(u"sonet_pcp_generator_qhbox_8")
-        self.sonet_select_trajectory_qpb = QPushButton(self.page_commands)
-        self.sonet_select_trajectory_qpb.setObjectName(u"sonet_select_trajectory_qpb")
-
-        self.sonet_pcp_generator_qhbox_8.addWidget(self.sonet_select_trajectory_qpb)
-
+        self.verticalLayout_9 = QVBoxLayout()
+        self.verticalLayout_9.setObjectName(u"verticalLayout_9")
         self.sonet_unselect_trajectory_qpb = QPushButton(self.page_commands)
         self.sonet_unselect_trajectory_qpb.setObjectName(u"sonet_unselect_trajectory_qpb")
+        self.sonet_unselect_trajectory_qpb.setMaximumSize(QSize(170, 16777215))
 
-        self.sonet_pcp_generator_qhbox_8.addWidget(self.sonet_unselect_trajectory_qpb)
+        self.verticalLayout_9.addWidget(self.sonet_unselect_trajectory_qpb)
+
+        self.sonet_select_trajectory_qpb = QPushButton(self.page_commands)
+        self.sonet_select_trajectory_qpb.setObjectName(u"sonet_select_trajectory_qpb")
+        self.sonet_select_trajectory_qpb.setMaximumSize(QSize(170, 16777215))
+
+        self.verticalLayout_9.addWidget(self.sonet_select_trajectory_qpb)
 
 
-        self.verticalLayout_6.addLayout(self.sonet_pcp_generator_qhbox_8)
+        self.verticalLayout_6.addLayout(self.verticalLayout_9)
 
         self.sonet_draw_qpb = QPushButton(self.page_commands)
         self.sonet_draw_qpb.setObjectName(u"sonet_draw_qpb")
-        self.sonet_draw_qpb.setMinimumSize(QSize(250, 0))
+        self.sonet_draw_qpb.setMinimumSize(QSize(0, 0))
+        self.sonet_draw_qpb.setMaximumSize(QSize(170, 16777215))
 
         self.verticalLayout_6.addWidget(self.sonet_draw_qpb)
 
@@ -332,7 +342,7 @@ class Ui_main_window(object):
         self.toolBox.addItem(self.page_commands, u"Actions")
         self.page_others = QWidget()
         self.page_others.setObjectName(u"page_others")
-        self.page_others.setGeometry(QRect(0, 0, 370, 196))
+        self.page_others.setGeometry(QRect(0, 0, 230, 228))
         self.verticalLayout_5 = QVBoxLayout(self.page_others)
         self.verticalLayout_5.setObjectName(u"verticalLayout_5")
         self.sonet_pcp_generator_qpb = QPushButton(self.page_others)
@@ -357,25 +367,18 @@ class Ui_main_window(object):
         main_window.setStatusBar(self.statusbar)
         self.menubar = QMenuBar(main_window)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 995, 22))
-        self.file = QMenu(self.menubar)
-        self.file.setObjectName(u"file")
-        self.menuEdit = QMenu(self.menubar)
-        self.menuEdit.setObjectName(u"menuEdit")
+        self.menubar.setGeometry(QRect(0, 0, 982, 22))
         self.menuHelp = QMenu(self.menubar)
         self.menuHelp.setObjectName(u"menuHelp")
         main_window.setMenuBar(self.menubar)
 
-        self.menubar.addAction(self.file.menuAction())
-        self.menubar.addAction(self.menuEdit.menuAction())
         self.menubar.addAction(self.menuHelp.menuAction())
-        self.file.addAction(self.exit)
-        self.file.addSeparator()
 
         self.retranslateUi(main_window)
 
         self.sonet_pcp_tabs_qtw.setCurrentIndex(0)
         self.toolBox.setCurrentIndex(1)
+        self.sonet_spacecraft_type_qcmb.setCurrentIndex(1)
 
 
         QMetaObject.connectSlotsByName(main_window)
@@ -438,13 +441,13 @@ class Ui_main_window(object):
 #endif // QT_CONFIG(tooltip)
         self.sonet_open_matlab_pcp_viewer.setText(QCoreApplication.translate("main_window", u"View s/c trajectories", None))
 #if QT_CONFIG(tooltip)
-        self.sonet_select_trajectory_qpb.setToolTip(QCoreApplication.translate("main_window", u"Select trajectory", None))
-#endif // QT_CONFIG(tooltip)
-        self.sonet_select_trajectory_qpb.setText(QCoreApplication.translate("main_window", u"Select trajectory", None))
-#if QT_CONFIG(tooltip)
         self.sonet_unselect_trajectory_qpb.setToolTip(QCoreApplication.translate("main_window", u"Select trajectory", None))
 #endif // QT_CONFIG(tooltip)
         self.sonet_unselect_trajectory_qpb.setText(QCoreApplication.translate("main_window", u"Unselect trajectory", None))
+#if QT_CONFIG(tooltip)
+        self.sonet_select_trajectory_qpb.setToolTip(QCoreApplication.translate("main_window", u"Select trajectory", None))
+#endif // QT_CONFIG(tooltip)
+        self.sonet_select_trajectory_qpb.setText(QCoreApplication.translate("main_window", u"Select trajectory", None))
         self.sonet_draw_qpb.setText(QCoreApplication.translate("main_window", u"Draw mission", None))
         self.toolBox.setItemText(self.toolBox.indexOf(self.page_commands), QCoreApplication.translate("main_window", u"Actions", None))
 #if QT_CONFIG(tooltip)
@@ -452,8 +455,6 @@ class Ui_main_window(object):
 #endif // QT_CONFIG(tooltip)
         self.sonet_pcp_generator_qpb.setText(QCoreApplication.translate("main_window", u"PCP manager", None))
         self.toolBox.setItemText(self.toolBox.indexOf(self.page_others), QCoreApplication.translate("main_window", u"PCP Manager", None))
-        self.file.setTitle(QCoreApplication.translate("main_window", u"&File", None))
-        self.menuEdit.setTitle(QCoreApplication.translate("main_window", u"Edit", None))
         self.menuHelp.setTitle(QCoreApplication.translate("main_window", u"Help", None))
     # retranslateUi
 

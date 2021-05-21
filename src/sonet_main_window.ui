@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>995</width>
-    <height>651</height>
+    <width>982</width>
+    <height>683</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -436,7 +436,7 @@
           <enum>QTabWidget::Rounded</enum>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <property name="elideMode">
           <enum>Qt::ElideLeft</enum>
@@ -580,8 +580,14 @@
       </property>
       <property name="minimumSize">
        <size>
-        <width>400</width>
+        <width>0</width>
         <height>0</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>260</width>
+        <height>16777215</height>
        </size>
       </property>
       <property name="baseSize">
@@ -623,8 +629,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>370</width>
-            <height>196</height>
+            <width>230</width>
+            <height>228</height>
            </rect>
           </property>
           <attribute name="label">
@@ -632,9 +638,12 @@
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_8">
            <item>
-            <layout class="QHBoxLayout" name="sonet_add_rm_mission_qhbox">
+            <layout class="QVBoxLayout" name="verticalLayout_11">
              <item>
               <widget class="QPushButton" name="sonet_add_mission_qpb">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="toolTip">
                 <string>Create new mission</string>
                </property>
@@ -648,6 +657,9 @@
              </item>
              <item>
               <widget class="QPushButton" name="sonet_remove_mission_qpb">
+               <property name="enabled">
+                <bool>false</bool>
+               </property>
                <property name="toolTip">
                 <string>Remove mission</string>
                </property>
@@ -678,8 +690,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>370</width>
-            <height>196</height>
+            <width>230</width>
+            <height>228</height>
            </rect>
           </property>
           <attribute name="label">
@@ -705,6 +717,9 @@
               <widget class="QComboBox" name="sonet_spacecraft_type_qcmb">
                <property name="toolTip">
                 <string>Select payload</string>
+               </property>
+               <property name="currentIndex">
+                <number>1</number>
                </property>
                <item>
                 <property name="text">
@@ -741,6 +756,12 @@
             <layout class="QHBoxLayout" name="sonet_add_rm_sc_qhbox">
              <item>
               <widget class="QPushButton" name="sonet_add_spacecraft_qpb">
+               <property name="maximumSize">
+                <size>
+                 <width>170</width>
+                 <height>16777215</height>
+                </size>
+               </property>
                <property name="toolTip">
                 <string>Create new s/c</string>
                </property>
@@ -751,6 +772,12 @@
              </item>
              <item>
               <widget class="QPushButton" name="sonet_remove_spacecraft_qpb">
+               <property name="maximumSize">
+                <size>
+                 <width>170</width>
+                 <height>16777215</height>
+                </size>
+               </property>
                <property name="toolTip">
                 <string>Remove s/c</string>
                </property>
@@ -781,8 +808,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>370</width>
-            <height>196</height>
+            <width>230</width>
+            <height>228</height>
            </rect>
           </property>
           <attribute name="label">
@@ -790,9 +817,15 @@
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_6">
            <item>
-            <layout class="QHBoxLayout" name="sonet_pcp_generator_qhbox_5">
+            <layout class="QVBoxLayout" name="verticalLayout_10">
              <item>
               <widget class="QPushButton" name="sonet_pcp_filter_qpb">
+               <property name="maximumSize">
+                <size>
+                 <width>170</width>
+                 <height>16777215</height>
+                </size>
+               </property>
                <property name="toolTip">
                 <string>Apply filter</string>
                </property>
@@ -803,6 +836,12 @@
              </item>
              <item>
               <widget class="QPushButton" name="sonet_open_matlab_pcp_viewer">
+               <property name="maximumSize">
+                <size>
+                 <width>170</width>
+                 <height>16777215</height>
+                </size>
+               </property>
                <property name="toolTip">
                 <string>Create new s/c</string>
                </property>
@@ -814,24 +853,36 @@
             </layout>
            </item>
            <item>
-            <layout class="QHBoxLayout" name="sonet_pcp_generator_qhbox_8">
-             <item>
-              <widget class="QPushButton" name="sonet_select_trajectory_qpb">
-               <property name="toolTip">
-                <string>Select trajectory</string>
-               </property>
-               <property name="text">
-                <string>Select trajectory</string>
-               </property>
-              </widget>
-             </item>
+            <layout class="QVBoxLayout" name="verticalLayout_9">
              <item>
               <widget class="QPushButton" name="sonet_unselect_trajectory_qpb">
+               <property name="maximumSize">
+                <size>
+                 <width>170</width>
+                 <height>16777215</height>
+                </size>
+               </property>
                <property name="toolTip">
                 <string>Select trajectory</string>
                </property>
                <property name="text">
                 <string>Unselect trajectory</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="sonet_select_trajectory_qpb">
+               <property name="maximumSize">
+                <size>
+                 <width>170</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="toolTip">
+                <string>Select trajectory</string>
+               </property>
+               <property name="text">
+                <string>Select trajectory</string>
                </property>
               </widget>
              </item>
@@ -841,8 +892,14 @@
             <widget class="QPushButton" name="sonet_draw_qpb">
              <property name="minimumSize">
               <size>
-               <width>250</width>
+               <width>0</width>
                <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>170</width>
+               <height>16777215</height>
               </size>
              </property>
              <property name="text">
@@ -870,8 +927,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>370</width>
-            <height>196</height>
+            <width>230</width>
+            <height>228</height>
            </rect>
           </property>
           <attribute name="label">
@@ -916,29 +973,15 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>995</width>
+     <width>982</width>
      <height>22</height>
     </rect>
    </property>
-   <widget class="QMenu" name="file">
-    <property name="title">
-     <string>&amp;File</string>
-    </property>
-    <addaction name="exit"/>
-    <addaction name="separator"/>
-   </widget>
-   <widget class="QMenu" name="menuEdit">
-    <property name="title">
-     <string>Edit</string>
-    </property>
-   </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
      <string>Help</string>
     </property>
    </widget>
-   <addaction name="file"/>
-   <addaction name="menuEdit"/>
    <addaction name="menuHelp"/>
   </widget>
   <action name="exit">
