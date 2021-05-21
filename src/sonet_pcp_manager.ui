@@ -32,7 +32,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>SONet PCP manager</string>
+   <string>SONet PCP Manager</string>
   </property>
   <property name="windowOpacity">
    <double>0.970000000000000</double>

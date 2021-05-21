@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>688</width>
-    <height>885</height>
+    <width>600</width>
+    <height>721</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -22,18 +22,21 @@
   <property name="minimumSize">
    <size>
     <width>0</width>
-    <height>700</height>
+    <height>0</height>
    </size>
   </property>
   <property name="windowTitle">
-   <string>Edit s/c filter</string>
+   <string>SONet s/c filter editor</string>
   </property>
   <property name="accessibleName">
    <string/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout_10">
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <item>
+      <widget class="QComboBox" name="select_trip"/>
+     </item>
      <item>
       <widget class="QComboBox" name="select_spacecraft">
        <property name="enabled">
@@ -45,9 +48,6 @@
         </property>
        </item>
       </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="select_trip"/>
      </item>
     </layout>
    </item>
@@ -61,8 +61,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>649</width>
-        <height>338</height>
+        <width>576</width>
+        <height>482</height>
        </rect>
       </property>
       <attribute name="label">
@@ -103,30 +103,7 @@
              </widget>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_7">
-              <item>
-               <widget class="QComboBox" name="combo_dept_arriv">
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <item>
-                 <property name="text">
-                  <string>Departs</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text">
-                  <string>Arrives</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
+             <layout class="QVBoxLayout" name="verticalLayout_14">
               <item>
                <widget class="QComboBox" name="combo_planet">
                 <property name="enabled">
@@ -150,6 +127,29 @@
                 </item>
                </widget>
               </item>
+              <item>
+               <widget class="QComboBox" name="combo_dept_arriv">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>Departs</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>Arrives</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
              </layout>
             </item>
             <item>
@@ -169,10 +169,121 @@
              </spacer>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <layout class="QVBoxLayout" name="verticalLayout_12">
               <property name="sizeConstraint">
                <enum>QLayout::SetMinimumSize</enum>
               </property>
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_7">
+                <property name="sizeConstraint">
+                 <enum>QLayout::SetMinimumSize</enum>
+                </property>
+                <item>
+                 <widget class="QCheckBox" name="cb_dates_2">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="cursor">
+                   <cursorShape>PointingHandCursor</cursorShape>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <layout class="QVBoxLayout" name="verticalLayout_13">
+                  <item>
+                   <widget class="QComboBox" name="combo_when_2">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <item>
+                     <property name="text">
+                      <string>On</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Before</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>After</string>
+                     </property>
+                    </item>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QDateEdit" name="dateEdit">
+                    <property name="enabled">
+                     <bool>false</bool>
+                    </property>
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumDate">
+                     <date>
+                      <year>2020</year>
+                      <month>1</month>
+                      <day>1</day>
+                     </date>
+                    </property>
+                    <property name="date">
+                     <date>
+                      <year>2021</year>
+                      <month>5</month>
+                      <day>1</day>
+                     </date>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <spacer name="verticalSpacer">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <spacer name="verticalSpacer_2">
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
               <item>
                <layout class="QVBoxLayout" name="verticalLayout_3">
                 <property name="sizeConstraint">
@@ -384,117 +495,6 @@
                   </item>
                  </widget>
                 </item>
-                <item>
-                 <spacer name="verticalSpacer">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
-                  <property name="orientation">
-                   <enum>Qt::Vertical</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>20</width>
-                    <height>40</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QVBoxLayout" name="verticalLayout_7">
-                <property name="sizeConstraint">
-                 <enum>QLayout::SetMinimumSize</enum>
-                </property>
-                <item>
-                 <widget class="QCheckBox" name="cb_dates_2">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
-                  <property name="cursor">
-                   <cursorShape>PointingHandCursor</cursorShape>
-                  </property>
-                  <property name="text">
-                   <string/>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <layout class="QHBoxLayout" name="horizontalLayout_8">
-                  <item>
-                   <widget class="QComboBox" name="combo_when_2">
-                    <property name="enabled">
-                     <bool>false</bool>
-                    </property>
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <item>
-                     <property name="text">
-                      <string>On</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>Before</string>
-                     </property>
-                    </item>
-                    <item>
-                     <property name="text">
-                      <string>After</string>
-                     </property>
-                    </item>
-                   </widget>
-                  </item>
-                  <item>
-                   <widget class="QDateEdit" name="dateEdit">
-                    <property name="enabled">
-                     <bool>false</bool>
-                    </property>
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="minimumDate">
-                     <date>
-                      <year>2020</year>
-                      <month>1</month>
-                      <day>1</day>
-                     </date>
-                    </property>
-                    <property name="date">
-                     <date>
-                      <year>2021</year>
-                      <month>5</month>
-                      <day>1</day>
-                     </date>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-                <item>
-                 <spacer name="verticalSpacer_2">
-                  <property name="enabled">
-                   <bool>false</bool>
-                  </property>
-                  <property name="orientation">
-                   <enum>Qt::Vertical</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>20</width>
-                    <height>40</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
                </layout>
               </item>
              </layout>
@@ -511,12 +511,12 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>664</width>
-        <height>271</height>
+        <width>576</width>
+        <height>220</height>
        </rect>
       </property>
       <attribute name="label">
-       <string>Time of flight</string>
+       <string>Time Of Flight</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
@@ -576,7 +576,7 @@
            </spacer>
           </item>
           <item row="1" column="1">
-           <layout class="QHBoxLayout" name="horizontalLayout">
+           <layout class="QVBoxLayout" name="verticalLayout_10">
             <property name="sizeConstraint">
              <enum>QLayout::SetMinimumSize</enum>
             </property>
@@ -676,8 +676,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>664</width>
-        <height>270</height>
+        <width>561</width>
+        <height>205</height>
        </rect>
       </property>
       <attribute name="label">
@@ -719,69 +719,8 @@
            </widget>
           </item>
           <item>
-           <layout class="QGridLayout" name="energy_grid_layout">
-            <item row="1" column="2">
-             <widget class="QSpinBox" name="spin_energy_number">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="maximum">
-               <number>10000</number>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QComboBox" name="combo_energy_operator">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>0</height>
-               </size>
-              </property>
-              <item>
-               <property name="text">
-                <string>&lt;=</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>&gt;=</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item row="1" column="3">
-             <widget class="QComboBox" name="combo_energy_units">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <item>
-               <property name="text">
-                <string>km/s</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>km2/s2</string>
-               </property>
-              </item>
-              <item>
-               <property name="text">
-                <string>deg</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item row="1" column="0">
+           <layout class="QVBoxLayout" name="verticalLayout_15">
+            <item>
              <widget class="QComboBox" name="combo_energy_parameter">
               <property name="enabled">
                <bool>false</bool>
@@ -818,6 +757,67 @@
               </item>
              </widget>
             </item>
+            <item>
+             <widget class="QComboBox" name="combo_energy_operator">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+              <item>
+               <property name="text">
+                <string>&lt;=</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>&gt;=</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item>
+             <widget class="QSpinBox" name="spin_energy_number">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="maximum">
+               <number>10000</number>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="combo_energy_units">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <item>
+               <property name="text">
+                <string>km/s</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>km2/s2</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>deg</string>
+               </property>
+              </item>
+             </widget>
+            </item>
            </layout>
           </item>
          </layout>
@@ -843,12 +843,12 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>664</width>
-        <height>270</height>
+        <width>576</width>
+        <height>165</height>
        </rect>
       </property>
       <attribute name="label">
-       <string>Auto trajectory selection options</string>
+       <string>Auto Trajectory Selection</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_8">
        <item>

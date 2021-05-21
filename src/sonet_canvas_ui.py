@@ -17,37 +17,41 @@ class Ui_sonet_canvas(object):
     def setupUi(self, sonet_canvas):
         if not sonet_canvas.objectName():
             sonet_canvas.setObjectName(u"sonet_canvas")
-        sonet_canvas.resize(604, 611)
-        self.formLayout = QFormLayout(sonet_canvas)
-        self.formLayout.setObjectName(u"formLayout")
-        self.dockw_sc = QDockWidget(sonet_canvas)
-        self.dockw_sc.setObjectName(u"dockw_sc")
-        self.dockw_sc_contentsw = QWidget()
-        self.dockw_sc_contentsw.setObjectName(u"dockw_sc_contentsw")
-        self.verticalLayout_2 = QVBoxLayout(self.dockw_sc_contentsw)
-        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.treeW_sc = QTreeWidget(self.dockw_sc_contentsw)
+        sonet_canvas.resize(530, 683)
+        sonet_canvas.setBaseSize(QSize(0, 0))
+        self.gridLayout = QGridLayout(sonet_canvas)
+        self.gridLayout.setObjectName(u"gridLayout")
+        self.dockw_sc_info = QDockWidget(sonet_canvas)
+        self.dockw_sc_info.setObjectName(u"dockw_sc_info")
+        self.dockw_sc_info.setMinimumSize(QSize(119, 244))
+        self.dockw_sc_info.setMaximumSize(QSize(524287, 524287))
+        self.dockw_sc_info.setBaseSize(QSize(0, 0))
+        self.dockw_sc_info_contentsw = QWidget()
+        self.dockw_sc_info_contentsw.setObjectName(u"dockw_sc_info_contentsw")
+        self.verticalLayout_4 = QVBoxLayout(self.dockw_sc_info_contentsw)
+        self.verticalLayout_4.setObjectName(u"verticalLayout_4")
+        self.treeW_sc_info_filter = QTreeWidget(self.dockw_sc_info_contentsw)
         __qtreewidgetitem = QTreeWidgetItem()
         __qtreewidgetitem.setText(0, u"1");
-        self.treeW_sc.setHeaderItem(__qtreewidgetitem)
-        self.treeW_sc.setObjectName(u"treeW_sc")
+        self.treeW_sc_info_filter.setHeaderItem(__qtreewidgetitem)
+        self.treeW_sc_info_filter.setObjectName(u"treeW_sc_info_filter")
 
-        self.verticalLayout_2.addWidget(self.treeW_sc)
+        self.verticalLayout_4.addWidget(self.treeW_sc_info_filter)
 
-        self.dockw_sc.setWidget(self.dockw_sc_contentsw)
+        self.dockw_sc_info.setWidget(self.dockw_sc_info_contentsw)
 
-        self.formLayout.setWidget(0, QFormLayout.LabelRole, self.dockw_sc)
+        self.gridLayout.addWidget(self.dockw_sc_info, 0, 0, 1, 1)
 
         self.dockw_trajectories_filter = QDockWidget(sonet_canvas)
         self.dockw_trajectories_filter.setObjectName(u"dockw_trajectories_filter")
         self.dockw_trajectories_filter.setMinimumSize(QSize(95, 117))
         self.dockw_trajectories_filter.setMaximumSize(QSize(524287, 524287))
-        self.dockw_trajectories_filter.setBaseSize(QSize(0, 960))
-        self.dockw_trajectories_filter_contentsw = QWidget()
-        self.dockw_trajectories_filter_contentsw.setObjectName(u"dockw_trajectories_filter_contentsw")
-        self.verticalLayout_3 = QVBoxLayout(self.dockw_trajectories_filter_contentsw)
+        self.dockw_trajectories_filter.setBaseSize(QSize(0, 0))
+        self.dockw_trajectories_contentsw = QWidget()
+        self.dockw_trajectories_contentsw.setObjectName(u"dockw_trajectories_contentsw")
+        self.verticalLayout_3 = QVBoxLayout(self.dockw_trajectories_contentsw)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
-        self.treeW_trajectories_filter = QTreeWidget(self.dockw_trajectories_filter_contentsw)
+        self.treeW_trajectories_filter = QTreeWidget(self.dockw_trajectories_contentsw)
         __qtreewidgetitem1 = QTreeWidgetItem()
         __qtreewidgetitem1.setText(0, u"1");
         self.treeW_trajectories_filter.setHeaderItem(__qtreewidgetitem1)
@@ -55,9 +59,9 @@ class Ui_sonet_canvas(object):
 
         self.verticalLayout_3.addWidget(self.treeW_trajectories_filter)
 
-        self.dockw_trajectories_filter.setWidget(self.dockw_trajectories_filter_contentsw)
+        self.dockw_trajectories_filter.setWidget(self.dockw_trajectories_contentsw)
 
-        self.formLayout.setWidget(0, QFormLayout.FieldRole, self.dockw_trajectories_filter)
+        self.gridLayout.addWidget(self.dockw_trajectories_filter, 0, 1, 1, 1)
 
         self.dockw_active_trips = QDockWidget(sonet_canvas)
         self.dockw_active_trips.setObjectName(u"dockw_active_trips")
@@ -78,7 +82,7 @@ class Ui_sonet_canvas(object):
 
         self.dockw_active_trips.setWidget(self.dockw_active_trips_contentsw)
 
-        self.formLayout.setWidget(1, QFormLayout.SpanningRole, self.dockw_active_trips)
+        self.gridLayout.addWidget(self.dockw_active_trips, 2, 0, 1, 2)
 
 
         self.retranslateUi(sonet_canvas)
@@ -87,9 +91,9 @@ class Ui_sonet_canvas(object):
     # setupUi
 
     def retranslateUi(self, sonet_canvas):
-        sonet_canvas.setWindowTitle(QCoreApplication.translate("sonet_canvas", u"sonet_canvas", None))
-        self.dockw_sc.setWindowTitle(QCoreApplication.translate("sonet_canvas", u"s/c info", None))
-        self.dockw_trajectories_filter.setWindowTitle(QCoreApplication.translate("sonet_canvas", u"Trajectories filter", None))
-        self.dockw_active_trips.setWindowTitle(QCoreApplication.translate("sonet_canvas", u"Active trips", None))
+        sonet_canvas.setWindowTitle(QCoreApplication.translate("sonet_canvas", u"SONet Mars Mission Viewer", None))
+        self.dockw_sc_info.setWindowTitle(QCoreApplication.translate("sonet_canvas", u"S/C Info", None))
+        self.dockw_trajectories_filter.setWindowTitle(QCoreApplication.translate("sonet_canvas", u"Trajectories Filter", None))
+        self.dockw_active_trips.setWindowTitle(QCoreApplication.translate("sonet_canvas", u"Active Trips", None))
     # retranslateUi
 

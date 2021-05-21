@@ -51,7 +51,7 @@
        </size>
       </property>
       <property name="title">
-       <string>PCP table</string>
+       <string>PCP Table</string>
       </property>
       <property name="flat">
        <bool>true</bool>
@@ -597,7 +597,7 @@
        </size>
       </property>
       <property name="title">
-       <string>Spacecrafts</string>
+       <string>S/C</string>
       </property>
       <property name="flat">
        <bool>true</bool>
@@ -630,7 +630,7 @@
             <x>0</x>
             <y>0</y>
             <width>230</width>
-            <height>228</height>
+            <height>235</height>
            </rect>
           </property>
           <attribute name="label">
@@ -640,15 +640,21 @@
            <item>
             <layout class="QVBoxLayout" name="verticalLayout_11">
              <item>
-              <widget class="QPushButton" name="sonet_add_mission_qpb">
+              <widget class="QPushButton" name="sonet_load_mission_qpb">
                <property name="enabled">
                 <bool>false</bool>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>170</width>
+                 <height>16777215</height>
+                </size>
                </property>
                <property name="toolTip">
                 <string>Create new mission</string>
                </property>
                <property name="text">
-                <string>Add mission</string>
+                <string>Load mission</string>
                </property>
                <property name="flat">
                 <bool>false</bool>
@@ -656,15 +662,40 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="sonet_remove_mission_qpb">
+              <widget class="QPushButton" name="sonet_save_mission_qpb">
                <property name="enabled">
                 <bool>false</bool>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>170</width>
+                 <height>16777215</height>
+                </size>
                </property>
                <property name="toolTip">
                 <string>Remove mission</string>
                </property>
                <property name="text">
-                <string>Remove mission</string>
+                <string>Save mission</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="sonet_view_mission_qpb">
+               <property name="minimumSize">
+                <size>
+                 <width>0</width>
+                 <height>0</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>170</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>View mission</string>
                </property>
               </widget>
              </item>
@@ -691,7 +722,7 @@
             <x>0</x>
             <y>0</y>
             <width>230</width>
-            <height>228</height>
+            <height>235</height>
            </rect>
           </property>
           <attribute name="label">
@@ -809,7 +840,7 @@
             <x>0</x>
             <y>0</y>
             <width>230</width>
-            <height>228</height>
+            <height>235</height>
            </rect>
           </property>
           <attribute name="label">
@@ -855,22 +886,6 @@
            <item>
             <layout class="QVBoxLayout" name="verticalLayout_9">
              <item>
-              <widget class="QPushButton" name="sonet_unselect_trajectory_qpb">
-               <property name="maximumSize">
-                <size>
-                 <width>170</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="toolTip">
-                <string>Select trajectory</string>
-               </property>
-               <property name="text">
-                <string>Unselect trajectory</string>
-               </property>
-              </widget>
-             </item>
-             <item>
               <widget class="QPushButton" name="sonet_select_trajectory_qpb">
                <property name="maximumSize">
                 <size>
@@ -886,26 +901,23 @@
                </property>
               </widget>
              </item>
+             <item>
+              <widget class="QPushButton" name="sonet_unselect_trajectory_qpb">
+               <property name="maximumSize">
+                <size>
+                 <width>170</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="toolTip">
+                <string>Select trajectory</string>
+               </property>
+               <property name="text">
+                <string>Unselect trajectory</string>
+               </property>
+              </widget>
+             </item>
             </layout>
-           </item>
-           <item>
-            <widget class="QPushButton" name="sonet_draw_qpb">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>170</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Draw mission</string>
-             </property>
-            </widget>
            </item>
            <item>
             <spacer name="verticalSpacer_3">
@@ -928,7 +940,7 @@
             <x>0</x>
             <y>0</y>
             <width>230</width>
-            <height>228</height>
+            <height>235</height>
            </rect>
           </property>
           <attribute name="label">
