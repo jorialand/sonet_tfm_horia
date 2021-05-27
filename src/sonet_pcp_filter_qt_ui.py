@@ -18,7 +18,7 @@ class Ui_sonet_pcp_filter(object):
         if not sonet_pcp_filter.objectName():
             sonet_pcp_filter.setObjectName(u"sonet_pcp_filter")
         sonet_pcp_filter.setEnabled(True)
-        sonet_pcp_filter.resize(600, 721)
+        sonet_pcp_filter.resize(600, 839)
         sizePolicy = QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -29,17 +29,17 @@ class Ui_sonet_pcp_filter(object):
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.horizontalLayout_3 = QHBoxLayout()
         self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
-        self.select_trip = QComboBox(sonet_pcp_filter)
-        self.select_trip.setObjectName(u"select_trip")
-
-        self.horizontalLayout_3.addWidget(self.select_trip)
-
         self.select_spacecraft = QComboBox(sonet_pcp_filter)
         self.select_spacecraft.addItem("")
         self.select_spacecraft.setObjectName(u"select_spacecraft")
         self.select_spacecraft.setEnabled(True)
 
         self.horizontalLayout_3.addWidget(self.select_spacecraft)
+
+        self.select_trip = QComboBox(sonet_pcp_filter)
+        self.select_trip.setObjectName(u"select_trip")
+
+        self.horizontalLayout_3.addWidget(self.select_trip)
 
 
         self.verticalLayout_2.addLayout(self.horizontalLayout_3)
@@ -48,7 +48,7 @@ class Ui_sonet_pcp_filter(object):
         self.toolBox.setObjectName(u"toolBox")
         self.page_3 = QWidget()
         self.page_3.setObjectName(u"page_3")
-        self.page_3.setGeometry(QRect(0, 0, 576, 482))
+        self.page_3.setGeometry(QRect(0, 0, 561, 482))
         self.verticalLayout_6 = QVBoxLayout(self.page_3)
         self.verticalLayout_6.setObjectName(u"verticalLayout_6")
         self.top_left_group_box = QGroupBox(self.page_3)
@@ -70,28 +70,28 @@ class Ui_sonet_pcp_filter(object):
 
         self.verticalLayout_14 = QVBoxLayout()
         self.verticalLayout_14.setObjectName(u"verticalLayout_14")
-        self.combo_planet = QComboBox(self.top_left_group_box)
-        self.combo_planet.addItem("")
-        self.combo_planet.addItem("")
-        self.combo_planet.setObjectName(u"combo_planet")
-        self.combo_planet.setEnabled(False)
-        sizePolicy1 = QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
-        sizePolicy1.setHorizontalStretch(0)
-        sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.combo_planet.sizePolicy().hasHeightForWidth())
-        self.combo_planet.setSizePolicy(sizePolicy1)
-
-        self.verticalLayout_14.addWidget(self.combo_planet)
-
         self.combo_dept_arriv = QComboBox(self.top_left_group_box)
         self.combo_dept_arriv.addItem("")
         self.combo_dept_arriv.addItem("")
         self.combo_dept_arriv.setObjectName(u"combo_dept_arriv")
         self.combo_dept_arriv.setEnabled(False)
+        sizePolicy1 = QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
+        sizePolicy1.setHorizontalStretch(0)
+        sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.combo_dept_arriv.sizePolicy().hasHeightForWidth())
         self.combo_dept_arriv.setSizePolicy(sizePolicy1)
 
         self.verticalLayout_14.addWidget(self.combo_dept_arriv)
+
+        self.combo_planet = QComboBox(self.top_left_group_box)
+        self.combo_planet.addItem("")
+        self.combo_planet.addItem("")
+        self.combo_planet.setObjectName(u"combo_planet")
+        self.combo_planet.setEnabled(False)
+        sizePolicy1.setHeightForWidth(self.combo_planet.sizePolicy().hasHeightForWidth())
+        self.combo_planet.setSizePolicy(sizePolicy1)
+
+        self.verticalLayout_14.addWidget(self.combo_planet)
 
 
         self.verticalLayout_11.addLayout(self.verticalLayout_14)
@@ -279,7 +279,7 @@ class Ui_sonet_pcp_filter(object):
         self.toolBox.addItem(self.page_3, u"Dates")
         self.page_4 = QWidget()
         self.page_4.setObjectName(u"page_4")
-        self.page_4.setGeometry(QRect(0, 0, 576, 220))
+        self.page_4.setGeometry(QRect(0, 0, 576, 260))
         self.verticalLayout_5 = QVBoxLayout(self.page_4)
         self.verticalLayout_5.setObjectName(u"verticalLayout_5")
         self.time_of_flight_group_box = QGroupBox(self.page_4)
@@ -360,7 +360,7 @@ class Ui_sonet_pcp_filter(object):
         self.toolBox.addItem(self.page_4, u"Time Of Flight")
         self.page_5 = QWidget()
         self.page_5.setObjectName(u"page_5")
-        self.page_5.setGeometry(QRect(0, 0, 561, 205))
+        self.page_5.setGeometry(QRect(0, 0, 576, 260))
         self.verticalLayout_4 = QVBoxLayout(self.page_5)
         self.verticalLayout_4.setObjectName(u"verticalLayout_4")
         self.energy_group_box = QGroupBox(self.page_5)
@@ -436,7 +436,7 @@ class Ui_sonet_pcp_filter(object):
         self.toolBox.addItem(self.page_5, u"Energy")
         self.auto_trajectory_page = QWidget()
         self.auto_trajectory_page.setObjectName(u"auto_trajectory_page")
-        self.auto_trajectory_page.setGeometry(QRect(0, 0, 576, 165))
+        self.auto_trajectory_page.setGeometry(QRect(0, 0, 576, 260))
         self.verticalLayout_8 = QVBoxLayout(self.auto_trajectory_page)
         self.verticalLayout_8.setObjectName(u"verticalLayout_8")
         self.gridLayout_3 = QGridLayout()
@@ -592,11 +592,11 @@ class Ui_sonet_pcp_filter(object):
 
         self.top_left_group_box.setTitle("")
         self.cb_dep_arriv_dates.setText("")
-        self.combo_planet.setItemText(0, QCoreApplication.translate("sonet_pcp_filter", u"Earth", None))
-        self.combo_planet.setItemText(1, QCoreApplication.translate("sonet_pcp_filter", u"Mars", None))
-
         self.combo_dept_arriv.setItemText(0, QCoreApplication.translate("sonet_pcp_filter", u"Departs", None))
         self.combo_dept_arriv.setItemText(1, QCoreApplication.translate("sonet_pcp_filter", u"Arrives", None))
+
+        self.combo_planet.setItemText(0, QCoreApplication.translate("sonet_pcp_filter", u"Earth", None))
+        self.combo_planet.setItemText(1, QCoreApplication.translate("sonet_pcp_filter", u"Mars", None))
 
         self.cb_dates_2.setText("")
         self.combo_when_2.setItemText(0, QCoreApplication.translate("sonet_pcp_filter", u"On", None))

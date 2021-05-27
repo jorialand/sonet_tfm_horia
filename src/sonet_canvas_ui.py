@@ -19,8 +19,8 @@ class Ui_sonet_canvas(object):
             sonet_canvas.setObjectName(u"sonet_canvas")
         sonet_canvas.resize(530, 683)
         sonet_canvas.setBaseSize(QSize(0, 0))
-        self.gridLayout = QGridLayout(sonet_canvas)
-        self.gridLayout.setObjectName(u"gridLayout")
+        self.verticalLayout_2 = QVBoxLayout(sonet_canvas)
+        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.dockw_sc_info = QDockWidget(sonet_canvas)
         self.dockw_sc_info.setObjectName(u"dockw_sc_info")
         self.dockw_sc_info.setMinimumSize(QSize(119, 244))
@@ -40,7 +40,7 @@ class Ui_sonet_canvas(object):
 
         self.dockw_sc_info.setWidget(self.dockw_sc_info_contentsw)
 
-        self.gridLayout.addWidget(self.dockw_sc_info, 0, 0, 1, 1)
+        self.verticalLayout_2.addWidget(self.dockw_sc_info)
 
         self.dockw_trajectories_filter = QDockWidget(sonet_canvas)
         self.dockw_trajectories_filter.setObjectName(u"dockw_trajectories_filter")
@@ -61,7 +61,7 @@ class Ui_sonet_canvas(object):
 
         self.dockw_trajectories_filter.setWidget(self.dockw_trajectories_contentsw)
 
-        self.gridLayout.addWidget(self.dockw_trajectories_filter, 0, 1, 1, 1)
+        self.verticalLayout_2.addWidget(self.dockw_trajectories_filter)
 
         self.dockw_active_trips = QDockWidget(sonet_canvas)
         self.dockw_active_trips.setObjectName(u"dockw_active_trips")
@@ -82,7 +82,7 @@ class Ui_sonet_canvas(object):
 
         self.dockw_active_trips.setWidget(self.dockw_active_trips_contentsw)
 
-        self.gridLayout.addWidget(self.dockw_active_trips, 2, 0, 1, 2)
+        self.verticalLayout_2.addWidget(self.dockw_active_trips)
 
 
         self.retranslateUi(sonet_canvas)
