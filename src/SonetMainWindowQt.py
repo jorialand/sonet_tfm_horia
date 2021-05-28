@@ -2,36 +2,41 @@
 SonetMainWindow class.
 
 Author: Horia Ghionoiu Martínez.
-Project: Sonet Mars Mission Architecture Planner
-Started:    22th June 2020
-Code submitted: 22th June 2021
+Project: Sonet Mars Mission Planner
+----
+Code started:    22th June 2020
+Code freezed: 31th May 2021
+----
+Code submitted: 22nd June 2021
+Report submitted: 22nd June 2021
+----
 Project defense: 22th July 2021
 """
 
 import datetime
 import sys
 
-# Matlab environment
-import matlab.engine
+# Matlab environment.
 # Some Python modules.
 import pandas as pd
+# Qt GUI.
 from PySide2.QtCore import QAbstractListModel, QAbstractTableModel, QModelIndex, Qt, QDate
-# SONet imports.
-# From module X import class Y.
 from PySide2.QtGui import QColor
 from PySide2.QtWidgets import QMainWindow, QApplication, QMessageBox
 from scipy.io import savemat
 
 from src import database
 from src import sonet_main_window_ui
+from src.SonetCanvasQt import SonetCanvasQt
 from src.SonetPCPFilterQt import SonetPCPFilterQt
 from src.SonetPCPManagerQt import SonetPCPManagerQt
 from src.SonetSpacecraft import SonetSpacecraft
 from src.SonetTrajectoryFilter import SonetTrajectoryFilter
 from src.SonetUtils import TripType, SonetLogType, sonet_log, popup_msg, SONET_MSG_TIMEOUT, SONET_DATA_DIR, \
-    find_min_max_idx, SONET_DIR
+    find_min_max_idx, build_example_mission
 
-if True:
+# There is the possibility to disable matlab env, if you don't want to use it.
+if False:
     print('Loading Matlab engine.')
     print('...')
     matlab_engine = matlab.engine.start_matlab()
@@ -92,6 +97,17 @@ def get_main_window():
 def get_pcp_filter_window():
     return get_main_window()._p_pcp_filter_window
 
+def post_actions(mw=None):
+    # Open also the view mission window.
+    mw.clicked_view_mission()
+
+    if True:
+        # Optionally, load a default mission.
+        build_example_mission(p_main_window=mw, a_mission_name='Test 1')
+
+        # After the optional loaded mission is done, update the mission view window.
+        mw.canvas_window.init()
+
 class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
     """
     The main application window (QMainWindow).
@@ -108,6 +124,7 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         self.menubar.setNativeMenuBar(False)  # I'd problems with MacOSX native menubar, the menus didn't appear
         self.sonet_pcp_tabs_qtw.setCurrentIndex(0)
         self.sonet_spacecraft_type_qcmb.setCurrentIndex(1)  # Select cargo payload, by default.
+        # self.setWindowIcon(QIcon('/Users/jorialand/Downloads/rocket_icon.png'))
 
         # If matlab engine isn't loaded, disable associated widgets.
         # Useful when want to load the app without the matlab env, because it takes a lot to load.
@@ -129,12 +146,14 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         # TODO: Explain why this ordering when declaring table + list model
 
         # Connect signals and slots
+        # -LESSON LEARNED: Signals should be defined only within classes inheriting from QObject!
+        # +info:https://wiki.qt.io/Qt_for_Python_Signals_and_Slots
         self.sonet_add_spacecraft_qpb.clicked.connect(self.clicked_new_spacecraft)
         self.sonet_remove_spacecraft_qpb.clicked.connect(self.clicked_remove_spacecraft)
         self.sonet_pcp_filter_qpb.clicked.connect(self.clicked_apply_filter)
         self.sonet_select_trajectory_qpb.clicked.connect(self.clicked_select_trajectory)
         self.sonet_unselect_trajectory_qpb.clicked.connect(self.clicked_unselect_trajectory)
-        self.sonet_draw_qpb.clicked.connect(self.clicked_draw)
+        self.sonet_view_mission_qpb.clicked.connect(self.clicked_view_mission)
         self.sonet_open_matlab_pcp_viewer.clicked.connect(self.clicked_pcp_viewer)
         self.sonet_pcp_generator_qpb.clicked.connect(self.clicked_pcp_manager)
         self.sonet_mission_tree_qlv.clicked.connect(self._list_model.list_clicked)
@@ -142,11 +161,10 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         self.sonet_pcp_table_qtv_outgoing.horizontalHeader().sectionClicked.connect(self.clicked_table_view_column)
         self.sonet_pcp_table_qtv_incoming.horizontalHeader().sectionClicked.connect(self.clicked_table_view_column)
 
+        # Open also the SonetCanvasQt window.
+        self.clicked_view_mission()
 
-    # Signals should be defined only within classes inheriting from QObject!
-    # +info:https://wiki.qt.io/Qt_for_Python_Signals_and_Slots
-
-    def clicked_apply_filter(self):
+    def clicked_apply_filter(self, a_build_test_mission=None):
         """
         Slot executed when clicked over 'Apply filter' button. It executes the modal window
         for applying filters to the currently available spacecrafts.
@@ -161,8 +179,12 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         arg1 = database.get_spacecrafts_list()
         arg2 = self.sonet_mission_tree_qlv.currentIndex().row()
 
-        # SonetPCPFilterQt.
-        filter_dialog_qt = SonetPCPFilterQt(self, a_list_spacecrafts=arg1, a_current_index=arg2)
+        # SonetPCPFilterQt. Optionally, build a test mission, if a_build_test_mission is a str.
+        filter_dialog_qt = SonetPCPFilterQt(self, a_list_spacecrafts=arg1, a_current_index=arg2,
+                                            a_build_test_mission=a_build_test_mission)
+        # If asked to build automatically a predefined mission.
+        if a_build_test_mission:
+            build_example_mission(p_filters_window=filter_dialog_qt, a_mission_name=a_build_test_mission)
 
         # Update pointer to the dialog, e.g. for accessing to its status bar.
         self._p_pcp_filter_window = filter_dialog_qt
@@ -171,17 +193,23 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         filter_dialog_qt.setSizeGripEnabled(True)
         filter_dialog_qt.exec_()
 
+        if a_build_test_mission:
+            # Accept&Close the window does not work here :(.
+            # filter_dialog_qt.btn_accept.clicked.emit()
+            pass
+
         # Force Qt repaint to update the table views.
         index = get_main_window().sonet_mission_tree_qlv.currentIndex()
         self.sonet_mission_tree_qlv.clicked.emit(index)  # The filters are applied here inside.
         # TODO Awkward update, to improve.
 
-    def clicked_draw(self):
-        sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_draw')
-        self.statusbar.showMessage('Not yet implemented :).', SONET_MSG_TIMEOUT)
+    def clicked_view_mission(self):
+        sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_view_mission')
+        # self.statusbar.showMessage('Not yet implemented :).', SONET_MSG_TIMEOUT)
 
         # self.statusbar.showMessage('Drawing the mission...', 1000)
-        # self.canvas_window = SonetCanvasQt()
+        self.canvas_window = SonetCanvasQt(mw=self)
+        # self.canvas_window.setParent(self) # No se muestra la ventana :S.
 
     def clicked_new_spacecraft(self):
         """
@@ -536,7 +564,7 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         elif event.key() in [Qt.Key_U]:
             self.clicked_unselect_trajectory()
         elif event.key() in [Qt.Key_D]:
-            self.clicked_draw()
+            self.clicked_view_mission()
         # event.accept()
 
     def update_trajectory_label_and_progress_bar(self, a_status=0, a_reset_widgets=False):
@@ -640,7 +668,9 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
                               'SonetMainWindow.update_trajectory_selection_in_table_view."Not supposed to arrive here"')
                     return
 
-
+# ------------------------------------------------------------------------
+# ------------------------------------------------------------------------
+# ------------------------------------------------------------------------
 
 # TODO: Move TableModel and ListModel classes outside main_window.py file.
 class ListModel(QAbstractListModel):
@@ -795,7 +825,6 @@ class ListModel(QAbstractListModel):
     def flags(self, QModelIndex):
         return Qt.ItemIsEnabled | Qt.ItemIsSelectable
 
-
 class TableModel(QAbstractTableModel):
     """
     The Earth-Mars and Mars-Earth table views displayed in the main window are QAbstractTableModels.
@@ -936,16 +965,17 @@ class TableModel(QAbstractTableModel):
     #     return Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemIsEditable
 
 if __name__ == "__main__":
-    # Using no fbs module
-    # Add as parameter to the script to set an app style: -style Fusion|Windows|windowsvista
     app = QApplication(sys.argv)
-
-    # App style cyberpunk|darkblue|oceanic|lightorange|darkorange|qdarkstyle|qdarkstyle3.
+    # App appeareance.
+    # Add as parameter to the script to set an app style:
+    # style=Fusion|Windows|windowsvista|cyberpunk|darkblue|oceanic|lightorange|darkorange|qdarkstyle|qdarkstyle3.
     # stylesheet = qrainbowstyle.load_stylesheet_pyside2(style='qdarkstyle')
     # app.setStyleSheet(stylesheet)
 
     main_window = SonetMainWindow()
     main_window.show()
+
+    post_actions(mw=main_window)
 
     sys.exit(app.exec_())
 

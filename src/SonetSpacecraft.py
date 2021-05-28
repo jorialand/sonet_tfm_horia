@@ -52,16 +52,19 @@ class SonetSpacecraft:
         self.set_has_return_trajectory(a_spacecraft_type_return)
         self.set_filters()
 
-    def get_filter(self, ar_trip_type=None):
+    def get_filter(self, ar_trip_type=None, p_get_list=False):
         """
         Getter method. It returns a concrete SonetTrajectoryFilter, based
         on the input a_trip_type.
         :param ar_trip_type: TripType enum.
+        :param p_get_list: If True, all the return types are lists.
         :rtype: SonetTrajectoryFilter
         """
         # If no trip type specified, return all the filters.
         if ar_trip_type is None:
             try:
+                if p_get_list:
+                    return [self._pcp_filter]
                 return self._pcp_filter
             except AttributeError:
                 return [self._pcp_filter1, self._pcp_filter2]
@@ -79,11 +82,17 @@ class SonetSpacecraft:
 
         if self._has_return_trajectory:
             if ar_trip_type is TripType.OUTGOING:
+                if p_get_list:
+                    return [self._pcp_filter1]
                 return self._pcp_filter1
             elif ar_trip_type is TripType.INCOMING:
+                if p_get_list:
+                    return [self._pcp_filter2]
                 return self._pcp_filter2
         else:
             if ar_trip_type is TripType.OUTGOING:
+                if p_get_list:
+                    return [self._pcp_filter]
                 return self._pcp_filter
             elif ar_trip_type is TripType.INCOMING:
                 sonet_log(SonetLogType.ERROR, 'SonetSpacecraft.get_filter."Asked for incoming filter to an one-way S/C"')
@@ -129,7 +138,7 @@ class SonetSpacecraft:
         """
         return self._has_return_trajectory
 
-    def get_spacecraft_name(self):
+    def get_name(self):
         """
         Getter method.
 
@@ -137,7 +146,7 @@ class SonetSpacecraft:
         """
         return self._spacecraft_name
 
-    def get_spacecraft_type(self):
+    def get_type(self):
         """
         Getter method.
         :return: Enum (SpacecraftType). If the variable hasn't been setted, then it will return the default value,

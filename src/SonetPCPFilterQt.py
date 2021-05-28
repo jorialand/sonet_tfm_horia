@@ -6,7 +6,7 @@ import pandas as pd
 from PySide2.QtCore import QCoreApplication, Qt, QAbstractTableModel, QModelIndex, QDate
 from PySide2.QtWidgets import QDialog, QApplication, QDialogButtonBox, QMessageBox, QStatusBar
 
-# Sonet imports
+# SONet imports
 from src import database
 from src import sonet_pcp_filter_qt_ui
 from src.SonetUtils import FilterType, TripType, SonetLogType, sonet_log, popup_msg, SONET_MSG_TIMEOUT
@@ -26,7 +26,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
     """
     The edit filter window (QDialog).
     """
-    def __init__(self, *args, a_list_spacecrafts=None, a_current_index=-1):
+    def __init__(self, *args, a_list_spacecrafts=None, a_current_index=-1, a_build_test_mission=None):
         super(SonetPCPFilterQt, self).__init__(*args)  # , **kwargs)
         self.setupUi(self)
         self.init(a_list_spacecrafts, a_current_index)
@@ -899,8 +899,8 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
 
         self.reset_filter_energy()
         self.reset_filter_time_of_flight()
-        # self.reset_filter_departure_dates_step1()
-        # self.reset_filter_departure_dates_left()
+        self.reset_filter_departure_dates_step1()
+        self.reset_filter_departure_dates_left()
         self.reset_filter_departure_dates_right()
         self.reset_auto_trajectory()
 
@@ -1126,6 +1126,7 @@ class SonetAppliedFiltersTableModel(QAbstractTableModel):
             else:
                 pass
             return True
+
     def is_data_valid(self, a_data):
         if not a_data:
             return False

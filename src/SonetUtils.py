@@ -1,9 +1,12 @@
 from enum import Enum, unique
 
+from PySide2.QtCore import QDate
 from PySide2.QtWidgets import QMessageBox
 
 import src.database as db
 
+
+# from src.SonetMainWindowQt import get_main_window # If you want to import sth from main window, it crashes before starting the app :S.
 
 # from src.SonetSpacecraft import SonetSpacecraft # Error if importing! :S
 # from src.SonetMainWindowQt import get_main_window
@@ -34,6 +37,15 @@ class SpacecraftType(Enum):
         :return: Python list.
         """
         return [SpacecraftType.CREWED, SpacecraftType.CARGO]
+
+    @staticmethod
+    def get_str(a_type):
+        if a_type == SpacecraftType.CREWED:
+            return 'Human'
+        elif a_type == SpacecraftType.CARGO:
+            return 'Cargo'
+        else:
+            pass
 
     @staticmethod
     def is_valid(a_spacecraft_type):
@@ -217,13 +229,165 @@ def find_min_max_idx(a_df, p_find='Min', p_col='dvt'):
     elif p_col == 'Arrival date':
         p_col = 'ArrivDates'
 
-    stop = True
-
     if p_find == 'Min':
         return a_df[[p_col]].idxmin()
     elif p_find == 'Max':
         return a_df[[p_col]].idxmax()
 
+def build_example_mission(p_main_window=None, p_filters_window=None, a_mission_name='Test 1'):
+    """
+    Build your missions here! Just follow the same structure as seen in 'Test 1' case to automatically create a
+    predefined mission when starting the app.
+
+    :param p_main_window:
+    :param p_filters_window:
+    :param a_mission_name:
+    """
+
+    if a_mission_name == 'Test 1':
+
+        # If called from __main__.
+        if p_main_window:
+            # Create the s/c.
+            add_sc_cargo_oneway(mw=p_main_window, a_sc_name='S/C CARGO 1')
+            add_sc_cargo_oneway(mw=p_main_window, a_sc_name='S/C CARGO 2')
+            add_sc_crewed_twoway(mw=p_main_window, a_sc_name='S/C CREW')
+
+            # Create the edit filters window.
+            p_main_window.clicked_apply_filter(a_build_test_mission='Test 1')
+
+        # If called from main_window, after just created the edit filters window.
+        if p_filters_window:
+            # Add filters.
+            # S/C CARGO
+            select_sc_and_trip(fw=p_filters_window, a_sc='S/C CARGO 1', a_trip='Earth - Mars')
+            add_energy_filter(fw=p_filters_window, a_param='dvd', a_operator='<=', a_value=13)
+            add_energy_filter(fw=p_filters_window, a_param='dva', a_operator='<=', a_value=8)
+            add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='Before', a_date=[1,7,2029])
+
+            # S/C CARGO
+            select_sc_and_trip(fw=p_filters_window, a_sc='S/C CARGO 2', a_trip='Earth - Mars')
+            add_complex_date_filter(fw=p_filters_window, a_event='Departs', a_value='At least', a_value2=30,
+                                    a_value3='After', a_sc='S/C CARGO 1', a_sc_trip='Earth - Mars', a_sc_trip2='Launching')
+            add_tof_filter(fw=p_filters_window,a_operator='<=',  a_value=200)
+            add_energy_filter(fw=p_filters_window, a_param='dvt', a_operator='<=', a_value=9)
+
+            # S/C CREW
+            select_sc_and_trip(fw=p_filters_window, a_sc='S/C CREW', a_trip='Earth - Mars')
+            add_complex_date_filter(fw=p_filters_window, a_event='Departs', a_value='At least', a_value2=90,
+                                    a_value3='After', a_sc='S/C CARGO 1', a_sc_trip='Earth - Mars',
+                                    a_sc_trip2='Landing')
+            add_complex_date_filter(fw=p_filters_window, a_event='Departs', a_value='At least', a_value2=90,
+                                    a_value3='After', a_sc='S/C CARGO 2', a_sc_trip='Earth - Mars',
+                                    a_sc_trip2='Landing')
+            add_tof_filter(fw=p_filters_window,a_operator='<=',  a_value=180)
+            add_energy_filter(fw=p_filters_window, a_param='dvt', a_operator='<=', a_value=9)
+
+            select_sc_and_trip(fw=p_filters_window, a_sc='S/C CREW', a_trip='Mars - Earth')
+            add_energy_filter(fw=p_filters_window, a_param='dvt', a_operator='<=', a_value=9)
+
+            # Accept&Close the window does not work here :(.
+            # p_filters_window.btn_accept.clicked.emit()
+
+# Note: mw stands for main window :).
+def add_sc_cargo_oneway(mw=None, a_sc_name=''):
+    """
+    Create a cargo (Earth - Mars) s/c.
+    :param mw: pointer to the main window.
+    :param a_sc_name: str.
+    """
+
+    mw.sonet_spacecraft_type_qcmb.setCurrentIndex(1)  # Cargo.
+    mw.sonet_spacecraft_type_has_return_trajectory_qcmb.setCurrentIndex(0)  # One way.
+    mw.sonet_sc_name_le.setText(a_sc_name)
+    mw.sonet_add_spacecraft_qpb.clicked.emit()
+
+def add_sc_crewed_twoway(mw=None, a_sc_name=''):
+    """
+    Create a crewed (Earth - Mars + Mars - Earth) s/c.
+    :param mw: pointer to the main window.
+    :param a_sc_name: str.
+    """
+    mw.sonet_spacecraft_type_qcmb.setCurrentIndex(0)  # Crewed.
+    mw.sonet_spacecraft_type_has_return_trajectory_qcmb.setCurrentIndex(1)  # Two way.
+    mw.sonet_sc_name_le.setText(a_sc_name)
+    mw.sonet_add_spacecraft_qpb.clicked.emit()
+
+# Note: fw stands for filters window :).
+def select_sc_and_trip(fw=None, a_sc='', a_trip=''):
+    """
+
+    :param fw: pointer to the filters window.
+    :param a_sc: str.
+    :param a_trip: 'Earth - Mars'|'Mars - Earth'.
+    """
+    fw.select_spacecraft.setCurrentText(a_sc)
+    fw.select_trip.setCurrentText(a_trip)
+
+def add_energy_filter(fw=None, a_param='dvt', a_operator='<=', a_value=10):
+    """
+    The combo widgets values, are (in general) the same as seen in the window combo.
+
+    :param fw: pointer to the filters window.
+    :param a_param: 'dvt'|'dvd'|'dva'|'c3d'|'c3a'|'theta'.
+    :param a_operator: '<='|'>='.
+    :param a_value: float.
+
+    """
+    fw.cb_energy.setChecked(True)
+    fw.combo_energy_parameter.setCurrentText(a_param)
+    fw.combo_energy_operator.setCurrentText(a_operator)
+    fw.spin_energy_number.setValue(a_value)
+    fw.pb_add.clicked.emit()
+
+def add_tof_filter(fw=None, a_operator='<=',  a_value=200):
+    fw.cb_time_of_flight.setChecked(True)
+    fw.combo_time_of_flight_operator.setCurrentText(a_operator)
+    fw.spin_number_2.setValue(a_value)
+    fw.pb_add.clicked.emit()
+
+def add_simple_date_filter(fw=None, a_event='Arrives', a_when='Before', a_date=None):
+    """
+    The combo widgets values, are (in general) the same as seen in the window combo.
+
+    :param fw: pointer to the filters window.
+    :param a_event: 'Departs'|'Arrives'.
+    :param a_when: 'On'|'After'|'Before'.
+    :param a_date: the date: [day(int), month(int), year(int)].
+    """
+    fw.cb_dep_arriv_dates.setChecked(True)
+    fw.combo_dept_arriv.setCurrentText(a_event)  # Departs|Arrives
+    fw.cb_dates_2.setChecked(True)
+    fw.combo_when_2.setCurrentText(a_when)  # On|Before|After
+    fw.dateEdit.setDate(QDate(a_date[2], a_date[1], a_date[0]))
+    fw.pb_add.clicked.emit()
+
+
+def add_complex_date_filter(fw=None, a_event='Departs', a_value='At least', a_value2=90, a_value3='After',
+                            a_sc='Another s/c name', a_sc_trip='Earth - Mars', a_sc_trip2='Landing'):
+    """
+    The combo widgets values, are (in general) the same as seen in the window combo.
+
+    :param fw: pointer to the filters window.
+    :param a_event: 'Departs'|'Arrives'.
+    :param a_value: 'At least'|'At maximum'|'At the same time'.
+    :param a_value2: The offset value: int.
+    :param a_value3: 'After'|'Before'.
+    :param a_sc: The s/c to which offset: str.
+    :param a_sc_trip: 'Earth - Mars'|'Mars - Earth'.
+    :param a_sc_trip2: 'Launching'|'Landing'.
+    """
+    fw.cb_dep_arriv_dates.setChecked(True)
+    fw.combo_dept_arriv.setCurrentText(a_event)
+    fw.cb_dates_1.setChecked(True)
+    fw.combo_at_least.setCurrentText(a_value)
+    fw.spin_number.setValue(a_value2)
+    fw.combo_when.setCurrentText(a_value3)
+    fw.radio_spacecraft.setChecked(True)
+    fw.combo_select_spacecraft.setCurrentText(a_sc)
+    fw.combo_select_trip.setCurrentText(a_sc_trip)
+    fw.combo_event.setCurrentText(a_sc_trip2)
+    fw.pb_add.clicked.emit()
 
 # Global debug verbose level for the application.
 SONET_DEBUG_LEVEL = SonetDebugLevel.ONLY_ERRORS
