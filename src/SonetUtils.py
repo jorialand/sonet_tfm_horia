@@ -239,6 +239,8 @@ def build_example_mission(p_main_window=None, p_filters_window=None, a_mission_n
     Build your missions here! Just follow the same structure as seen in 'Test 1' case to automatically create a
     predefined mission when starting the app.
 
+    This approach has some drawbacks! But it's the only one that has worked for me :).
+
     :param p_main_window:
     :param p_filters_window:
     :param a_mission_name:

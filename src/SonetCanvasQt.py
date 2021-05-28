@@ -34,6 +34,8 @@ class SonetCanvasQt(QWidget, sonet_canvas_ui.Ui_sonet_canvas):
 
         :param p_tw: 'All'|'S/C Info'|'Trajectories Filter'|'Active Trips'
         """
+        sonet_log(SonetLogType.INFO, 'SonetCanvasQt.clear_tree_view')
+
         if p_tw == 'All':
             self.treeW_sc_info_filter.clear()
             self.treeW_trajectories_filter.clear()
@@ -59,6 +61,8 @@ class SonetCanvasQt(QWidget, sonet_canvas_ui.Ui_sonet_canvas):
         self.post_actions()
 
     def expand_tree_widget(self, p_tw='All'):
+        sonet_log(SonetLogType.INFO, 'SonetCanvasQt.expand_tree_widget')
+
         # For the selected tree widgets.
         tree_widgets = self.get_tree_widgets(p_tw)
 
@@ -68,19 +72,38 @@ class SonetCanvasQt(QWidget, sonet_canvas_ui.Ui_sonet_canvas):
                 item.setExpanded(True)
 
     def fill_dependencies(self, a_tw_dependencies_root, a_sc):
+        """
+        Add the items which a_sc depends on.
+        :param a_tw_dependencies_root: dependencies item root.
+        :param a_sc: s/c
+        """
+        sonet_log(SonetLogType.INFO, 'SonetCanvasQt.fill_dependencies')
+
         sc_dependencies = self.get_dependencies_sc(a_sc)
 
         for dependency in sc_dependencies:
             new_item = QTreeWidgetItem(a_tw_dependencies_root, [dependency, sc_dependencies.get(dependency)])
-        stop = True
 
     def fill_dependents(self, a_tw_dependents_root, a_sc):
-        pass
+        """
+        Add the items which depend on a_sc.
+        :param a_tw_dependents_root: dependents item root.
+        :param a_sc: s/c
+        """
+        sonet_log(SonetLogType.INFO, 'SonetCanvasQt.fill_dependents')
+
+        sc_dependents = self.get_dependents_sc(a_sc)
+
+        for dependent in sc_dependents:
+            new_item = QTreeWidgetItem(a_tw_dependents_root, [dependent, sc_dependents.get(dependent)])
 
     def fill_tree_widget_active_trips(self):
+        sonet_log(SonetLogType.INFO, 'SonetCanvasQt.fill_tree_widget_active_trips')
         pass
 
     def fill_tree_widget_sc_info(self, a_sc: SonetSpacecraft):
+        sonet_log(SonetLogType.INFO, 'SonetCanvasQt.fill_tree_widget_sc_info')
+
         # Get the s/c payload type.
         sc_payload = self.get_sc_payload(a_sc)
 
@@ -95,6 +118,7 @@ class SonetCanvasQt(QWidget, sonet_canvas_ui.Ui_sonet_canvas):
         self.fill_dependents(tw_item_sc_dependents, a_sc)
 
     def fill_tree_widget_trajectories_filter(self):
+        sonet_log(SonetLogType.INFO, 'SonetCanvasQt.fill_tree_widget_trajectories_filter')
         pass
 
     def get_dependencies_sc(self, a_sc):
@@ -103,28 +127,35 @@ class SonetCanvasQt(QWidget, sonet_canvas_ui.Ui_sonet_canvas):
         :param a_sc: the s/c to which query all its dependencies s/cs.
         :return: str
         """
+        sonet_log(SonetLogType.INFO, 'SonetCanvasQt.get_dependencies_sc')
+
         res = {}
 
+        # It can be a list of one or two filters (e.g. Earth-Mars, or E-M + Mars-Earth).
         the_filters = a_sc.get_filter(p_get_list=True)
-        stop = True
+
         for f in the_filters:
+            # Get the ComplexDate filter (only consider activated ones).
             data = SonetTrajectoryFilter._get_activated_filters_of_a_given_type(f.get_data(), True, 'ComplexDate')
             n = len(data)  # LESSON LEARNED: if you put len(data) inside range(), strange things happen. :S
-            if not data.empty:
+            if n:
                 for row in range(n):
+                    # Add all the ComplexDate filters (aka rows) of this filter.
                     complex_date_filter = data[row]
                     dependency_name = complex_date_filter[6]
                     dependency_payload = self.get_sc_payload(database.get_spacecraft(dependency_name))
 
-                    f_trip = TripType.convert_to_str(f.get_trip_type())
+                    my_trip = TripType.convert_to_str(f.get_trip_type())
                     dependency_trip = complex_date_filter[7]
-                    dependency_type = self.get_dependency_type(f_trip, dependency_trip)
+                    dependency_type = self.get_dependency_type(my_trip, dependency_trip)
 
                     res[dependency_name] = dependency_payload + ' ' + dependency_type
 
         return res
 
     def get_dependency_type(self, a_sc_trip: str, a_dependency_trip: str):
+        sonet_log(SonetLogType.INFO, 'SonetCanvasQt.get_dependency_type')
+
         res = ''
 
         if a_sc_trip == 'Earth - Mars':
@@ -145,9 +176,44 @@ class SonetCanvasQt(QWidget, sonet_canvas_ui.Ui_sonet_canvas):
         :param a_sc: the s/c to which query all its dependent s/cs.
         :return: str
         """
-        pass
+        sonet_log(SonetLogType.INFO, 'SonetCanvasQt.get_dependents_sc')
+
+        res = {}
+
+        # Traverse all s/c but this one.
+        sc_list = database.get_spacecrafts_list(p_return_objects=True)
+        sc_list.remove(a_sc)
+
+        # Check which filters are pointing to a_sc.
+        for sc in sc_list:
+            # the_filters can be a list of one or two filters (e.g. Earth-Mars, or E-M + Mars-Earth).
+            the_filters = sc.get_filter(p_get_list=True)
+            for f in the_filters:
+                # Get the ComplexDate filter (only consider activated ones).
+                data = SonetTrajectoryFilter._get_activated_filters_of_a_given_type(f.get_data(), True, 'ComplexDate')
+                n = len(data)  # LESSON LEARNED: if you put len(data) inside range(), strange things happen. :S
+                if n:
+                    for row in range(n):
+                        complex_date_filter = data[row]
+                        # If a given s/c points to this one, then it's dependent.
+                        is_dependent = complex_date_filter[6] == a_sc.get_name()
+                        if is_dependent:
+                            # Add all the ComplexDate filters (aka rows) of this filter.
+                            dependent_name = sc.get_name()
+                            dependent_payload = self.get_sc_payload(sc)
+
+                            my_trip = complex_date_filter[7]
+                            dependent_trip = TripType.convert_to_str(f.get_trip_type())
+                            dependent_type = self.get_dependency_type(my_trip, dependent_trip)
+
+                            res[dependent_name] = dependent_payload + ' ' + dependent_type
+
+        return res
+
 
     def get_sc_payload(self, a_sc):
+        sonet_log(SonetLogType.INFO, 'SonetCanvasQt.get_sc_payload')
+
         sc_payload = SpacecraftType.get_str(a_sc.get_type())
         # Add a '*' if the s/c has also Earth-Mars trajectory.
         if a_sc.get_has_return_trajectory():
@@ -155,6 +221,8 @@ class SonetCanvasQt(QWidget, sonet_canvas_ui.Ui_sonet_canvas):
         return sc_payload
 
     def get_tree_widgets(self, p_tw='All'):
+        sonet_log(SonetLogType.INFO, 'SonetCanvasQt.get_tree_widgets')
+
         res = []
 
         if p_tw == 'All':
@@ -171,6 +239,8 @@ class SonetCanvasQt(QWidget, sonet_canvas_ui.Ui_sonet_canvas):
         return res
 
     def init(self):
+        sonet_log(SonetLogType.INFO, 'SonetCanvasQt.init')
+
         # Align the window position with the main window.
         new_pos = self.mw.pos()
         new_pos.setX(new_pos.x() + self.mw.width())
@@ -183,6 +253,8 @@ class SonetCanvasQt(QWidget, sonet_canvas_ui.Ui_sonet_canvas):
         self.mw.sonet_mission_tree_qlv.clicked.connect(self.clicked_sc)
 
     def iter_tree_widget(a_root):
+        # sonet_log(SonetLogType.INFO, 'SonetCanvasQt.iter_tree_widget')
+
         iterator = QTreeWidgetItemIterator(a_root)
         while True:
             item = iterator.value()
@@ -193,10 +265,14 @@ class SonetCanvasQt(QWidget, sonet_canvas_ui.Ui_sonet_canvas):
                 break
 
     def post_actions(self):
+        sonet_log(SonetLogType.INFO, 'SonetCanvasQt.post_actions')
+
         self.expand_tree_widget(p_tw='All')
         self.resize_columns_to_contents(p_tw='All')
 
     def resize_columns_to_contents(self, p_tw='All'):
+        sonet_log(SonetLogType.INFO, 'SonetCanvasQt.resize_columns_to_contents')
+
         # For the selected tree widgets.
         tree_widgets = self.get_tree_widgets(p_tw)
 
