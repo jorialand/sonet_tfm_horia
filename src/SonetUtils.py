@@ -139,100 +139,99 @@ class SonetLogType(Enum):
     WARNING = 1
     ERROR = 2
 
-# Utility methods.
-def popup_msg(text='text', icon=QMessageBox.Information, info_text='info_text', window_title='window_title'):
-    msg = QMessageBox()
-    msg.setIcon(icon)
-    msg.setText(text)
-    msg.setInformativeText(info_text)
-    # msg.setDetailedText("The details are as follows:")
-    msg.setWindowTitle(window_title)
-    msg.setStandardButtons(QMessageBox.Ok)
-    msg.exec_()
+def add_auto_trajectory_selection_filter(fw=None, a_operator='Min', a_param='dvt'):
+    fw.auto_traj_sel_cb_enabled.setChecked(True)
+    fw.auto_traj_sel_cmb_min_max.setCurrentText(a_operator)
+    fw.auto_traj_sel_cmb_item.setCurrentText(a_param)
+    fw.pb_add.clicked.emit()
 
-def sonet_log(a_log_type, a_log_msg):
+def add_complex_date_filter(fw=None, a_event='Departs', a_value='At least', a_value2=90, a_value3='After',
+                            a_sc='Another s/c name', a_sc_trip='Earth - Mars', a_sc_trip2='Landing'):
     """
-    Log to console the status of the sonet application.
-    Currently, there are three states logging modes: NO_DEBUG, ONLY_ERRORS, and FULL_VERBOSE.
-    If the global variable SONET_DEBUG_LEVEL is set to:
-     - NO_DEBUG, then no debug messages should be logged.
-     - ONLY_ERRORS, only errors or warnings should be logged.
-     - FULL_VERBOSE, any other message is logged. It also includes the ONLY_ERRORS level messages.
+    The combo widgets values, are (in general) the same as seen in the window combo.
 
-     Example: sonet_log(SonetLogType.INFO, 'ClassName.method_name."the_msg"')
+    :param fw: pointer to the filters window.
+    :param a_event: 'Departs'|'Arrives'.
+    :param a_value: 'At least'|'At maximum'|'At the same time'.
+    :param a_value2: The offset value: int.
+    :param a_value3: 'After'|'Before'.
+    :param a_sc: The s/c to which offset: str.
+    :param a_sc_trip: 'Earth - Mars'|'Mars - Earth'.
+    :param a_sc_trip2: 'Launching'|'Landing'.
+    """
+    fw.cb_dep_arriv_dates.setChecked(True)
+    fw.combo_dept_arriv.setCurrentText(a_event)
+    fw.cb_dates_1.setChecked(True)
+    fw.combo_at_least.setCurrentText(a_value)
+    fw.spin_number.setValue(a_value2)
+    fw.combo_when.setCurrentText(a_value3)
+    fw.radio_spacecraft.setChecked(True)
+    fw.combo_select_spacecraft.setCurrentText(a_sc)
+    fw.combo_select_trip.setCurrentText(a_sc_trip)
+    fw.combo_event.setCurrentText(a_sc_trip2)
+    fw.pb_add.clicked.emit()
+def add_energy_filter(fw=None, a_param='dvt', a_operator='<=', a_value=10):
+    """
+    The combo widgets values, are (in general) the same as seen in the window combo.
+
+    :param fw: pointer to the filters window.
+    :param a_param: 'dvt'|'dvd'|'dva'|'c3d'|'c3a'|'theta'.
+    :param a_operator: '<='|'>='.
+    :param a_value: float.
 
     """
+    fw.cb_energy.setChecked(True)
+    fw.combo_energy_parameter.setCurrentText(a_param)
+    fw.combo_energy_operator.setCurrentText(a_operator)
+    fw.spin_energy_number.setValue(a_value)
+    fw.pb_add.clicked.emit()
 
-    if SONET_DEBUG_LEVEL is SonetDebugLevel.NO_DEBUG:
-        # If debug logging is deactivated, then do nothing.
-        pass
-    else:
-        # Warnings/Errors should be logged whether the application log level is ONLY_ERRORS or FULL_VERBOSE.
-        if a_log_type is SonetLogType.WARNING:
-            print('Warning: ' + a_log_msg)
-        elif a_log_type is SonetLogType.ERROR:
-            print('Error: ' + a_log_msg)
-        elif a_log_type is SonetLogType.INFO:
-            # Info logs, are only printed in FULL_VERBOSE mode.
-            if SONET_DEBUG_LEVEL is SonetDebugLevel.FULL_VERBOSE:
-                print('Info: ' + a_log_msg)
-
-def reset_sc_filters_and_trajectories(p_filters_and_trajectories='Both', p_trips='Both'):
+def add_sc_cargo_oneway(mw=None, a_sc_name=''):
     """
-    Traverse all the s/c in the database and reset their filters and trajectories,
-    inform to the user throught the main window status bar.
+    Create a cargo (Earth - Mars) s/c.
+    :param mw: pointer to the main window.
+    :param a_sc_name: str.
     """
-    # For each s/c.
-    for sc in db.get_spacecrafts_list(p_return_objects=True):
-        if p_filters_and_trajectories == 'Both':
-        # Reset filters and trajectories.
-            if p_trips == 'Both':
-                sc.reset_filter_and_trajectory(p_all_trips=True)
-            if p_trips == 'Earth-Mars':
-                sc.reset_filter_and_trajectory(TripType.OUTGOING)
-            if p_trips == 'Mars-Earth':
-                sc.reset_filter_and_trajectory(TripType.INCOMING)
-        elif p_filters_and_trajectories == 'Trajectories':
-        # Reset trajectories.
-            if p_trips == 'Both':
-                sc.reset_trajectory()
-            if p_trips == 'Earth-Mars':
-                sc.reset_trajectory(p_all_trajectories=False, p_trajectory='Earth-Mars')
-            if p_trips == 'Mars-Earth':
-                sc.reset_trajectory(p_all_trajectories=False, p_trajectory='Mars-Earth')
-        elif p_filters_and_trajectories == 'Filters':
-        # Reset filters - NOT NEEDED YET.
-            if p_trips == 'Both':
-                pass
-            if p_trips == 'Earth-Mars':
-                pass
-            if p_trips == 'Mars-Earth':
-                pass
 
-def print_dataframe(a_dataframe):
-    for i in range(a_dataframe.shape[0]):
-        row = a_dataframe.iloc[i]
-        print(row.to_list())
+    mw.sonet_spacecraft_type_qcmb.setCurrentIndex(1)  # Cargo.
+    mw.sonet_spacecraft_type_has_return_trajectory_qcmb.setCurrentIndex(0)  # One way.
+    mw.sonet_sc_name_le.setText(a_sc_name)
+    mw.sonet_add_spacecraft_qpb.clicked.emit()
 
-def find_min_max_idx(a_df, p_find='Min', p_col='dvt'):
+def add_sc_crewed_twoway(mw=None, a_sc_name=''):
     """
-    Find the index of the min or max value of the p_col within the DataFrame a_df.
-
-    :param a_df: a Pandas DataFrame.
-    :param p_find: find a min or a max.
-    :param p_col: the dataframe column where to search.
-    :return: the index of the DataFrame row.
+    Create a crewed (Earth - Mars + Mars - Earth) s/c.
+    :param mw: pointer to the main window.
+    :param a_sc_name: str.
     """
-    # Convert the input, if needed.
-    if p_col == 'Departure date':
-        p_col = 'DepDates'
-    elif p_col == 'Arrival date':
-        p_col = 'ArrivDates'
+    mw.sonet_spacecraft_type_qcmb.setCurrentIndex(0)  # Crewed.
+    mw.sonet_spacecraft_type_has_return_trajectory_qcmb.setCurrentIndex(1)  # Two way.
+    mw.sonet_sc_name_le.setText(a_sc_name)
+    mw.sonet_add_spacecraft_qpb.clicked.emit()
 
-    if p_find == 'Min':
-        return a_df[[p_col]].idxmin()
-    elif p_find == 'Max':
-        return a_df[[p_col]].idxmax()
+# Note: fw stands for filters window :).
+def add_simple_date_filter(fw=None, a_event='Arrives', a_when='Before', a_date=None):
+    """
+    The combo widgets values, are (in general) the same as seen in the window combo.
+
+    :param fw: pointer to the filters window.
+    :param a_event: 'Departs'|'Arrives'.
+    :param a_when: 'On'|'After'|'Before'.
+    :param a_date: the date: [day(int), month(int), year(int)].
+    """
+    fw.cb_dep_arriv_dates.setChecked(True)
+    fw.combo_dept_arriv.setCurrentText(a_event)  # Departs|Arrives
+    fw.cb_dates_2.setChecked(True)
+    fw.combo_when_2.setCurrentText(a_when)  # On|Before|After
+    fw.dateEdit.setDate(QDate(a_date[2], a_date[1], a_date[0]))
+    fw.pb_add.clicked.emit()
+
+
+def add_tof_filter(fw=None, a_operator='<=',  a_value=200):
+    fw.cb_time_of_flight.setChecked(True)
+    fw.combo_time_of_flight_operator.setCurrentText(a_operator)
+    fw.spin_number_2.setValue(a_value)
+    fw.pb_add.clicked.emit()
 
 def build_example_mission(p_main_window=None, p_filters_window=None, a_mission_name='Test 1'):
     """
@@ -266,6 +265,7 @@ def build_example_mission(p_main_window=None, p_filters_window=None, a_mission_n
             add_energy_filter(fw=p_filters_window, a_param='dvd', a_operator='<=', a_value=13)
             add_energy_filter(fw=p_filters_window, a_param='dva', a_operator='<=', a_value=8)
             add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='Before', a_date=[1,7,2029])
+            add_auto_trajectory_selection_filter(fw=p_filters_window, a_operator='Min', a_param='dvt')
 
             # S/C CARGO
             select_sc_and_trip(fw=p_filters_window, a_sc='S/C CARGO 2', a_trip='Earth - Mars')
@@ -273,49 +273,94 @@ def build_example_mission(p_main_window=None, p_filters_window=None, a_mission_n
                                     a_value3='After', a_sc='S/C CARGO 1', a_sc_trip='Earth - Mars', a_sc_trip2='Launching')
             add_tof_filter(fw=p_filters_window,a_operator='<=',  a_value=200)
             add_energy_filter(fw=p_filters_window, a_param='dvt', a_operator='<=', a_value=9)
+            add_auto_trajectory_selection_filter(fw=p_filters_window, a_operator='Min', a_param='dvt')
 
             # S/C CREW
             select_sc_and_trip(fw=p_filters_window, a_sc='S/C CREW', a_trip='Earth - Mars')
             add_complex_date_filter(fw=p_filters_window, a_event='Departs', a_value='At least', a_value2=90,
-                                    a_value3='After', a_sc='S/C CARGO 1', a_sc_trip='Earth - Mars',
-                                    a_sc_trip2='Landing')
+                                    a_value3='After', a_sc='S/C CARGO 1', a_sc_trip='Earth - Mars', a_sc_trip2='Landing')
             add_complex_date_filter(fw=p_filters_window, a_event='Departs', a_value='At least', a_value2=90,
-                                    a_value3='After', a_sc='S/C CARGO 2', a_sc_trip='Earth - Mars',
-                                    a_sc_trip2='Landing')
+                                    a_value3='After', a_sc='S/C CARGO 2', a_sc_trip='Earth - Mars', a_sc_trip2='Landing')
             add_tof_filter(fw=p_filters_window,a_operator='<=',  a_value=180)
             add_energy_filter(fw=p_filters_window, a_param='dvt', a_operator='<=', a_value=9)
+            add_auto_trajectory_selection_filter(fw=p_filters_window, a_operator='Min', a_param='dvt')
 
             select_sc_and_trip(fw=p_filters_window, a_sc='S/C CREW', a_trip='Mars - Earth')
             add_energy_filter(fw=p_filters_window, a_param='dvt', a_operator='<=', a_value=9)
+            add_auto_trajectory_selection_filter(fw=p_filters_window, a_operator='Min', a_param='dvt')
 
             # Accept&Close the window does not work here :(.
             # p_filters_window.btn_accept.clicked.emit()
 
 # Note: mw stands for main window :).
-def add_sc_cargo_oneway(mw=None, a_sc_name=''):
+def find_min_max_idx(a_df, p_find='Min', p_col='dvt'):
     """
-    Create a cargo (Earth - Mars) s/c.
-    :param mw: pointer to the main window.
-    :param a_sc_name: str.
-    """
+    Find the index of the min or max value of the p_col within the DataFrame a_df.
 
-    mw.sonet_spacecraft_type_qcmb.setCurrentIndex(1)  # Cargo.
-    mw.sonet_spacecraft_type_has_return_trajectory_qcmb.setCurrentIndex(0)  # One way.
-    mw.sonet_sc_name_le.setText(a_sc_name)
-    mw.sonet_add_spacecraft_qpb.clicked.emit()
-
-def add_sc_crewed_twoway(mw=None, a_sc_name=''):
+    :param a_df: a Pandas DataFrame.
+    :param p_find: find a min or a max.
+    :param p_col: the dataframe column where to search.
+    :return: the index of the DataFrame row.
     """
-    Create a crewed (Earth - Mars + Mars - Earth) s/c.
-    :param mw: pointer to the main window.
-    :param a_sc_name: str.
-    """
-    mw.sonet_spacecraft_type_qcmb.setCurrentIndex(0)  # Crewed.
-    mw.sonet_spacecraft_type_has_return_trajectory_qcmb.setCurrentIndex(1)  # Two way.
-    mw.sonet_sc_name_le.setText(a_sc_name)
-    mw.sonet_add_spacecraft_qpb.clicked.emit()
+    # Convert the input, if needed.
+    if p_col == 'Departure date':
+        p_col = 'DepDates'
+    elif p_col == 'Arrival date':
+        p_col = 'ArrivDates'
 
-# Note: fw stands for filters window :).
+    if p_find == 'Min':
+        return a_df[[p_col]].idxmin()
+    elif p_find == 'Max':
+        return a_df[[p_col]].idxmax()
+
+# Utility methods.
+def popup_msg(text='text', icon=QMessageBox.Information, info_text='info_text', window_title='window_title'):
+    msg = QMessageBox()
+    msg.setIcon(icon)
+    msg.setText(text)
+    msg.setInformativeText(info_text)
+    # msg.setDetailedText("The details are as follows:")
+    msg.setWindowTitle(window_title)
+    msg.setStandardButtons(QMessageBox.Ok)
+    msg.exec_()
+
+def print_dataframe(a_dataframe):
+    for i in range(a_dataframe.shape[0]):
+        row = a_dataframe.iloc[i]
+        print(row.to_list())
+
+def reset_sc_filters_and_trajectories(p_filters_and_trajectories='Both', p_trips='Both'):
+    """
+    Traverse all the s/c in the database and reset their filters and trajectories,
+    inform to the user throught the main window status bar.
+    """
+    # For each s/c.
+    for sc in db.get_spacecrafts_list(p_return_objects=True):
+        if p_filters_and_trajectories == 'Both':
+        # Reset filters and trajectories.
+            if p_trips == 'Both':
+                sc.reset_filter_and_trajectory(p_all_trips=True)
+            if p_trips == 'Earth-Mars':
+                sc.reset_filter_and_trajectory(TripType.OUTGOING)
+            if p_trips == 'Mars-Earth':
+                sc.reset_filter_and_trajectory(TripType.INCOMING)
+        elif p_filters_and_trajectories == 'Trajectories':
+        # Reset trajectories.
+            if p_trips == 'Both':
+                sc.reset_trajectory()
+            if p_trips == 'Earth-Mars':
+                sc.reset_trajectory(p_all_trajectories=False, p_trajectory='Earth-Mars')
+            if p_trips == 'Mars-Earth':
+                sc.reset_trajectory(p_all_trajectories=False, p_trajectory='Mars-Earth')
+        elif p_filters_and_trajectories == 'Filters':
+        # Reset filters - NOT NEEDED YET.
+            if p_trips == 'Both':
+                pass
+            if p_trips == 'Earth-Mars':
+                pass
+            if p_trips == 'Mars-Earth':
+                pass
+
 def select_sc_and_trip(fw=None, a_sc='', a_trip=''):
     """
 
@@ -326,70 +371,33 @@ def select_sc_and_trip(fw=None, a_sc='', a_trip=''):
     fw.select_spacecraft.setCurrentText(a_sc)
     fw.select_trip.setCurrentText(a_trip)
 
-def add_energy_filter(fw=None, a_param='dvt', a_operator='<=', a_value=10):
+def sonet_log(a_log_type, a_log_msg):
     """
-    The combo widgets values, are (in general) the same as seen in the window combo.
+    Log to console the status of the sonet application.
+    Currently, there are three states logging modes: NO_DEBUG, ONLY_ERRORS, and FULL_VERBOSE.
+    If the global variable SONET_DEBUG_LEVEL is set to:
+     - NO_DEBUG, then no debug messages should be logged.
+     - ONLY_ERRORS, only errors or warnings should be logged.
+     - FULL_VERBOSE, any other message is logged. It also includes the ONLY_ERRORS level messages.
 
-    :param fw: pointer to the filters window.
-    :param a_param: 'dvt'|'dvd'|'dva'|'c3d'|'c3a'|'theta'.
-    :param a_operator: '<='|'>='.
-    :param a_value: float.
+     Example: sonet_log(SonetLogType.INFO, 'ClassName.method_name."the_msg"')
 
     """
-    fw.cb_energy.setChecked(True)
-    fw.combo_energy_parameter.setCurrentText(a_param)
-    fw.combo_energy_operator.setCurrentText(a_operator)
-    fw.spin_energy_number.setValue(a_value)
-    fw.pb_add.clicked.emit()
 
-def add_tof_filter(fw=None, a_operator='<=',  a_value=200):
-    fw.cb_time_of_flight.setChecked(True)
-    fw.combo_time_of_flight_operator.setCurrentText(a_operator)
-    fw.spin_number_2.setValue(a_value)
-    fw.pb_add.clicked.emit()
+    if SONET_DEBUG_LEVEL is SonetDebugLevel.NO_DEBUG:
+        # If debug logging is deactivated, then do nothing.
+        pass
+    else:
+        # Warnings/Errors should be logged whether the application log level is ONLY_ERRORS or FULL_VERBOSE.
+        if a_log_type is SonetLogType.WARNING:
+            print('Warning: ' + a_log_msg)
+        elif a_log_type is SonetLogType.ERROR:
+            print('Error: ' + a_log_msg)
+        elif a_log_type is SonetLogType.INFO:
+            # Info logs, are only printed in FULL_VERBOSE mode.
+            if SONET_DEBUG_LEVEL is SonetDebugLevel.FULL_VERBOSE:
+                print('Info: ' + a_log_msg)
 
-def add_simple_date_filter(fw=None, a_event='Arrives', a_when='Before', a_date=None):
-    """
-    The combo widgets values, are (in general) the same as seen in the window combo.
-
-    :param fw: pointer to the filters window.
-    :param a_event: 'Departs'|'Arrives'.
-    :param a_when: 'On'|'After'|'Before'.
-    :param a_date: the date: [day(int), month(int), year(int)].
-    """
-    fw.cb_dep_arriv_dates.setChecked(True)
-    fw.combo_dept_arriv.setCurrentText(a_event)  # Departs|Arrives
-    fw.cb_dates_2.setChecked(True)
-    fw.combo_when_2.setCurrentText(a_when)  # On|Before|After
-    fw.dateEdit.setDate(QDate(a_date[2], a_date[1], a_date[0]))
-    fw.pb_add.clicked.emit()
-
-
-def add_complex_date_filter(fw=None, a_event='Departs', a_value='At least', a_value2=90, a_value3='After',
-                            a_sc='Another s/c name', a_sc_trip='Earth - Mars', a_sc_trip2='Landing'):
-    """
-    The combo widgets values, are (in general) the same as seen in the window combo.
-
-    :param fw: pointer to the filters window.
-    :param a_event: 'Departs'|'Arrives'.
-    :param a_value: 'At least'|'At maximum'|'At the same time'.
-    :param a_value2: The offset value: int.
-    :param a_value3: 'After'|'Before'.
-    :param a_sc: The s/c to which offset: str.
-    :param a_sc_trip: 'Earth - Mars'|'Mars - Earth'.
-    :param a_sc_trip2: 'Launching'|'Landing'.
-    """
-    fw.cb_dep_arriv_dates.setChecked(True)
-    fw.combo_dept_arriv.setCurrentText(a_event)
-    fw.cb_dates_1.setChecked(True)
-    fw.combo_at_least.setCurrentText(a_value)
-    fw.spin_number.setValue(a_value2)
-    fw.combo_when.setCurrentText(a_value3)
-    fw.radio_spacecraft.setChecked(True)
-    fw.combo_select_spacecraft.setCurrentText(a_sc)
-    fw.combo_select_trip.setCurrentText(a_sc_trip)
-    fw.combo_event.setCurrentText(a_sc_trip2)
-    fw.pb_add.clicked.emit()
 
 # Global debug verbose level for the application.
 SONET_DEBUG_LEVEL = SonetDebugLevel.ONLY_ERRORS
