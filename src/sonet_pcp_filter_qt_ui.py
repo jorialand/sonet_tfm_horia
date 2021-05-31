@@ -578,6 +578,7 @@ class Ui_sonet_pcp_filter(object):
 
         self.toolBox.setCurrentIndex(2)
         self.combo_when.setCurrentIndex(1)
+        self.auto_traj_sel_cmb_item.setCurrentIndex(4)
 
 
         QMetaObject.connectSlotsByName(sonet_pcp_filter)
