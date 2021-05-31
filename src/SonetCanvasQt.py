@@ -139,6 +139,7 @@ class SonetCanvasQt(QWidget, sonet_canvas_ui.Ui_sonet_canvas):
             data = SonetTrajectoryFilter._get_activated_filters_of_a_given_type(f.get_data(), True, 'ComplexDate')
             n = len(data)  # LESSON LEARNED: if you put len(data) inside range(), strange things happen. :S
             if n:
+                data = data.to_list()
                 for row in range(n):
                     # Add all the ComplexDate filters (aka rows) of this filter.
                     complex_date_filter = data[row]
@@ -193,6 +194,7 @@ class SonetCanvasQt(QWidget, sonet_canvas_ui.Ui_sonet_canvas):
                 data = SonetTrajectoryFilter._get_activated_filters_of_a_given_type(f.get_data(), True, 'ComplexDate')
                 n = len(data)  # LESSON LEARNED: if you put len(data) inside range(), strange things happen. :S
                 if n:
+                    data = data.to_list()
                     for row in range(n):
                         complex_date_filter = data[row]
                         # If a given s/c points to this one, then it's dependent.

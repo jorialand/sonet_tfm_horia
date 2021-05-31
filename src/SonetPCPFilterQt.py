@@ -26,7 +26,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
     """
     The edit filter window (QDialog).
     """
-    def __init__(self, *args, a_list_spacecrafts=None, a_current_index=-1, a_build_test_mission=None):
+    def __init__(self, *args, a_list_spacecrafts=None, a_current_index=-1):
         super(SonetPCPFilterQt, self).__init__(*args)  # , **kwargs)
         self.setupUi(self)
         self.init(a_list_spacecrafts, a_current_index)

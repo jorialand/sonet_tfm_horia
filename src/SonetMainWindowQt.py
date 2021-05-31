@@ -105,8 +105,8 @@ def post_actions(mw=None):
         # Optionally, load a default mission.
         build_example_mission(p_main_window=mw, a_mission_name='Test 1')
 
-        # After the optional loaded mission is done, update the mission view window.
-        mw.canvas_window.init()
+    # After the optional loaded mission is done, update the mission view window.
+    mw.canvas_window.init()
 
 class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
     """
@@ -180,8 +180,8 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         arg2 = self.sonet_mission_tree_qlv.currentIndex().row()
 
         # SonetPCPFilterQt. Optionally, build a test mission, if a_build_test_mission is a str.
-        filter_dialog_qt = SonetPCPFilterQt(self, a_list_spacecrafts=arg1, a_current_index=arg2,
-                                            a_build_test_mission=a_build_test_mission)
+        filter_dialog_qt = SonetPCPFilterQt(self, a_list_spacecrafts=arg1, a_current_index=arg2)
+
         # If asked to build automatically a predefined mission.
         if a_build_test_mission:
             build_example_mission(p_filters_window=filter_dialog_qt, a_mission_name=a_build_test_mission)
@@ -790,15 +790,34 @@ class ListModel(QAbstractListModel):
             the_filtered_dataframe = the_filter[1].get_filtered_pcp()
             main_window._table_model_incoming.set_model_data(sc, the_filtered_dataframe)
 
+        tab_index = main_window.sonet_pcp_tabs_qtw.currentIndex()
         # Auto select a trajectory if activated within the s/c filter.
         if not sc.get_has_return_trajectory():
-            auto_traj_sel = SonetTrajectoryFilter.get_auto_traj_sel(p_filter=the_filter._data, p_activated=True)
+            if tab_index is not 0:
+                return
 
-            if auto_traj_sel:
-                idx = find_min_max_idx(main_window._table_model_outgoing._data, p_find=auto_traj_sel[0], p_col=auto_traj_sel[1])
-                main_window.clicked_select_trajectory(p_idx=idx)
+            df = main_window._table_model_outgoing._data
+            if not df.empty:
+                auto_traj_sel = SonetTrajectoryFilter.get_auto_traj_sel(p_filter=the_filter._data, p_activated=True)
+                if auto_traj_sel:
+                    idx = find_min_max_idx(df, p_find=auto_traj_sel[0], p_col=auto_traj_sel[1])
+                    main_window.clicked_select_trajectory(p_idx=idx)
         else:
-            pass
+            if tab_index is 0:
+                df = main_window._table_model_outgoing._data
+                if not df.empty:
+                    auto_traj_sel = SonetTrajectoryFilter.get_auto_traj_sel(p_filter=the_filter[0]._data, p_activated=True)
+                    if auto_traj_sel:
+                        idx = find_min_max_idx(df, p_find=auto_traj_sel[0], p_col=auto_traj_sel[1])
+                        main_window.clicked_select_trajectory(p_idx=idx)
+
+            elif tab_index is 1:
+                df = main_window._table_model_incoming._data
+                if not df.empty:
+                    auto_traj_sel = SonetTrajectoryFilter.get_auto_traj_sel(p_filter=the_filter[1]._data, p_activated=True)
+                    if auto_traj_sel:
+                        idx = find_min_max_idx(df, p_find=auto_traj_sel[0], p_col=auto_traj_sel[1])
+                        main_window.clicked_select_trajectory(p_idx=idx)
 
         # Update the trajectory label & progress bar.
         status = sc.get_trajectory_selection_status()
