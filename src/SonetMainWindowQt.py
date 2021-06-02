@@ -161,9 +161,6 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         self.sonet_pcp_table_qtv_outgoing.horizontalHeader().sectionClicked.connect(self.clicked_table_view_column)
         self.sonet_pcp_table_qtv_incoming.horizontalHeader().sectionClicked.connect(self.clicked_table_view_column)
 
-        # Open also the SonetCanvasQt window.
-        self.clicked_view_mission()
-
     def clicked_apply_filter(self, a_build_test_mission=None):
         """
         Slot executed when clicked over 'Apply filter' button. It executes the modal window
@@ -932,7 +929,7 @@ class TableModel(QAbstractTableModel):
 
             if isinstance(value, float):
                 # Render float to 2 dp
-                return "%.2f" % value
+                return "%.f" % value
 
             if isinstance(value, str):
                 # Render strings with quotes

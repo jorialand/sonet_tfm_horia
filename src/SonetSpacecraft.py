@@ -190,7 +190,7 @@ class SonetSpacecraft:
                           'SonetSpacecraft.get_trajectory_selection_status."Wrong trajectory type"')
                 return
 
-    def get_trajectory_selected(self):
+    def get_trajectory_selected(self, p_get_trajectories=False):
         """
         Returns a list with the current selected trajectories.
 
@@ -199,18 +199,30 @@ class SonetSpacecraft:
         """
         sonet_log(SonetLogType.INFO, 'SonetSpacecraft.get_trajectory_selected')
 
-        the_selected_trajectories = []
+        if p_get_trajectories:
+            the_selected_trajectories = {}
+        else:
+            the_selected_trajectories = []
 
         if self._has_return_trajectory:
             # Two-way s/c.
             if self._trajectory1 is not None:
-                the_selected_trajectories.append('Earth - Mars')
+                if p_get_trajectories:
+                    the_selected_trajectories['Earth - Mars'] = self._trajectory1
+                else:
+                    the_selected_trajectories.append('Earth - Mars')
             if self._trajectory2 is not None:
-                the_selected_trajectories.append('Mars - Earth')
+                if p_get_trajectories:
+                    the_selected_trajectories['Mars - Earth'] = self._trajectory2
+                else:
+                    the_selected_trajectories.append('Mars - Earth')
         else:
             # One-way s/c.
             if self._trajectory is not None:
-                the_selected_trajectories.append('Earth - Mars')
+                if p_get_trajectories:
+                    the_selected_trajectories['Earth - Mars'] = self._trajectory
+                else:
+                    the_selected_trajectories.append('Earth - Mars')
 
         return the_selected_trajectories
 

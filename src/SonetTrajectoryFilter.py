@@ -157,7 +157,18 @@ class SonetTrajectoryFilter:
 
     @staticmethod
     def _get_activated_filters_of_a_given_type(a_filter, a_activated, a_filter_type):
-        return a_filter.loc[(a_filter['Status'] == a_activated) & (a_filter['Type'] == a_filter_type), 'Filter'].copy()
+        if a_filter_type == 'All':
+            res = {}
+            filters_list = ['Energy', 'Time of flight', 'SimpleDate', 'ComplexDate', 'AutoTrajSel']
+            for f in filters_list:
+                filter = a_filter.loc[(a_filter['Status'] == a_activated) & (a_filter['Type'] == f), 'Filter'].copy().to_list()
+                # if f == 'AutoTrajSel':
+                #     res[f] = filter[0]
+                # else:
+                res[f] = filter
+            return res
+        else:
+            return a_filter.loc[(a_filter['Status'] == a_activated) & (a_filter['Type'] == a_filter_type), 'Filter'].copy()
 
     @staticmethod
     def get_auto_traj_sel(p_filter=None, p_activated=True):

@@ -1,4 +1,5 @@
 # Qt imports
+from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QWidget, QTreeWidgetItem, \
     QTreeWidgetItemIterator  # , QGraphicsScene, QGraphicsItem, QGraphicsRectItem
 
@@ -55,8 +56,8 @@ class SonetCanvasQt(QWidget, sonet_canvas_ui.Ui_sonet_canvas):
         # Update the tree widgets.
         self.clear_tree_view(p_tw='All')
         self.fill_tree_widget_sc_info(sc)
-        # self.fill_tree_widget_trajectories_filter() #TODO
-        # self.fill_tree_widget_trajectories_filter() #TODO
+        self.fill_tree_widget_trajectories_filter(sc)
+        self.fill_tree_widget_active_trips(sc)
 
         self.post_actions()
 
@@ -97,19 +98,39 @@ class SonetCanvasQt(QWidget, sonet_canvas_ui.Ui_sonet_canvas):
         for dependent in sc_dependents:
             new_item = QTreeWidgetItem(a_tw_dependents_root, [dependent, sc_dependents.get(dependent)])
 
-    def fill_tree_widget_active_trips(self):
+    def fill_tree_widget_active_trips(self, a_sc: SonetSpacecraft):
         sonet_log(SonetLogType.INFO, 'SonetCanvasQt.fill_tree_widget_active_trips')
-        pass
+
+        selected_trajectories = a_sc.get_trajectory_selected(p_get_trajectories=True)
+
+        self.treeW_active_trips.setHeaderLabels(['Trip', 'DepDates', 'ArrivDates','tof', 'dvt'])
+        if a_sc.get_has_return_trajectory():
+            tw_item_earth_mars = QTreeWidgetItem(self.treeW_active_trips, ['Earth - Mars', '', '', '', ''])
+            self.fill_active_trips(a_sc, 'Earth - Mars', tw_item_earth_mars)
+
+            tw_item_mars_earth = QTreeWidgetItem(self.treeW_active_trips, ['Mars - Earth', '', '', '', ''])
+            self.fill_active_trips(a_sc, 'Mars - Earth', tw_item_mars_earth)
+        else:
+            tw_item_earth_mars = QTreeWidgetItem(self.treeW_active_trips, ['Earth - Mars', '', '', '', ''])
+            self.fill_active_trips(a_sc, 'Earth - Mars', tw_item_earth_mars)
+
+    def fill_active_trips(self, a_sc, a_trip, a_tw_trip_root):
+        trajectories = a_sc.get_trajectory_selected(p_get_trajectories=True)
+        trajectory = trajectories.get(a_trip)
+        if trajectory is not None:
+            new_item = QTreeWidgetItem(a_tw_trip_root,
+                                       ['',
+                                        trajectory.DepDates.toString(Qt.SystemLocaleShortDate),
+                                        trajectory.ArrivDates.toString(Qt.SystemLocaleShortDate),
+                                        "{:.0f}".format(trajectory.tof),
+                                        "{:.2f}".format(trajectory.dvt)])
 
     def fill_tree_widget_sc_info(self, a_sc: SonetSpacecraft):
         sonet_log(SonetLogType.INFO, 'SonetCanvasQt.fill_tree_widget_sc_info')
 
-        # Get the s/c payload type.
-        sc_payload = self.get_sc_payload(a_sc)
-
         self.treeW_sc_info_filter.setHeaderLabels(['S/C', ''])
 
-        tw_item_sc = QTreeWidgetItem(self.treeW_sc_info_filter, [a_sc.get_name(), sc_payload])
+        tw_item_sc = QTreeWidgetItem(self.treeW_sc_info_filter, [a_sc.get_name(), self.get_sc_payload(a_sc)])
 
         tw_item_sc_dependencies = QTreeWidgetItem(tw_item_sc, ['Dependencies', ''])
         self.fill_dependencies(tw_item_sc_dependencies, a_sc)
@@ -117,9 +138,35 @@ class SonetCanvasQt(QWidget, sonet_canvas_ui.Ui_sonet_canvas):
         tw_item_sc_dependents = QTreeWidgetItem(tw_item_sc, ['Dependents', ''])
         self.fill_dependents(tw_item_sc_dependents, a_sc)
 
-    def fill_tree_widget_trajectories_filter(self):
+    def fill_tree_widget_trajectories_filter(self, a_sc: SonetSpacecraft):
         sonet_log(SonetLogType.INFO, 'SonetCanvasQt.fill_tree_widget_trajectories_filter')
-        pass
+
+        self.treeW_trajectories_filter.setHeaderLabels(['Trip', 'Filter Type', 'Filter'])
+
+        if a_sc.get_has_return_trajectory():
+            tw_item_earth_mars = QTreeWidgetItem(self.treeW_trajectories_filter, ['Earth - Mars', '', ''])
+            self.fill_filter(a_sc, 'Earth - Mars', tw_item_earth_mars)
+
+            tw_item_mars_earth = QTreeWidgetItem(self.treeW_trajectories_filter, ['Mars - Earth', '', ''])
+            self.fill_filter(a_sc, 'Mars - Earth', tw_item_mars_earth)
+        else:
+            tw_item_earth_mars = QTreeWidgetItem(self.treeW_trajectories_filter, ['Earth - Mars', '', ''])
+            self.fill_filter(a_sc, 'Earth - Mars', tw_item_earth_mars)
+
+    def fill_filter(self, a_sc, a_trip, a_tw_trip_root):
+        if a_trip == 'Earth - Mars':
+            a_trip = 0
+        elif a_trip == 'Mars - Earth':
+            a_trip = 1
+
+        the_filters_dict = \
+            SonetTrajectoryFilter._get_activated_filters_of_a_given_type(
+                a_sc.get_filter(p_get_list=True)[a_trip]._data, True, 'All')
+        filters_list = the_filters_dict.keys()
+        for f in filters_list:
+            filter = the_filters_dict.get(f)
+            for ff in filter:
+                new_item = QTreeWidgetItem(a_tw_trip_root, ['', f, ' '.join(ff)])
 
     def get_dependencies_sc(self, a_sc):
         """
@@ -212,7 +259,6 @@ class SonetCanvasQt(QWidget, sonet_canvas_ui.Ui_sonet_canvas):
 
         return res
 
-
     def get_sc_payload(self, a_sc):
         sonet_log(SonetLogType.INFO, 'SonetCanvasQt.get_sc_payload')
 
@@ -283,4 +329,3 @@ class SonetCanvasQt(QWidget, sonet_canvas_ui.Ui_sonet_canvas):
             n_cols = tw.columnCount()
             for col in range(n_cols):
                 tw.resizeColumnToContents(col)
-
