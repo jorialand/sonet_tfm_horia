@@ -53,6 +53,10 @@ class SonetCanvasQt(QWidget, sonet_canvas_ui.Ui_sonet_canvas):
 
         sc: SonetSpacecraft = self.mw.get_list_model().get_spacecraft(a_index=a_index)
 
+        if a_index.row() is -1:
+            sonet_log(SonetLogType.INFO, 'SonetCanvasQt.clicked_sc."No s/c selected"')
+            return
+
         # Update the tree widgets.
         self.clear_tree_view(p_tw='All')
         self.fill_tree_widget_sc_info(sc)
