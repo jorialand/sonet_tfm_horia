@@ -955,7 +955,7 @@ class SonetPCPFilterQt(QDialog, sonet_pcp_filter_qt_ui.Ui_sonet_pcp_filter):
             # Fill the combo with the available s/c with at least one trajectory selected in the main window.
             items = []
             all_sc_but_the_one_selected = [self.select_spacecraft.itemText(i) for i in range(self.select_spacecraft.count())]
-            all_sc_but_the_one_selected.remove(self.select_spacecraft.currentText())
+            # all_sc_but_the_one_selected.remove(self.select_spacecraft.currentText())
             items.extend(all_sc_but_the_one_selected)
             self.combo_select_spacecraft.addItems(items)
 
