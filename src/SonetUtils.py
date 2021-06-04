@@ -291,6 +291,66 @@ def build_example_mission(p_main_window=None, p_filters_window=None, a_mission_n
 
             # Accept&Close the window does not work here :(.
             # p_filters_window.btn_accept.clicked.emit()
+    if a_mission_name == 'NASA DRA5.0 Long-Stay':
+
+        # If called from __main__.
+        if p_main_window:
+            # Create the s/c.
+            add_sc_cargo_oneway(mw=p_main_window, a_sc_name='SHAB_1')
+            add_sc_cargo_oneway(mw=p_main_window, a_sc_name='DAV_1')
+            add_sc_crewed_twoway(mw=p_main_window, a_sc_name='MTV_1')
+            add_sc_cargo_oneway(mw=p_main_window, a_sc_name='SHAB_2')
+            add_sc_cargo_oneway(mw=p_main_window, a_sc_name='DAV_2')
+            add_sc_crewed_twoway(mw=p_main_window, a_sc_name='MTV_2')
+            # Create the edit filters window.
+            p_main_window.clicked_apply_filter(a_build_test_mission='NASA DRA5.0 Long-Stay')
+
+        # If called from main_window, after just created the edit filters window, add filters.
+        if p_filters_window:
+            # Launch opportunities.
+            # E-M 2028, 2030, 2032, 2034, 2035.5?
+            # M-E ...
+
+            # SHAB_1 land on Mars in the 1st launch op.
+            select_sc_and_trip(fw=p_filters_window, a_sc='SHAB_1', a_trip='Earth - Mars')
+            add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='Before', a_date=[1, 1, 2028])
+
+            # DAV_1 land on Mars in the 1st launch op.
+            select_sc_and_trip(fw=p_filters_window, a_sc='DAV_1', a_trip='Earth - Mars')
+            add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='Before', a_date=[1, 1, 2028])
+
+
+            # MTV_1 lands on Mars in the 2nd launch op.
+            select_sc_and_trip(fw=p_filters_window, a_sc='MTV_1', a_trip='Earth - Mars')
+            add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='Before', a_date=[1, 1, 2030])
+            add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='After', a_date=[1, 1, 2028])
+            add_auto_trajectory_selection_filter(fw=p_filters_window, a_operator='Min', a_param='dvt')
+            # MTV_1 departs Mars in the next launch op.
+            select_sc_and_trip(fw=p_filters_window, a_sc='MTV_1', a_trip='Mars - Earth')
+            add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='Before', a_date=[1, 1, 2032])
+            add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='After', a_date=[1, 1, 2030])
+
+            # SHAB_2 land on Mars in the 2nd launch op.
+            select_sc_and_trip(fw=p_filters_window, a_sc='SHAB_2', a_trip='Earth - Mars')
+            add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='Before', a_date=[1, 1, 2030])
+            add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='After', a_date=[1, 1, 2028])
+
+            # DAV_2 land on Mars in the 2nd launch op.
+            select_sc_and_trip(fw=p_filters_window, a_sc='DAV_2', a_trip='Earth - Mars')
+            add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='Before', a_date=[1, 1, 2030])
+            add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='After', a_date=[1, 1, 2028])
+
+            # MTV_2 land on Mars in the 3rd launch op.
+            select_sc_and_trip(fw=p_filters_window, a_sc='MTV_2', a_trip='Earth - Mars')
+            add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='Before', a_date=[1, 1, 2032])
+            add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='After', a_date=[1, 1, 2030])
+            add_auto_trajectory_selection_filter(fw=p_filters_window, a_operator='Min', a_param='dvt')
+            # MTV_2 departs Mars in the next launch op.
+            select_sc_and_trip(fw=p_filters_window, a_sc='MTV_2', a_trip='Mars - Earth')
+            add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='Before', a_date=[1, 1, 2034])
+            add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='After', a_date=[1, 1, 2032])
+            # add_complex_date_filter(fw=p_filters_window, a_event='Departs', a_value='At least', a_value2=365,
+            #                         a_value3='After', a_sc='MTV_2', a_sc_trip='Earth - Mars', a_sc_trip2='Landing')
 
 # Note: mw stands for main window :).
 def find_min_max_idx(a_df, p_find='Min', p_col='dvt'):

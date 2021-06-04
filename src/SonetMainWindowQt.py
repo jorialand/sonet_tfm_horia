@@ -17,6 +17,7 @@ import datetime
 import sys
 
 # Matlab environment.
+import matlab.engine
 # Some Python modules.
 import pandas as pd
 # Qt GUI.
@@ -33,10 +34,10 @@ from src.SonetPCPManagerQt import SonetPCPManagerQt
 from src.SonetSpacecraft import SonetSpacecraft
 from src.SonetTrajectoryFilter import SonetTrajectoryFilter
 from src.SonetUtils import TripType, SonetLogType, sonet_log, popup_msg, SONET_MSG_TIMEOUT, SONET_DATA_DIR, \
-    find_min_max_idx, build_example_mission
+    find_min_max_idx, build_example_mission, SONET_DIR
 
 # There is the possibility to disable matlab env, if you don't want to use it.
-if False:
+if True:
     print('Loading Matlab engine.')
     print('...')
     matlab_engine = matlab.engine.start_matlab()
@@ -103,7 +104,8 @@ def post_actions(mw=None):
 
     if True:
         # Optionally, load a default mission.
-        build_example_mission(p_main_window=mw, a_mission_name='Test 1')
+        # build_example_mission(p_main_window=mw, a_mission_name='Test 1')
+        build_example_mission(p_main_window=mw, a_mission_name='NASA DRA5.0 Long-Stay')
 
     # After the optional loaded mission is done, update the mission view window.
     mw.canvas_window.init()
@@ -929,7 +931,7 @@ class TableModel(QAbstractTableModel):
 
             if isinstance(value, float):
                 # Render float to 2 dp
-                return "%.f" % value
+                return "%.1f" % value
 
             if isinstance(value, str):
                 # Render strings with quotes
