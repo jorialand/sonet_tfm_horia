@@ -17,7 +17,7 @@ import datetime
 import sys
 
 # Matlab environment.
-import matlab.engine
+# import matlab.engine
 # Some Python modules.
 import pandas as pd
 # Qt GUI.
@@ -34,10 +34,10 @@ from src.SonetPCPManagerQt import SonetPCPManagerQt
 from src.SonetSpacecraft import SonetSpacecraft
 from src.SonetTrajectoryFilter import SonetTrajectoryFilter
 from src.SonetUtils import TripType, SonetLogType, sonet_log, popup_msg, SONET_MSG_TIMEOUT, SONET_DATA_DIR, \
-    find_min_max_idx, build_example_mission, SONET_DIR
+    find_min_max_idx, build_example_mission
 
 # There is the possibility to disable matlab env, if you don't want to use it.
-if True:
+if False:
     print('Loading Matlab engine.')
     print('...')
     matlab_engine = matlab.engine.start_matlab()
@@ -102,7 +102,7 @@ def post_actions(mw=None):
     # Open also the view mission window.
     mw.clicked_view_mission()
 
-    if True:
+    if False:
         # Optionally, load a default mission.
         # build_example_mission(p_main_window=mw, a_mission_name='Test 1')
         build_example_mission(p_main_window=mw, a_mission_name='NASA DRA5.0 Long-Stay')
@@ -499,7 +499,7 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
             else:
                 sonet_log(SonetLogType.WARNING, 'SonetMainWindow.get_selected_trajectory."Unexpected behaviour')
                 return None, None, None
-        elif p_idx is not None and p_idx.any():
+        elif p_idx is not None and not p_idx.empty:
         # Trajectory selected automatically from the edit filter window.
             if tab_index is 0:
                 the_df = self._table_model_outgoing._data

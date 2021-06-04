@@ -1,5 +1,6 @@
 from enum import Enum, unique
 
+import pandas as pd
 from PySide2.QtCore import QDate
 from PySide2.QtWidgets import QMessageBox
 
@@ -369,9 +370,23 @@ def find_min_max_idx(a_df, p_find='Min', p_col='dvt'):
         p_col = 'ArrivDates'
 
     if p_find == 'Min':
-        return a_df[[p_col]].idxmin()
+        if p_col =='DepDates':
+            ix = a_df[[p_col]].DepDates.apply(QDate.toJulianDay).idxmin()
+            return pd.Series(data={p_col: ix}, index=[p_col])
+        elif p_col == 'ArrivDates':
+            ix = a_df[[p_col]].ArrivDates.apply(QDate.toJulianDay).idxmin()
+            return pd.Series(data={p_col: ix}, index=[p_col])
+        else:
+            return a_df[[p_col]].idxmin()
     elif p_find == 'Max':
-        return a_df[[p_col]].idxmax()
+        if p_col =='DepDates':
+            ix = a_df[[p_col]].DepDates.apply(QDate.toJulianDay).idxmax()
+            return pd.Series(data={p_col: ix}, index=[p_col])
+        elif p_col == 'ArrivDates':
+            ix = a_df[[p_col]].ArrivDates.apply(QDate.toJulianDay).idxmax()
+            return pd.Series(data={p_col: ix}, index=[p_col])
+        else:
+            return a_df[[p_col]].idxmax()
 
 # Utility methods.
 def popup_msg(text='text', icon=QMessageBox.Information, info_text='info_text', window_title='window_title'):
