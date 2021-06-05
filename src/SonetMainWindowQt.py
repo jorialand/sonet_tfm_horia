@@ -264,6 +264,11 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
 
         # Update the trajectory label & progress bar.
         sc = self._list_model.get_spacecraft(self.sonet_mission_tree_qlv.currentIndex())
+        if sc is None:
+            sonet_log(SonetLogType.INFO, 'SonetMainWindow.clicked_pcp_manager."No s/c selected"')
+            # self.statusbar.showMessage('Not yet implemented :).', SONET_MSG_TIMEOUT)
+            return
+
         status = sc.get_trajectory_selection_status()
         self.update_trajectory_label_and_progress_bar(status)
         self.update_trajectory_selection_in_table_view(sc)
