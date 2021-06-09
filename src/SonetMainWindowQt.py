@@ -17,13 +17,13 @@ import datetime
 import sys
 
 # Matlab environment.
-# import matlab.engine
+import matlab.engine
 # Some Python modules.
 import pandas as pd
 # Qt GUI.
 from PySide2.QtCore import QAbstractListModel, QAbstractTableModel, QModelIndex, Qt, QDate
-from PySide2.QtGui import QColor
-from PySide2.QtWidgets import QMainWindow, QApplication, QMessageBox
+from PySide2.QtGui import QColor, QPixmap
+from PySide2.QtWidgets import QMainWindow, QApplication, QMessageBox, QSplashScreen
 from scipy.io import savemat
 
 from src import database
@@ -33,19 +33,9 @@ from src.SonetPCPFilterQt import SonetPCPFilterQt
 from src.SonetPCPManagerQt import SonetPCPManagerQt
 from src.SonetSpacecraft import SonetSpacecraft
 from src.SonetTrajectoryFilter import SonetTrajectoryFilter
-from src.SonetUtils import TripType, SonetLogType, sonet_log, popup_msg, SONET_MSG_TIMEOUT, SONET_DATA_DIR, \
-    find_min_max_idx, build_example_mission
+from src.SonetUtils import TripType, SonetLogType, sonet_log, popup_msg, SONET_MSG_TIMEOUT, find_min_max_idx, \
+    build_example_mission, SONET_DIR, SONET_DATA_DIR
 
-# There is the possibility to disable matlab env, if you don't want to use it.
-if False:
-    print('Loading Matlab engine.')
-    print('...')
-    matlab_engine = matlab.engine.start_matlab()
-    s = matlab_engine.genpath(SONET_DIR)
-    matlab_engine.addpath(s, nargout=0)
-    print('Matlab engine loaded.')
-else:
-    print("Matlab engine not loaded, some functionality won't be availabe.")
 
 # QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)  # To avoid AA_ShareOpenGLContexts warning in QtCreator.
 
@@ -98,17 +88,20 @@ def get_main_window():
 def get_pcp_filter_window():
     return get_main_window()._p_pcp_filter_window
 
+def load_matlab_engine_and_show_splash_screen():
+    pass
+
 def post_actions(mw=None):
     # Open also the view mission window.
     mw.clicked_view_mission()
-
-    if False:
-        # Optionally, load a default mission.
-        # build_example_mission(p_main_window=mw, a_mission_name='Test 1')
-        build_example_mission(p_main_window=mw, a_mission_name='NASA DRA5.0 Long-Stay')
+    # Optionally, load a default mission.
+    # build_example_mission(p_main_window=mw, a_mission_name='Demo 1')
+    # build_example_mission(p_main_window=mw, a_mission_name='NASA DRA5.0 Long-Stay - Pre-deployment')
+    build_example_mission(p_main_window=mw, a_mission_name='NASA DRA5.0 Long-Stay - All-up')
 
     # After the optional loaded mission is done, update the mission view window.
     mw.canvas_window.init()
+
 
 class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
     """
@@ -131,6 +124,7 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
         # If matlab engine isn't loaded, disable associated widgets.
         # Useful when want to load the app without the matlab env, because it takes a lot to load.
         try:
+            # global matlab_engine
             matlab_engine
         except:
             self.sonet_open_matlab_pcp_viewer.setEnabled(False)
@@ -208,6 +202,7 @@ class SonetMainWindow(QMainWindow, sonet_main_window_ui.Ui_main_window):
 
         # self.statusbar.showMessage('Drawing the mission...', 1000)
         self.canvas_window = SonetCanvasQt(mw=self)
+        self.canvas_window.init()
         # self.canvas_window.setParent(self) # No se muestra la ventana :S.
 
     def clicked_new_spacecraft(self):
@@ -994,6 +989,25 @@ if __name__ == "__main__":
     # style=Fusion|Windows|windowsvista|cyberpunk|darkblue|oceanic|lightorange|darkorange|qdarkstyle|qdarkstyle3.
     # stylesheet = qrainbowstyle.load_stylesheet_pyside2(style='qdarkstyle')
     # app.setStyleSheet(stylesheet)
+
+    # load_matlab_engine_and_show_splash_screen()
+    # There is the possibility to disable matlab env, if you don't want to use it.
+    if True:
+        print('Loading Matlab engine.')
+        print('...')
+        pixmap = QPixmap(SONET_DATA_DIR + "splash.png")
+        splash = QSplashScreen(pixmap)
+        splash.show()
+        splash.showMessage("Loading Matlab engine.", alignment=Qt.AlignCenter|Qt.AlignBottom, color=QColor('red'))
+        app.processEvents()
+        matlab_engine = matlab.engine.start_matlab()
+        s = matlab_engine.genpath(SONET_DIR)
+        matlab_engine.addpath(s, nargout=0)
+        splash.showMessage("Matlab engine loaded.", alignment=Qt.AlignCenter|Qt.AlignBottom, color=QColor('red'))
+        print('Matlab engine loaded.')
+        splash.close()
+    else:
+        print("Matlab engine not loaded, some functionality won't be availabe.")
 
     main_window = SonetMainWindow()
     main_window.show()

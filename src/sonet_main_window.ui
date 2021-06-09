@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>982</width>
-    <height>683</height>
+    <width>1100</width>
+    <height>800</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -29,7 +29,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>SONet Mars Mission Planner</string>
+   <string>SONet Mars Mission Launch &amp; Flight Sequence Planner</string>
   </property>
   <property name="windowOpacity">
    <double>1.000000000000000</double>
@@ -597,7 +597,7 @@
        </size>
       </property>
       <property name="title">
-       <string>S/C</string>
+       <string>S/C List</string>
       </property>
       <property name="flat">
        <bool>true</bool>
@@ -630,7 +630,7 @@
             <x>0</x>
             <y>0</y>
             <width>230</width>
-            <height>235</height>
+            <height>352</height>
            </rect>
           </property>
           <attribute name="label">
@@ -722,7 +722,7 @@
             <x>0</x>
             <y>0</y>
             <width>230</width>
-            <height>235</height>
+            <height>352</height>
            </rect>
           </property>
           <attribute name="label">
@@ -840,7 +840,7 @@
             <x>0</x>
             <y>0</y>
             <width>230</width>
-            <height>235</height>
+            <height>352</height>
            </rect>
           </property>
           <attribute name="label">
@@ -940,7 +940,7 @@
             <x>0</x>
             <y>0</y>
             <width>230</width>
-            <height>235</height>
+            <height>352</height>
            </rect>
           </property>
           <attribute name="label">
@@ -985,7 +985,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>982</width>
+     <width>1100</width>
      <height>22</height>
     </rect>
    </property>

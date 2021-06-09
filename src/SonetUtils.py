@@ -227,16 +227,15 @@ def add_simple_date_filter(fw=None, a_event='Arrives', a_when='Before', a_date=N
     fw.dateEdit.setDate(QDate(a_date[2], a_date[1], a_date[0]))
     fw.pb_add.clicked.emit()
 
-
 def add_tof_filter(fw=None, a_operator='<=',  a_value=200):
     fw.cb_time_of_flight.setChecked(True)
     fw.combo_time_of_flight_operator.setCurrentText(a_operator)
     fw.spin_number_2.setValue(a_value)
     fw.pb_add.clicked.emit()
 
-def build_example_mission(p_main_window=None, p_filters_window=None, a_mission_name='Test 1'):
+def build_example_mission(p_main_window=None, p_filters_window=None, a_mission_name='Demo 1'):
     """
-    Build your missions here! Just follow the same structure as seen in 'Test 1' case to automatically create a
+    Build your missions here! Just follow the same structure as seen in 'Demo 1' case to automatically create a
     predefined mission when starting the app.
 
     This approach has some drawbacks! But it's the only one that has worked for me :).
@@ -246,65 +245,74 @@ def build_example_mission(p_main_window=None, p_filters_window=None, a_mission_n
     :param a_mission_name:
     """
 
-    if a_mission_name == 'Test 1':
+    if a_mission_name == 'Demo 1':
 
         # If called from __main__.
         if p_main_window:
             # Create the s/c.
-            add_sc_cargo_oneway(mw=p_main_window, a_sc_name='S/C CARGO 1')
-            add_sc_cargo_oneway(mw=p_main_window, a_sc_name='S/C CARGO 2')
-            add_sc_crewed_twoway(mw=p_main_window, a_sc_name='S/C CREW')
+            add_sc_cargo_oneway(mw=p_main_window, a_sc_name='SHAB')
+            add_sc_cargo_oneway(mw=p_main_window, a_sc_name='DAV')
+            add_sc_crewed_twoway(mw=p_main_window, a_sc_name='MTV')
 
             # Create the edit filters window.
-            p_main_window.clicked_apply_filter(a_build_test_mission='Test 1')
+            p_main_window.clicked_apply_filter(a_build_test_mission=a_mission_name)
 
         # If called from main_window, after just created the edit filters window.
         if p_filters_window:
             # Add filters.
-            # S/C CARGO
-            select_sc_and_trip(fw=p_filters_window, a_sc='S/C CARGO 1', a_trip='Earth - Mars')
-            add_energy_filter(fw=p_filters_window, a_param='dvd', a_operator='<=', a_value=13)
-            add_energy_filter(fw=p_filters_window, a_param='dva', a_operator='<=', a_value=8)
-            add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='Before', a_date=[1,7,2029])
+
+            # SHAB > Earth-Mars
+            select_sc_and_trip(fw=p_filters_window, a_sc='SHAB', a_trip='Earth - Mars')
+            # First LOpp & Low-cost.
+            add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='Before', a_date=[1,1,2028])
             add_auto_trajectory_selection_filter(fw=p_filters_window, a_operator='Min', a_param='dvt')
 
-            # S/C CARGO
-            select_sc_and_trip(fw=p_filters_window, a_sc='S/C CARGO 2', a_trip='Earth - Mars')
-            add_complex_date_filter(fw=p_filters_window, a_event='Departs', a_value='At least', a_value2=30,
-                                    a_value3='After', a_sc='S/C CARGO 1', a_sc_trip='Earth - Mars', a_sc_trip2='Launching')
-            add_tof_filter(fw=p_filters_window,a_operator='<=',  a_value=200)
-            add_energy_filter(fw=p_filters_window, a_param='dvt', a_operator='<=', a_value=9)
+            # DAV > Earth-Mars
+            select_sc_and_trip(fw=p_filters_window, a_sc='DAV', a_trip='Earth - Mars')
+            # First LOpp & Low-cost.
+            add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='Before', a_date=[1,1,2028])
             add_auto_trajectory_selection_filter(fw=p_filters_window, a_operator='Min', a_param='dvt')
 
-            # S/C CREW
-            select_sc_and_trip(fw=p_filters_window, a_sc='S/C CREW', a_trip='Earth - Mars')
+            # MTV > Earth-Mars
+            select_sc_and_trip(fw=p_filters_window, a_sc='MTV', a_trip='Earth - Mars')
+            # Arrive Mars 2nd LOpp & After SHAB/DAV have landed in Mars.
+            add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='Before', a_date=[1,1,2030])
             add_complex_date_filter(fw=p_filters_window, a_event='Departs', a_value='At least', a_value2=90,
-                                    a_value3='After', a_sc='S/C CARGO 1', a_sc_trip='Earth - Mars', a_sc_trip2='Landing')
+                                    a_value3='After', a_sc='SHAB', a_sc_trip='Earth - Mars', a_sc_trip2='Landing')
             add_complex_date_filter(fw=p_filters_window, a_event='Departs', a_value='At least', a_value2=90,
-                                    a_value3='After', a_sc='S/C CARGO 2', a_sc_trip='Earth - Mars', a_sc_trip2='Landing')
-            add_tof_filter(fw=p_filters_window,a_operator='<=',  a_value=180)
-            add_energy_filter(fw=p_filters_window, a_param='dvt', a_operator='<=', a_value=9)
-            add_auto_trajectory_selection_filter(fw=p_filters_window, a_operator='Min', a_param='dvt')
+                                    a_value3='After', a_sc='DAV', a_sc_trip='Earth - Mars', a_sc_trip2='Landing')
+            # Fast-transit.
+            # add_auto_trajectory_selection_filter(fw=p_filters_window, a_operator='Min', a_param='tof')
+            add_tof_filter(fw=p_filters_window, a_operator='<=', a_value=250)
 
-            select_sc_and_trip(fw=p_filters_window, a_sc='S/C CREW', a_trip='Mars - Earth')
-            add_energy_filter(fw=p_filters_window, a_param='dvt', a_operator='<=', a_value=9)
-            add_auto_trajectory_selection_filter(fw=p_filters_window, a_operator='Min', a_param='dvt')
+            # MTV < Mars-Earth
+            select_sc_and_trip(fw=p_filters_window, a_sc='MTV', a_trip='Mars - Earth')
+            # The mission lasts at least 90d & returns Earth before 2nd LOpp ends.
+            add_complex_date_filter(fw=p_filters_window, a_event='Departs', a_value='At least', a_value2=90,
+                                    a_value3='After', a_sc='MTV', a_sc_trip='Earth - Mars', a_sc_trip2='Landing')
+            add_simple_date_filter(fw=p_filters_window, a_event='Departs', a_when='Before', a_date=[1,1,2032])
+            # Fast-transit & low-cost.
+            add_tof_filter(fw=p_filters_window, a_operator='<=', a_value=240)
+            # add_energy_filter(fw=p_filters_window, a_param='dvt', a_operator='<=', a_value=17)
+            # Select the first oportunity which matches above conditions.
+            # add_auto_trajectory_selection_filter(fw=p_filters_window, a_operator='Min', a_param='Departure date')
 
             # Accept&Close the window does not work here :(.
             # p_filters_window.btn_accept.clicked.emit()
-    if a_mission_name == 'NASA DRA5.0 Long-Stay':
+
+    if a_mission_name == 'NASA DRA5.0 Long-Stay - Pre-deployment':
 
         # If called from __main__.
         if p_main_window:
             # Create the s/c.
-            add_sc_cargo_oneway(mw=p_main_window, a_sc_name='SHAB_1')
-            add_sc_cargo_oneway(mw=p_main_window, a_sc_name='DAV_1')
-            add_sc_crewed_twoway(mw=p_main_window, a_sc_name='MTV_1')
-            add_sc_cargo_oneway(mw=p_main_window, a_sc_name='SHAB_2')
-            add_sc_cargo_oneway(mw=p_main_window, a_sc_name='DAV_2')
-            add_sc_crewed_twoway(mw=p_main_window, a_sc_name='MTV_2')
+            add_sc_cargo_oneway(mw=p_main_window, a_sc_name='SHAB 1')
+            add_sc_cargo_oneway(mw=p_main_window, a_sc_name='DAV 1')
+            add_sc_crewed_twoway(mw=p_main_window, a_sc_name='MTV 1')
+            add_sc_cargo_oneway(mw=p_main_window, a_sc_name='SHAB 2')
+            add_sc_cargo_oneway(mw=p_main_window, a_sc_name='DAV 2')
+            add_sc_crewed_twoway(mw=p_main_window, a_sc_name='MTV 2')
             # Create the edit filters window.
-            p_main_window.clicked_apply_filter(a_build_test_mission='NASA DRA5.0 Long-Stay')
+            p_main_window.clicked_apply_filter(a_build_test_mission=a_mission_name)
 
         # If called from main_window, after just created the edit filters window, add filters.
         if p_filters_window:
@@ -312,46 +320,90 @@ def build_example_mission(p_main_window=None, p_filters_window=None, a_mission_n
             # E-M 2028, 2030, 2032, 2034, 2035.5?
             # M-E ...
 
-            # SHAB_1 land on Mars in the 1st launch op.
-            select_sc_and_trip(fw=p_filters_window, a_sc='SHAB_1', a_trip='Earth - Mars')
+            # SHAB 1 land on Mars in the 1st launch op.
+            select_sc_and_trip(fw=p_filters_window, a_sc='SHAB 1', a_trip='Earth - Mars')
             add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='Before', a_date=[1, 1, 2028])
+            add_auto_trajectory_selection_filter(fw=p_filters_window, a_operator='Min', a_param='dvt')
 
-            # DAV_1 land on Mars in the 1st launch op.
-            select_sc_and_trip(fw=p_filters_window, a_sc='DAV_1', a_trip='Earth - Mars')
+            # DAV 1 land on Mars in the 1st launch op.
+            select_sc_and_trip(fw=p_filters_window, a_sc='DAV 1', a_trip='Earth - Mars')
             add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='Before', a_date=[1, 1, 2028])
+            add_auto_trajectory_selection_filter(fw=p_filters_window, a_operator='Min', a_param='dvt')
 
 
-            # MTV_1 lands on Mars in the 2nd launch op.
-            select_sc_and_trip(fw=p_filters_window, a_sc='MTV_1', a_trip='Earth - Mars')
+            # MTV 1 lands on Mars in the 2nd launch op.
+            select_sc_and_trip(fw=p_filters_window, a_sc='MTV 1', a_trip='Earth - Mars')
+            add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='Before', a_date=[1, 1, 2030])
+            add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='After', a_date=[1, 1, 2028])
+            add_tof_filter(fw=p_filters_window, a_operator='<=', a_value=240)
+            # MTV 1 departs Mars in the next launch op.
+            select_sc_and_trip(fw=p_filters_window, a_sc='MTV 1', a_trip='Mars - Earth')
+            add_simple_date_filter(fw=p_filters_window, a_event='Departs', a_when='Before', a_date=[1, 1, 2032])
+            add_simple_date_filter(fw=p_filters_window, a_event='Departs', a_when='After', a_date=[1, 1, 2030])
+            add_tof_filter(fw=p_filters_window, a_operator='<=', a_value=240)
+
+            # SHAB 2 land on Mars in the 2nd launch op.
+            select_sc_and_trip(fw=p_filters_window, a_sc='SHAB 2', a_trip='Earth - Mars')
             add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='Before', a_date=[1, 1, 2030])
             add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='After', a_date=[1, 1, 2028])
             add_auto_trajectory_selection_filter(fw=p_filters_window, a_operator='Min', a_param='dvt')
-            # MTV_1 departs Mars in the next launch op.
-            select_sc_and_trip(fw=p_filters_window, a_sc='MTV_1', a_trip='Mars - Earth')
-            add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='Before', a_date=[1, 1, 2032])
-            add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='After', a_date=[1, 1, 2030])
 
-            # SHAB_2 land on Mars in the 2nd launch op.
-            select_sc_and_trip(fw=p_filters_window, a_sc='SHAB_2', a_trip='Earth - Mars')
+            # DAV 2 land on Mars in the 2nd launch op.
+            select_sc_and_trip(fw=p_filters_window, a_sc='DAV 2', a_trip='Earth - Mars')
             add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='Before', a_date=[1, 1, 2030])
             add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='After', a_date=[1, 1, 2028])
-
-            # DAV_2 land on Mars in the 2nd launch op.
-            select_sc_and_trip(fw=p_filters_window, a_sc='DAV_2', a_trip='Earth - Mars')
-            add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='Before', a_date=[1, 1, 2030])
-            add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='After', a_date=[1, 1, 2028])
-
-            # MTV_2 land on Mars in the 3rd launch op.
-            select_sc_and_trip(fw=p_filters_window, a_sc='MTV_2', a_trip='Earth - Mars')
-            add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='Before', a_date=[1, 1, 2032])
-            add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='After', a_date=[1, 1, 2030])
             add_auto_trajectory_selection_filter(fw=p_filters_window, a_operator='Min', a_param='dvt')
-            # MTV_2 departs Mars in the next launch op.
-            select_sc_and_trip(fw=p_filters_window, a_sc='MTV_2', a_trip='Mars - Earth')
+
+            # MTV 2 land on Mars in the 3rd launch op.
+            select_sc_and_trip(fw=p_filters_window, a_sc='MTV 2', a_trip='Earth - Mars')
+            add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='Before', a_date=[1, 1, 2032])
+            add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='After', a_date=[1, 1, 2030])
+            add_tof_filter(fw=p_filters_window, a_operator='<=', a_value=240)
+            # MTV 2 departs Mars in the next launch op.
+            select_sc_and_trip(fw=p_filters_window, a_sc='MTV 2', a_trip='Mars - Earth')
             add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='Before', a_date=[1, 1, 2034])
             add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='After', a_date=[1, 1, 2032])
-            # add_complex_date_filter(fw=p_filters_window, a_event='Departs', a_value='At least', a_value2=365,
-            #                         a_value3='After', a_sc='MTV_2', a_sc_trip='Earth - Mars', a_sc_trip2='Landing')
+            add_tof_filter(fw=p_filters_window, a_operator='<=', a_value=240)
+
+    if a_mission_name == 'NASA DRA5.0 Long-Stay - All-up':
+        # Create the s/c.
+        if p_main_window:
+            add_sc_cargo_oneway(mw=p_main_window, a_sc_name='SHAB')
+            add_sc_cargo_oneway(mw=p_main_window, a_sc_name='DAV')
+            add_sc_crewed_twoway(mw=p_main_window, a_sc_name='MTV')
+
+            # Create the edit filters window.
+            p_main_window.clicked_apply_filter(a_build_test_mission=a_mission_name)
+        # Add filters.
+        if p_filters_window:
+            select_sc_and_trip(fw=p_filters_window, a_sc='SHAB', a_trip='Earth - Mars')
+            add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='After', a_date=[1, 1, 2028])
+            add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='Before', a_date=[1, 1, 2030])
+            select_sc_and_trip(fw=p_filters_window, a_sc='DAV', a_trip='Earth - Mars')
+            add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='After', a_date=[1, 1, 2028])
+            add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='Before', a_date=[1, 1, 2030])
+            select_sc_and_trip(fw=p_filters_window, a_sc='MTV', a_trip='Earth - Mars')
+            add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='After', a_date=[1, 1, 2028])
+            add_simple_date_filter(fw=p_filters_window, a_event='Arrives', a_when='Before', a_date=[1, 1, 2030])
+            select_sc_and_trip(fw=p_filters_window, a_sc='MTV', a_trip='Mars - Earth')
+            add_complex_date_filter(fw=p_filters_window, a_event='Departs', a_value='At least', a_value2=180,
+                                    a_value3='After', a_sc='MTV', a_sc_trip='Earth - Mars', a_sc_trip2='Landing')
+
+
+    if a_mission_name == 'NASA DRA5.0 Short-Stay - Pre-deployment':
+        # Create the s/c.
+        if p_main_window:
+            pass
+        # Add filters.
+        if p_filters_window:
+            pass
+    if a_mission_name == 'NASA DRA5.0 Short-Stay - All-up':
+        # Create the s/c.
+        if p_main_window:
+            pass
+        # Add filters.
+        if p_filters_window:
+            pass
 
 # Note: mw stands for main window :).
 def find_min_max_idx(a_df, p_find='Min', p_col='dvt'):
@@ -472,7 +524,6 @@ def sonet_log(a_log_type, a_log_msg):
             # Info logs, are only printed in FULL_VERBOSE mode.
             if SONET_DEBUG_LEVEL is SonetDebugLevel.FULL_VERBOSE:
                 print('Info: ' + a_log_msg)
-
 
 # Global debug verbose level for the application.
 SONET_DEBUG_LEVEL = SonetDebugLevel.ONLY_ERRORS

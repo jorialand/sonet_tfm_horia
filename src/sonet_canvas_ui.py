@@ -17,7 +17,7 @@ class Ui_sonet_canvas(object):
     def setupUi(self, sonet_canvas):
         if not sonet_canvas.objectName():
             sonet_canvas.setObjectName(u"sonet_canvas")
-        sonet_canvas.resize(530, 683)
+        sonet_canvas.resize(700, 800)
         sonet_canvas.setBaseSize(QSize(0, 0))
         self.verticalLayout_2 = QVBoxLayout(sonet_canvas)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
