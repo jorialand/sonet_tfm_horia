@@ -96,8 +96,8 @@ def post_actions(mw=None):
     mw.clicked_view_mission()
     # Optionally, load a default mission.
     # build_example_mission(p_main_window=mw, a_mission_name='Demo 1')
-    # build_example_mission(p_main_window=mw, a_mission_name='NASA DRA5.0 Long-Stay - Pre-deployment')
-    build_example_mission(p_main_window=mw, a_mission_name='NASA DRA5.0 Long-Stay - All-up')
+    build_example_mission(p_main_window=mw, a_mission_name='NASA DRA5.0 Long-Stay - Pre-deployment')
+    # build_example_mission(p_main_window=mw, a_mission_name='NASA DRA5.0 Long-Stay - All-up')
 
     # After the optional loaded mission is done, update the mission view window.
     mw.canvas_window.init()
@@ -1012,7 +1012,7 @@ if __name__ == "__main__":
     main_window = SonetMainWindow()
     main_window.show()
 
-    post_actions(mw=main_window)
+    # post_actions(mw=main_window)
 
     sys.exit(app.exec_())
 
