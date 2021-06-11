@@ -585,7 +585,7 @@ class Ui_sonet_pcp_filter(object):
     # setupUi
 
     def retranslateUi(self, sonet_pcp_filter):
-        sonet_pcp_filter.setWindowTitle(QCoreApplication.translate("sonet_pcp_filter", u"SONet s/c filter editor", None))
+        sonet_pcp_filter.setWindowTitle(QCoreApplication.translate("sonet_pcp_filter", u"SONet Mars Mission Flight Sequence Filter Editor", None))
 #if QT_CONFIG(accessibility)
         sonet_pcp_filter.setAccessibleName("")
 #endif // QT_CONFIG(accessibility)

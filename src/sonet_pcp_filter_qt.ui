@@ -26,7 +26,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>SONet s/c filter editor</string>
+   <string>SONet Mars Mission Flight Sequence Filter Editor</string>
   </property>
   <property name="accessibleName">
    <string/>

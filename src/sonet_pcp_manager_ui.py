@@ -258,7 +258,7 @@ class Ui_sonet_pcp_manager(object):
     # setupUi
 
     def retranslateUi(self, sonet_pcp_manager):
-        sonet_pcp_manager.setWindowTitle(QCoreApplication.translate("sonet_pcp_manager", u"SONet PCP Manager", None))
+        sonet_pcp_manager.setWindowTitle(QCoreApplication.translate("sonet_pcp_manager", u"SONet Mars Mission Flight Sequence PCP Manager", None))
         self.matlab_pcp_generator_pb.setText(QCoreApplication.translate("sonet_pcp_manager", u"Matlab PCP generator", None))
         self.the_tool_box.setItemText(self.the_tool_box.indexOf(self.pcp_generator_page), QCoreApplication.translate("sonet_pcp_manager", u"Generate PCP", None))
         self.sonet_read_pcp_qgb.setTitle("")

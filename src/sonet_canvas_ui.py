@@ -91,7 +91,7 @@ class Ui_sonet_canvas(object):
     # setupUi
 
     def retranslateUi(self, sonet_canvas):
-        sonet_canvas.setWindowTitle(QCoreApplication.translate("sonet_canvas", u"SONet Mars Mission Viewer", None))
+        sonet_canvas.setWindowTitle(QCoreApplication.translate("sonet_canvas", u"SONet Mars Mission Flight Sequence Viewer", None))
         self.dockw_sc_info.setWindowTitle(QCoreApplication.translate("sonet_canvas", u"S/C Info", None))
         self.dockw_trajectories_filter.setWindowTitle(QCoreApplication.translate("sonet_canvas", u"Trajectories Filter", None))
         self.dockw_active_trips.setWindowTitle(QCoreApplication.translate("sonet_canvas", u"Active Trips", None))
